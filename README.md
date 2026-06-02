@@ -1,4 +1,4 @@
 # osdweb
 
-new official website for OSDC
+new official website for OSDC,
 revamping osdc.dev
