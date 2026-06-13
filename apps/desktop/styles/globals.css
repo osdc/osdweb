@@ -1,0 +1,190 @@
+@font-face {
+  font-family: 'Century Schoolbook';
+  font-style: sans-serif;
+  font-weight: normal;
+  src: local('Century Schoolbook'), url('/fonts/century_schoolbook.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Noto Serif Toto';
+  font-style: sans-serif;
+  font-weight: normal;
+  src: local('Noto Serif Toto'), url('/fonts/noto_serif_toto.ttf') format('truetype');
+}
+
+html, body {
+  padding: 0;
+  margin: 0;
+  overscroll-behavior: none;
+  font-family: Tahoma, "MS Sans Serif", "Segoe UI", sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.xl-system-button,
+.system-button,
+.header-button {
+  border-radius: 0;
+  line-height: 15px;
+  padding: 5px;
+  border: none;
+  color: #15263b;
+  background: linear-gradient(180deg, #efe8d8 0%, #d2c6b3 100%);
+  font-size: 0.85em;
+  box-shadow:
+    inset -1px -1px rgba(40, 38, 34, 0.78),
+    inset 1px 1px rgba(255, 252, 246, 0.96),
+    inset -2px -2px rgba(133, 122, 106, 0.78),
+    inset 2px 2px rgba(240, 231, 217, 0.96);
+  user-select: none;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: Tahoma, "MS Sans Serif", "Segoe UI", sans-serif;
+}
+
+.xl-system-button {
+  line-height: 18px;
+  padding: 7px;
+  font-size: 0.9em;
+}
+
+.xl-system-button img,
+.system-button img {
+  height: 16px;
+}
+
+.system-text-input {
+  -webkit-appearance: none;
+  border: none;
+  outline: none;
+  border-radius: 0;
+  padding: 5px 6px;
+  box-shadow:
+    inset -1px -1px rgba(255, 255, 255, 0.96),
+    inset 1px 1px rgba(112, 106, 97, 0.92),
+    inset -2px -2px rgba(223, 223, 223, 0.92),
+    inset 2px 2px rgba(10, 10, 10, 0.95);
+  background-color: #fffdf8;
+  font-size: 0.8rem;
+  font-family: Tahoma, "MS Sans Serif", "Segoe UI", sans-serif;
+}
+
+.system-text-input:disabled {
+  background-color: #dcdcdc;
+  text-shadow: 1px 1px 0 #fff;
+  cursor: auto;
+  color: grey;
+}
+
+.header-button {
+  line-height: 13px;
+  padding: 3px 4px 3px;
+}
+
+.xl-system-button img,
+.system-button img,
+.header-button img {
+  user-select: none;
+}
+
+.xl-system-button:hover,
+.system-button:hover,
+.header-button:hover {
+  background: linear-gradient(180deg, #f8f1e2 0%, #dbcdb7 100%);
+}
+
+.xl-system-button:active,
+.system-button:active,
+.header-button:active {
+  background: linear-gradient(180deg, #cbbfae 0%, #eee7d8 100%);
+  box-shadow:
+    inset -1px -1px rgba(255, 255, 255, 0.9),
+    inset 1px 1px rgba(70, 64, 57, 0.82),
+    inset -2px -2px rgba(236, 231, 223, 0.92),
+    inset 2px 2px rgba(135, 125, 111, 0.82);
+}
+
+.xl-system-button:disabled,
+.system-button:disabled,
+.header-button:disabled {
+  background-color: #dcdcdc;
+  box-shadow: inset -1px -1px #535353,inset 1px 1px #fff,inset -2px -2px grey,inset 2px 2px #dfdfdf;
+  text-shadow: 1px 1px 0 #fff;
+  cursor: auto;
+  color: grey;
+}
+
+.xl-system-button:disabled img,
+.system-button:disabled img {
+  opacity: 0.6;
+}
+
+.content-border,
+.content {
+  background: #fbf6eb;
+  margin: 3px;
+  padding: 2px;
+  box-shadow:
+    inset -1px -1px rgba(255, 255, 255, 0.95),
+    inset 1px 1px rgba(112, 106, 97, 0.9),
+    inset -2px -2px rgba(228, 220, 208, 0.92),
+    inset 2px 2px rgba(10, 10, 10, 0.95);
+  flex: 1;
+  overflow: auto;
+}
+
+.content-inner {
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+}
+
+.content-outer {
+  display: flex;
+  flex: 1 1;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+
+.spritesheet-btn {
+  width: 26px;
+  height: 26px;
+  
+  display: inline-flex;
+
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0;
+  margin: 0;
+}
+
+.spritesheet-btn:disabled .spritesheet-btn-icon {
+  opacity: 0.4;
+}
+
+.spritesheet-btn-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  
+  image-rendering: pixelated;
+  background-size: 80px 16px;
+  background-repeat: no-repeat;
+  background-image: url('/icons/icon-spritesheet.png');
+}

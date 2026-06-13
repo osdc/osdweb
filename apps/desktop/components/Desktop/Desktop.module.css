@@ -1,0 +1,141 @@
+.desktop {
+  position: relative;
+  background-color: #11b2b2;
+  display: block;
+
+  flex: 1 1 auto;
+  width: 100%;
+
+  overflow: visible;
+}
+
+.monitorMode {
+  background-color: #0c5f5f;
+  overflow: hidden;
+}
+
+.monitorMode::before,
+.monitorMode::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.monitorMode::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.18)),
+    radial-gradient(circle at 50% 0%, rgba(255, 235, 193, 0.12), transparent 32%),
+    repeating-linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0,
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.55;
+}
+
+.monitorMode::after {
+  box-shadow:
+    inset 0 0 90px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.applicationContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  
+  pointer-events: none;
+  width: 100%;
+  /* TODO: Change this to the eventual height of the dock */
+  height: calc(100% - 90px);
+  z-index: 1;
+}
+
+.applicationContainer > * {
+  pointer-events: initial;
+}
+
+.monitorApplicationContainer {
+  height: calc(100% - 40px);
+}
+
+.desktopContextMenu {
+  position: absolute;
+  width: 180px;
+  padding: 5px;
+  z-index: 10002;
+  background: linear-gradient(180deg, rgba(232, 227, 215, 0.98) 0%, rgba(201, 191, 176, 0.98) 100%);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.85),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.22),
+    0 16px 26px rgba(0, 0, 0, 0.26);
+}
+
+.desktopContextItem {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 6px 9px;
+  border: 0;
+  background: transparent;
+  color: #17293d;
+  font: 11px "MS Sans Serif", sans-serif;
+  text-align: left;
+}
+
+.desktopContextItem:hover,
+.desktopContextItem:focus-visible {
+  background: rgba(28, 52, 90, 0.14);
+  outline: none;
+}
+
+.desktopContextDivider {
+  height: 1px;
+  margin: 4px 3px;
+  background: rgba(27, 40, 61, 0.22);
+}
+
+.monitorEmptyState {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  z-index: 1;
+  max-width: 360px;
+  padding: 12px 14px;
+  color: #f7f4ed;
+  background: linear-gradient(180deg, rgba(4, 17, 24, 0.86) 0%, rgba(6, 18, 27, 0.94) 100%);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.32);
+}
+
+.monitorEmptyStateEyebrow,
+.monitorEmptyStateTitle,
+.monitorEmptyStateCopy {
+  margin: 0;
+}
+
+.monitorEmptyStateEyebrow {
+  font: 700 10px "MS Sans Serif", Tahoma, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.monitorEmptyStateTitle {
+  margin-top: 6px;
+  font: 700 18px "MS Sans Serif", Tahoma, sans-serif;
+  line-height: 1.2;
+}
+
+.monitorEmptyStateCopy {
+  margin-top: 8px;
+  font: 12px "MS Sans Serif", Tahoma, sans-serif;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.84);
+}

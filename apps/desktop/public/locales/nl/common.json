@@ -1,0 +1,134 @@
+{
+  "filesystem": {
+    "new_directory": "naamloze folder",
+    "new_file": "naamloos bestand"
+  },
+  "language": {
+    "tags": {
+      "en": "en",
+      "nl": "nl"
+    },
+    "english": "Engels",
+    "dutch": "Nederlands"
+  },
+  "image": {
+    "no_image_to_load": "Er is geen afbeelding om te laden. Klik op een afbeelding om de applicatie te openen",
+    "loading": "Laden..."
+  },
+  "algorithms": {
+    "start": "Start",
+    "stop": "Stop",
+    "regenerate": "Opnieuw genereren",
+    "return_to_overview": "Terug naar overzicht",
+    "sorting_options": "Sorteer opties",
+    "data_generation_strategy": "Data generatie strategie",
+    "path_finding_width": "Breedte van de omgeving",
+    "path_finding_height": "Hoogte van de omgeving",
+    "path_finding_generation_options": {
+      "maze": "Doolhof",
+      "open_field": "Open veld",
+      "pipes": "Pijpen"
+    },
+    "data_generation_options": {
+      "randomly_distributed": "Willekeurig verdeeld",
+      "sorted_left_to_right": "Gesorteerd van links naar rechts",
+      "sorted_right_to_left": "Gesorteerd van rechts naar links"
+    },
+    "data_generation_points": "Gegevens punten"
+  },
+  "contact": {
+    "name": "Naam",
+    "email": "E-mail",
+    "company": "Bedrijf",
+    "company_optional": "Bedrijf (optioneel)",
+    "message": "Bericht",
+    "send": "Verzenden",
+    "processed": "Je bericht is doorgestuurd naar de geconfigureerde inbox.",
+    "message_forwarding_instructions": "Alle berichten worden naar de geconfigureerde inbox van deze build gestuurd",
+    "required": "Verplicht",
+    "error": {
+      "invalid-email": "Vul een geldig e-mailadres in."
+    }
+  },
+  "skills": {
+    "programming_languages": "Programmeertalen",
+    "frameworks": "Frameworks",
+    "databases": "Databases",
+    "devops": "DevOps",
+    "tools": "Tools"
+  },
+  "dos_emulator": {
+    "loading": "Laden"
+  },
+  "finder": {
+    "favorites": "Favorieten",
+    "create_directory_instructions": "Vul de naam in voor de nieuwe folder",
+    "create_directory_duplicated_name": "De gegeven naam bestaat al. Kies een andere naam"
+  },
+  "notes": {
+    "create_file_instructions": "Vul de naam in voor het nieuwe bestand",
+    "create_file_duplicated_name": "De gegeven naam bestaat al. Kies een andere naam"
+  },
+  "about": {
+    "navigation": {
+      "home": "Home",
+      "about": "Briefing",
+      "experience": "Buildstatus",
+      "projects": "Modules",
+      "contact": "Inbox"
+    },
+    "download_cv": {
+      "title": "Op zoek naar een hub-overzicht?",
+      "instruction": "Open het huidige OSDC shell-overzicht",
+      "download_link": "/"
+    }
+  },
+  "date": {
+    "weekdays": {
+      "0": "zondag",
+      "1": "maandag",
+      "2": "dinsdag",
+      "3": "woensdag",
+      "4": "donderdag",
+      "5": "vrijdag",
+      "6": "zaterdag"
+    },
+    "weekdays_short": {
+      "0": "zo",
+      "1": "ma",
+      "2": "di",
+      "3": "wo",
+      "4": "do",
+      "5": "vr",
+      "6": "za"
+    },
+    "months": {
+      "0": "januari",
+      "1": "februari",
+      "2": "maart",
+      "3": "april",
+      "4": "mei",
+      "5": "juni",
+      "6": "juli",
+      "7": "augustus",
+      "8": "september",
+      "9": "oktober",
+      "10": "november",
+      "11": "december"
+    },
+    "months_short": {
+      "0": "jan",
+      "1": "feb",
+      "2": "mrt",
+      "3": "apr",
+      "4": "mei",
+      "5": "jun",
+      "6": "jul",
+      "7": "aug",
+      "8": "sep",
+      "9": "okt",
+      "10": "nov",
+      "11": "dec"
+    }
+  }
+}

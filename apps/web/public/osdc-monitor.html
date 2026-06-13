@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSDC CRT Monitor</title>
+<link rel="stylesheet" href="https://unpkg.com/os-gui@0.7.3/build/layout.css">
+<link rel="stylesheet" href="https://unpkg.com/os-gui@0.7.3/build/windows-98.css">
+<link rel="stylesheet" href="https://unpkg.com/os-gui@0.7.3/build/windows-default.css">
+<link rel="stylesheet" href="/monitor-ui.css">
+</head>
+<body>
+<svg class="filters" aria-hidden="true" focusable="false">
+  <filter id="crt-bulge" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+    <feTurbulence
+      type="fractalNoise"
+      baseFrequency="0.004 0.006"
+      numOctaves="1"
+      seed="7"
+      result="noise"
+    />
+    <feDisplacementMap
+      in="SourceGraphic"
+      in2="noise"
+      scale="10"
+      xChannelSelector="R"
+      yChannelSelector="G"
+    />
+  </filter>
+</svg>
+
+<div class="crt-root mode-hero" id="monitor-root">
+  <div class="crt-glass">
+    <div class="crt-curved">
+      <div class="screen-safe-area">
+        <div
+          class="hero-enter"
+          id="hero-enter"
+          role="button"
+          tabindex="0"
+          aria-label="Enter the OSDC retro desktop"
+        ></div>
+
+        <div class="hero-clock" id="hero-clock">00:00</div>
+
+        <div class="globe-shell" id="globe-shell">
+          <div class="globe-widget-label">LIVE GLOBE WIDGET</div>
+          <iframe
+            class="globe-frame"
+            id="globe-frame"
+            src="/globe.html?mode=background&fps=28&dpr=1.2"
+            title="OSDC Globe"
+            loading="eager"
+          ></iframe>
+        </div>
+
+        <div class="desktop-layer" id="desktop-layer" aria-hidden="true">
+          <div class="desktop-stage" id="desktop-stage">
+            <div class="desktop-icons">
+              <div class="desktop-icon" role="button" tabindex="0" data-icon-id="briefing" data-window="briefing">
+                <span class="desktop-icon__art desktop-icon__art--doc" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Club Brief.txt</span>
+              </div>
+
+              <div class="desktop-icon" role="button" tabindex="0" data-icon-id="events" data-window="events">
+                <span class="desktop-icon__art desktop-icon__art--folder" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Events</span>
+              </div>
+
+              <div class="desktop-icon" role="button" tabindex="0" data-icon-id="members" data-window="members">
+                <span class="desktop-icon__art desktop-icon__art--folder" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Members</span>
+              </div>
+
+              <div class="desktop-icon" role="button" tabindex="0" data-icon-id="alumni" data-window="alumni">
+                <span class="desktop-icon__art desktop-icon__art--folder" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Alumni</span>
+              </div>
+
+              <div class="desktop-icon" role="button" tabindex="0" data-icon-id="pastEvents" data-window="pastEvents">
+                <span class="desktop-icon__art desktop-icon__art--folder" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Past Events</span>
+              </div>
+
+              <div class="desktop-icon" role="button" tabindex="0" data-icon-id="discord" data-link="discord">
+                <span class="desktop-icon__art desktop-icon__art--network" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Discord.url</span>
+              </div>
+
+              <div class="desktop-icon desktop-icon--tools" role="button" tabindex="0" data-icon-id="finder" data-tool="finder">
+                <span class="desktop-icon__art desktop-icon__art--folder" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Finder.app</span>
+              </div>
+
+              <div class="desktop-icon desktop-icon--tools" role="button" tabindex="0" data-icon-id="notes" data-tool="notes">
+                <span class="desktop-icon__art desktop-icon__art--doc" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Notes.app</span>
+              </div>
+
+              <div class="desktop-icon desktop-icon--tools" role="button" tabindex="0" data-icon-id="terminal" data-tool="terminal">
+                <span class="desktop-icon__art desktop-icon__art--terminal" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Terminal.app</span>
+              </div>
+
+              <div class="desktop-icon desktop-icon--tools" role="button" tabindex="0" data-icon-id="projects" data-tool="projects">
+                <span class="desktop-icon__art desktop-icon__art--projects" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Projects.app</span>
+              </div>
+
+              <div class="desktop-icon desktop-icon--tools" role="button" tabindex="0" data-icon-id="skills" data-tool="skills">
+                <span class="desktop-icon__art desktop-icon__art--toolbox" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Club Stack.app</span>
+              </div>
+
+              <div class="desktop-icon desktop-icon--tools" role="button" tabindex="0" data-icon-id="doom" data-tool="doom">
+                <span class="desktop-icon__art desktop-icon__art--game" aria-hidden="true"></span>
+                <span class="desktop-icon__label">Doom.app</span>
+              </div>
+            </div>
+
+            <div class="desktop-workspace">
+              <div class="windows-layer" id="windows-layer"></div>
+            </div>
+
+            <div class="taskbar-start-menu" id="taskbar-start-menu" hidden>
+              <div class="taskbar-start-menu__header">
+                <span class="taskbar-start-menu__title">OSDC</span>
+                <span class="taskbar-start-menu__subtitle">club desktop</span>
+              </div>
+
+              <div class="taskbar-start-menu__section">
+                <div class="taskbar-start-menu__label">Club</div>
+                <button class="taskbar-start-menu__item" type="button" data-window="briefing">Club Brief</button>
+                <button class="taskbar-start-menu__item" type="button" data-window="events">Events</button>
+                <button class="taskbar-start-menu__item" type="button" data-window="members">Members</button>
+                <button class="taskbar-start-menu__item" type="button" data-window="alumni">Alumni</button>
+                <button class="taskbar-start-menu__item" type="button" data-window="pastEvents">Past Events</button>
+              </div>
+
+              <div class="taskbar-start-menu__section">
+                <div class="taskbar-start-menu__label">Programs</div>
+                <button class="taskbar-start-menu__item" type="button" data-tool="finder">Finder</button>
+                <button class="taskbar-start-menu__item" type="button" data-tool="notes">Notes</button>
+                <button class="taskbar-start-menu__item" type="button" data-tool="terminal">Terminal</button>
+                <button class="taskbar-start-menu__item" type="button" data-tool="projects">Projects</button>
+                <button class="taskbar-start-menu__item" type="button" data-tool="skills">Club Stack</button>
+                <button class="taskbar-start-menu__item" type="button" data-tool="doom">Doom</button>
+              </div>
+
+              <div class="taskbar-start-menu__section">
+                <div class="taskbar-start-menu__label">Links</div>
+                <button class="taskbar-start-menu__item" type="button" data-link="discord">Discord</button>
+                <button class="taskbar-start-menu__item" type="button" data-link="instagram">Instagram</button>
+                <button class="taskbar-start-menu__item" type="button" data-link="linkedin">LinkedIn</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="desktop-taskbar">
+            <div class="taskbar-cluster taskbar-left">
+              <button class="taskbar-start" type="button">OSDC</button>
+              <div class="taskbar-windows" id="taskbar-windows"></div>
+            </div>
+
+            <div class="taskbar-cluster">
+              <div class="taskbar-label inset-shallow">CLUB DESK</div>
+              <div class="taskbar-clock inset-shallow" id="taskbar-clock">00:00</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen-flash" aria-hidden="true"></div>
+      </div>
+
+      <div class="phosphor" aria-hidden="true"></div>
+      <div class="scanlines" aria-hidden="true"></div>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="glare" aria-hidden="true"></div>
+      <div class="edge-falloff" aria-hidden="true"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/os-gui@0.7.3/$Window.js"></script>
+<script src="/monitor-ui.js"></script>
+</body>
+</html>

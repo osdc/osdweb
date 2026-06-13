@@ -1,0 +1,41 @@
+{
+  "name": "osdc-monitor",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "npm run dev --workspace web",
+    "dev:all": "turbo run dev",
+    "start": "npm run start --workspace web",
+    "start:all": "turbo run start",
+    "start-clean": "turbo run build && turbo run start",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^7.0.4",
+    "eslint-config-custom": "*",
+    "prettier": "latest",
+    "raw-loader": "^4.0.2",
+    "turbo": "^2.6.3"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "packageManager": "npm@11.6.4",
+  "dependencies": {
+    "@xterm/xterm": "^5.5.0",
+    "emulators-ui": "^0.73.9",
+    "i18next": "^25.7.1",
+    "jquery": "^4.0.0",
+    "next-i18next": "^15.4.3",
+    "nodemailer": "^7.0.11",
+    "os-gui": "^0.7.3",
+    "react-i18next": "^16.4.0",
+    "zod": "^4.1.13"
+  }
+}

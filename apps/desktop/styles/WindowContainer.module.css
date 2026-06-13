@@ -1,0 +1,192 @@
+.container {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+  background: linear-gradient(180deg, #ddd4c6 0%, #c8beae 100%);
+  box-shadow:
+    inset -1px -1px rgba(20, 18, 16, 0.92),
+    inset 1px 1px rgba(255, 252, 243, 0.9),
+    inset -2px -2px rgba(119, 110, 101, 0.9),
+    inset 2px 2px rgba(241, 234, 223, 0.95),
+    0 14px 26px rgba(0, 0, 0, 0.16);
+}
+
+.content-container {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  height: 100%;
+}
+
+.content-container.focused {
+  z-index: 101;
+}
+
+.resizable {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  z-index: 100;
+  user-select: none;
+}
+
+.focus-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: block;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.focused.header {
+  color: #f7f3e8;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0)),
+    linear-gradient(90deg, #173153 0%, #2b5a76 52%, #4b8b97 100%);
+}
+
+.header {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0)),
+    linear-gradient(90deg, #718193 0%, #5e6d7f 100%);
+  flex: 0 1 auto;
+
+  height: 30px;
+  line-height: 2em;
+
+  user-select: none;
+
+  display: flex;
+  flex-direction: row;
+
+  padding: 0 6px;
+  color: #eae4d5;
+
+  z-index: 9999;
+}
+
+.header.mobile {
+  min-height: 50px;
+}
+
+.header span {
+  pointer-events: none;
+}
+
+.header.mobile span {
+  font-size: 1.2rem;
+}
+
+.lines {
+  flex-grow: 1000;
+  margin: 3px 5px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(244, 240, 231, 0.14) 0,
+      rgba(244, 240, 231, 0.14) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.content {
+  display: block;
+  overflow: hidden;
+  flex: 1 1 auto;
+  margin: 2px;
+  background: rgba(253, 248, 237, 0.94);
+}
+
+.resizing-mask,
+.dragging-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  z-index: 9999;
+  user-select: none;
+
+  width: 100vw;
+  height: 100vh;
+}
+
+.header-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+}
+
+.header-buttons {
+  display: flex;
+  flex-shrink: 0;
+  flex-basis: fit-content;
+  align-content: baseline;
+  align-items: center;
+}
+
+.header-buttons button {
+  margin-left: 1px;
+}
+
+.mobile .header-buttons button {
+  height: 35px;
+  width: 35px;
+}
+
+.mobile .header-title {
+  line-height: 50px;
+}
+
+.action-overlay {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0.25, 0.25, 0.25, 0.35);
+
+  z-index: 99;
+}
+
+.action-container {
+  display: block;
+  width: 85%;
+  padding: 10px;
+
+  background: linear-gradient(180deg, #f9f4e8 0%, #ddd3c3 100%);
+  box-shadow: inset -1px -1px #fff,inset 1px 1px rgba(114, 108, 100, 0.95),inset -2px -2px #dfdfdf,inset 2px 2px #0a0a0a;
+}
+
+.action-container span {
+  display: block;
+  padding: 16px;
+}
+
+.action-container input {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: right;
+}
+
+.action-buttons button {
+  margin-left: 3px;
+}

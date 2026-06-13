@@ -1,0 +1,9 @@
+POST http://localhost:3001/api/contact/
+Content-Type: application/json
+
+{
+    "name": "OSDC Tester",
+    "email": "team@example.com",
+    "company": "Open Source Developers Community",
+    "message": "foobar123"
+}

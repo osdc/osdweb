@@ -1,0 +1,164 @@
+{
+  "briefing": {
+    "intro": "Saturday desk is live. The monitor is now the operating surface for launches, docs, review, and demos.",
+    "stats": [
+      { "label": "Season", "value": "Monsoon Build Loop" },
+      { "label": "Open Issues", "value": "14" },
+      { "label": "Active Builders", "value": "28" },
+      { "label": "Next Drop", "value": "OSDHack Poster v3" }
+    ],
+    "agenda": [
+      { "time": "17:30", "lane": "Design", "task": "Poster review and social cutdowns" },
+      { "time": "18:15", "lane": "Community", "task": "New member onboarding desk" },
+      { "time": "19:00", "lane": "Build", "task": "Open sprint on issues 12-18" },
+      { "time": "20:30", "lane": "Ops", "task": "Demo capture and archive upload" }
+    ],
+    "focus": [
+      "Ship the monitor polish pass",
+      "Lock OSDHack registration assets",
+      "Prepare archive cards for the last sprint"
+    ],
+    "links": [
+      { "label": "Discord", "url": "https://discord.gg/osdc" },
+      { "label": "Instagram", "url": "https://www.instagram.com/osdc.dev/" },
+      { "label": "LinkedIn", "url": "https://www.linkedin.com/company/osdcjiit/" }
+    ]
+  },
+  "events": {
+    "intro": "Current launch board. These are the event surfaces being shipped, reviewed, or queued right now.",
+    "items": [
+      {
+        "eyebrow": "FLAGSHIP",
+        "title": "OSDHack // Build Sprint",
+        "date": "21 Jun 2026",
+        "venue": "LT-3 + Discord Stage",
+        "state": "Registration Live",
+        "seats": "120 seats",
+        "description": "Club-wide shipping sprint with mentor tables, midnight demos, and fast feedback loops.",
+        "link": "https://hack.osdc.dev",
+        "cta": "Open registration"
+      },
+      {
+        "eyebrow": "SECURITY JAM",
+        "title": "CodeJam // Capture The Flag",
+        "date": "26 Jun 2026",
+        "venue": "Lab 2",
+        "state": "Poster Review",
+        "seats": "48 seats",
+        "description": "Timed challenge blocks, exploit walkthroughs, and writeup reviews for newer members.",
+        "link": "https://discord.gg/osdc",
+        "cta": "Join on Discord"
+      },
+      {
+        "eyebrow": "MAINTAINERS",
+        "title": "Maintainer Night",
+        "date": "04 Jul 2026",
+        "venue": "Seminar Hall",
+        "state": "Guest Lock Pending",
+        "seats": "80 seats",
+        "description": "Lightning talks, live triage, and advice on moving from contribution to stewardship.",
+        "link": "https://discord.gg/osdc",
+        "cta": "See schedule"
+      }
+    ]
+  },
+  "members": {
+    "intro": "Active roster board. Squads rotate, but every lane has a visible focus and next handoff.",
+    "metrics": [
+      { "label": "Contributors", "value": "28" },
+      { "label": "Mentor Pairs", "value": "11" },
+      { "label": "Event Crew", "value": "9" },
+      { "label": "Review Queue", "value": "6 PRs" }
+    ],
+    "squads": [
+      {
+        "lane": "Build",
+        "count": "12 people",
+        "focus": "Desktop polish, launch pages, infra cleanup",
+        "next": "Merge monitor interaction pass"
+      },
+      {
+        "lane": "Design",
+        "count": "7 people",
+        "focus": "Poster system, icon cleanup, event cutdowns",
+        "next": "Approve OSDHack poster v3"
+      },
+      {
+        "lane": "Community",
+        "count": "5 people",
+        "focus": "Onboarding, review pairing, member spotlight loop",
+        "next": "Run Saturday onboarding desk"
+      },
+      {
+        "lane": "Ops",
+        "count": "4 people",
+        "focus": "Venue checklists, archive capture, stage logistics",
+        "next": "Lock demo recording workflow"
+      }
+    ],
+    "board": [
+      "Pinned contributor board lives in Discord",
+      "Each sprint picks one reviewer for onboarding PRs",
+      "Members can rotate lanes between event cycles"
+    ]
+  },
+  "alumni": {
+    "intro": "Mentor routing, review help, and guest session slots currently live here.",
+    "officeHours": [
+      {
+        "lane": "Mentor Desk",
+        "window": "Wed 20:00",
+        "focus": "Portfolio review, internship prep, contribution path",
+        "contact": "Discord office-hours room"
+      },
+      {
+        "lane": "Systems / Infra",
+        "window": "Fri 18:30",
+        "focus": "Platform engineering, Linux, tooling, OSS careers",
+        "contact": "Guest rotation every fortnight"
+      },
+      {
+        "lane": "Design / Product",
+        "window": "Sun 17:00",
+        "focus": "Poster critiques, storytelling, interface direction",
+        "contact": "Design review channel"
+      }
+    ],
+    "outcomes": [
+      "Returning mentors review event pages before launch",
+      "Guest maintainers help triage issues before build sprints",
+      "Legacy repos stay documented so new teams can continue work"
+    ]
+  },
+  "pastEvents": {
+    "intro": "Archive log. Used to track what actually worked, what shipped, and what should repeat next season.",
+    "archive": [
+      {
+        "date": "18 Apr 2026",
+        "title": "Spring Open Sprint",
+        "turnout": "41 attendees",
+        "shipped": "9 merged fixes",
+        "note": "Small teams + visible task board worked best"
+      },
+      {
+        "date": "02 Mar 2026",
+        "title": "Poster-led Demo Night",
+        "turnout": "63 attendees",
+        "shipped": "6 showcase decks",
+        "note": "Motion-heavy posters drove better turnout"
+      },
+      {
+        "date": "21 Jan 2026",
+        "title": "Maintainer Loop Session",
+        "turnout": "52 attendees",
+        "shipped": "3 follow-up issue threads",
+        "note": "Live triage made contribution paths clearer"
+      }
+    ],
+    "repeat": [
+      "Keep poster-first promotion",
+      "Always pair demos with issue follow-ups",
+      "Archive screenshots on the same night as the event"
+    ]
+  }
+}

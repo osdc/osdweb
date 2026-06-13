@@ -1,0 +1,17 @@
+{
+  "name": "result",
+  "version": "0.0.0",
+  "description": "",
+  "main": "./index.ts",
+  "scripts": {
+    "lint": "eslint \"**/*.ts*\""
+  },
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "eslint-config-custom": "*",
+    "tsconfig": "^7.0.0",
+    "typescript": "^5.9.3"
+  },
+  "author": "",
+  "license": "ISC"
+}
