@@ -21,7 +21,7 @@ import { ActivatePhoneIframeUserDataKey, DisplayName, PhoneOverlayFallbackUserDa
 import { getBrowserDimensions, getQualityLevel, hasPerfFlag, isDebug, type QualityLevel } from '../scene-loader/util';
 import Stats from "three/examples/jsm/libs/stats.module";
 import { setInitialCameraPosition } from './camera/states/CinematicCameraState';
-import { getDisplay, getFrameProjectionObject, getPhoneProjectionObject } from './camera/states/util';
+import { getDisplay, getFrameProjectionObject, getPhoneProjectionObject, OpenPhoneOverlayUserDataKey } from './camera/states/util';
 import { PhoneOverlay } from './PhoneOverlay';
 import { PHONE_VIEW_TRANSITION_MS } from './camera/states/PhoneViewCameraState';
 
@@ -688,6 +688,16 @@ export const Renderer = (props: RendererProps) => {
     cameraHandlerRef.current?.changeState(returnState);
   }
 
+  function openPhoneOverlayFromDesk() {
+    if (phoneOverlayOpenTimeoutRef.current !== null) {
+      window.clearTimeout(phoneOverlayOpenTimeoutRef.current);
+      phoneOverlayOpenTimeoutRef.current = null;
+    }
+
+    phoneOverlayReturnStateRef.current = CameraHandlerState.FreeRoam;
+    setPhoneOverlayOpen(true);
+  }
+
   function shouldUsePhoneOverlayFallback(): boolean {
     return immersivePhoneModeRef.current || Boolean(activeSceneRef.current?.userData[PhoneOverlayFallbackUserDataKey]);
   }
@@ -798,6 +808,9 @@ export const Renderer = (props: RendererProps) => {
     cameraHandlerRef.current = cameraHandler;
     activeSceneRef.current = scene;
     activeCameraRef.current = camera;
+    scene.userData[OpenPhoneOverlayUserDataKey] = () => {
+      openPhoneOverlayFromDesk();
+    };
 
     const handleDesktopEvent = handleDesktopRequestsClosure(cameraHandler);
 
@@ -1009,6 +1022,7 @@ export const Renderer = (props: RendererProps) => {
       touchInputHandler.destroy();
 
       cameraHandler.destroy();
+      scene.userData[OpenPhoneOverlayUserDataKey] = undefined;
       activeSceneRef.current = null;
       activeCameraRef.current = null;
 
@@ -1257,7 +1271,7 @@ export const Renderer = (props: RendererProps) => {
         onPointerUp={consumeHotspotPointerEvent}
         onClick={(event) => {
           consumeHotspotPointerEvent(event);
-          cameraHandlerRef.current?.changeState(CameraHandlerState.PhoneView);
+          openPhoneOverlayFromDesk();
         }}
       ></button>
       <a

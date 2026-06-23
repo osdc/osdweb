@@ -1,7 +1,7 @@
 import { MouseData, PointerCoordinates, TouchData, UserInteractionEvent } from "@/events/UserInteractionEvents";
 import { UpdatableCameraState } from "../CameraState";
 import { CameraHandler, CameraHandlerContext, CameraHandlerState } from "../CameraHandler";
-import { SceneInteractionTarget, calculateCameraPosition, clickedDOMButton, constructGetInteractionTarget, easeInOutSine, getDisplay, openPhotoFrameDestination } from "./util";
+import { SceneInteractionTarget, calculateCameraPosition, clickedDOMButton, constructGetInteractionTarget, easeInOutSine, getDisplay, openPhoneOverlay, openPhotoFrameDestination } from "./util";
 import { degToRad } from "three/src/math/MathUtils";
 import { Mesh, Spherical, Vector3 } from "three";
 import { easeOutCubicErp } from "../util";
@@ -136,7 +136,9 @@ export class CinematicCameraState extends UpdatableCameraState {
     }
 
     if (target === 'phone') {
-      this.manager.changeState(CameraHandlerState.PhoneView);
+      if (!openPhoneOverlay(this.ctx.scene)) {
+        this.manager.changeState(CameraHandlerState.PhoneView);
+      }
       return;
     }
 
@@ -167,7 +169,9 @@ export class CinematicCameraState extends UpdatableCameraState {
     }
 
     if (target === 'phone') {
-      this.manager.changeState(CameraHandlerState.PhoneView);
+      if (!openPhoneOverlay(this.ctx.scene)) {
+        this.manager.changeState(CameraHandlerState.PhoneView);
+      }
       return;
     }
 

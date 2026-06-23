@@ -2,7 +2,7 @@ import { Spherical, Vector3 } from "three";
 import { degToRad } from "three/src/math/MathUtils";
 import { CameraHandler, CameraHandlerContext, CameraHandlerState } from "../CameraHandler";
 import { CameraState } from "../CameraState";
-import { PanOriginData, SceneInteractionTarget, blurDesktop, calculateCameraPosition, constructGetInteractionTarget, getDisplay, isMouseMoveCamera, isMouseRotateCamera, isTouchMoveCamera, isTouchRotateCamera, isTouchTap, isTouchZoom, openPhotoFrameDestination } from "./util";
+import { PanOriginData, SceneInteractionTarget, blurDesktop, calculateCameraPosition, constructGetInteractionTarget, getDisplay, isMouseMoveCamera, isMouseRotateCamera, isTouchMoveCamera, isTouchRotateCamera, isTouchTap, isTouchZoom, openPhoneOverlay, openPhotoFrameDestination } from "./util";
 import { MouseData, PointerCoordinates, ConfirmationData, TouchData, UserInteractionEvent, toUserInteractionTouchConfirmationEvent, toUserInteractionMouseConfirmationEvent, MouseInstructionData, cancelUserInteractionMouseConfirmationEvent } from "@/events/UserInteractionEvents";
 import { OfficeSeatCameraTarget } from "@/components/scene-loader/AssetLoaders";
 
@@ -73,7 +73,9 @@ export class FreeRoamCameraState extends CameraState {
       return;
     }
 
-    this.manager.changeState(CameraHandlerState.PhoneView);
+    if (!openPhoneOverlay(this.ctx.scene)) {
+      this.manager.changeState(CameraHandlerState.PhoneView);
+    }
   }
 
   private moveCamera(coords: PointerCoordinates): void {
@@ -231,7 +233,9 @@ export class FreeRoamCameraState extends CameraState {
         return;
       }
 
-      this.manager.changeState(CameraHandlerState.PhoneView);
+      if (!openPhoneOverlay(this.ctx.scene)) {
+        this.manager.changeState(CameraHandlerState.PhoneView);
+      }
     };
 
     const confirm = ConfirmationData.fromTouchData(

@@ -7,6 +7,7 @@ import { calculateAspectRatio } from "../../util";
 import { DisplayName, DisplayParentName, PhoneInteractionZoneName, PhotoFrameInteractionZoneName } from "@/components/scene-loader/AssetLoaders";
 
 export type SceneInteractionTarget = 'display' | 'phone' | 'frame' | null;
+export const OpenPhoneOverlayUserDataKey = 'openPhoneOverlay';
 
 const PhoneInteractionProjectionNames = [PhoneInteractionZoneName];
 const PhoneInteractionNames = [PhoneInteractionZoneName];
@@ -113,6 +114,17 @@ export const constructIsOverPhone = (ctx: CameraHandlerContext): ((data: Pointer
 
 export function openPhotoFrameDestination(): void {
   window.location.assign('https://hack.osdc.dev');
+}
+
+export function openPhoneOverlay(scene: Scene): boolean {
+  const openOverlay = scene.userData[OpenPhoneOverlayUserDataKey];
+
+  if (typeof openOverlay !== 'function') {
+    return false;
+  }
+
+  openOverlay();
+  return true;
 }
 
 export function isMouseRotateCamera(data: MouseData): boolean {

@@ -44,6 +44,9 @@ function createDesktopViewerStyles(slide: ClubbookSlide, dimensions: SlideMediaD
   info: VariableStyle,
 } {
   const profile = resolveSlideMediaProfile(slide, dimensions);
+  const runtimeAspectRatio = dimensions
+    ? dimensions.width / Math.max(dimensions.height, 1)
+    : profile.effectiveAspectRatio;
   const densityGap = profile.viewerFocus === 'content' ? '0.82rem' : profile.viewerFocus === 'image' ? '1.05rem' : '0.94rem';
   const protectedImageKinds = profile.kind === 'poster' || profile.kind === 'portrait';
   const displayFitMode = protectedImageKinds ? 'contain' : profile.fitMode;
@@ -51,16 +54,23 @@ function createDesktopViewerStyles(slide: ClubbookSlide, dimensions: SlideMediaD
   const relaxedMaxHeight = displayFitMode === 'contain' && profile.orientation === 'portrait'
     ? profile.desktopStage.maxMediaHeightRem + 3.5
     : profile.desktopStage.maxMediaHeightRem;
+  const frameMaxWidthRem = allowFrameToWrapImage
+    ? Math.min(
+        profile.desktopStage.maxMediaWidthRem,
+        relaxedMaxHeight * Math.max(runtimeAspectRatio, 0.62) + (profile.desktopStage.framePaddingRem * 2) + 1.4
+      )
+    : profile.desktopStage.maxMediaWidthRem;
 
   return {
     shell: {
       gridTemplateColumns: `minmax(0, ${profile.desktopStage.imagePaneWeight}fr) minmax(18rem, ${profile.desktopStage.contentPaneWeight}fr)`,
     },
     imageWrap: {
-      minHeight: `${allowFrameToWrapImage ? profile.desktopStage.minHeightRem + 1.5 : profile.desktopStage.minHeightRem}rem`,
+      minHeight: `${allowFrameToWrapImage ? Math.max(profile.desktopStage.minHeightRem - 2, 16) : profile.desktopStage.minHeightRem}rem`,
     },
     imageFrame: {
-      width: allowFrameToWrapImage ? 'fit-content' : `min(100%, ${profile.desktopStage.maxMediaWidthRem}rem)`,
+      width: allowFrameToWrapImage ? 'fit-content' : `min(100%, ${frameMaxWidthRem}rem)`,
+      maxWidth: `min(100%, ${frameMaxWidthRem}rem)`,
       minHeight: allowFrameToWrapImage ? '0' : `${profile.desktopStage.minHeightRem}rem`,
       maxHeight: `${relaxedMaxHeight + 1.5}rem`,
       aspectRatio: allowFrameToWrapImage ? 'auto' : `${profile.desktopStage.aspectRatio}`,
@@ -269,13 +279,14 @@ export default function AboutApplicationView(props: WindowProps) {
   const [sectionId, setSectionId] = useState<ClubbookSectionId>('club');
   const [slideIndex, setSlideIndex] = useState(0);
   const [needsMobileView, setNeedsMobileView] = useState(false);
-  const [expandedSlide, setExpandedSlide] = useState<ClubbookSlide | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const contentParent = useRef<HTMLDivElement>(null);
 
   const apis = application.apis;
   const section = clubbookSections[sectionId];
   const slides = section.slides;
   const activeSlide = slides[slideIndex];
+  const expandedSlide = lightboxOpen ? activeSlide : null;
 
   function openContact() {
     application.manager.open('/Applications/Contact.app');
@@ -328,10 +339,12 @@ export default function AboutApplicationView(props: WindowProps) {
 
   useEffect(() => {
     resetSubPageScroll();
-    setExpandedSlide(null);
+    setLightboxOpen(false);
   }, [sectionId]);
 
   useEffect(() => {
+    if (lightboxOpen) { return; }
+
     function handleKeyDown(event: KeyboardEvent) {
       const activeElement = document.activeElement;
 
@@ -353,9 +366,6 @@ export default function AboutApplicationView(props: WindowProps) {
         setSlideIndex((currentIndex) => (currentIndex + 1) % slides.length);
       }
 
-      if (event.key === 'Escape') {
-        setExpandedSlide(null);
-      }
     }
 
     window.addEventListener('keydown', handleKeyDown);
@@ -363,7 +373,46 @@ export default function AboutApplicationView(props: WindowProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [slides.length]);
+  }, [lightboxOpen, slides.length]);
+
+  useEffect(() => {
+    if (!lightboxOpen) { return; }
+
+    function handleLightboxKeyDown(event: KeyboardEvent) {
+      const activeElement = document.activeElement;
+
+      if (
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setLightboxOpen(false);
+        return;
+      }
+
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        goToPreviousSlide();
+        return;
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        goToNextSlide();
+      }
+    }
+
+    window.addEventListener('keydown', handleLightboxKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleLightboxKeyDown);
+    };
+  }, [lightboxOpen, slides.length]);
 
   return (
     <div className="content-outer">
@@ -402,7 +451,7 @@ export default function AboutApplicationView(props: WindowProps) {
                 slideCount={slides.length}
                 onPrev={goToPreviousSlide}
                 onNext={goToNextSlide}
-                onExpand={setExpandedSlide}
+                onExpand={() => setLightboxOpen(true)}
               />
 
               <ThumbnailRail activeIndex={slideIndex} slides={slides} onSelect={setSlideIndex} />
@@ -414,21 +463,23 @@ export default function AboutApplicationView(props: WindowProps) {
       </div>
 
       {expandedSlide && (
-        <div className={styles.viewerLightbox} onClick={() => setExpandedSlide(null)}>
+        <div className={styles.viewerLightbox} onClick={() => setLightboxOpen(false)}>
           <div className={styles.viewerLightboxFrame} onClick={(event) => event.stopPropagation()}>
             <button
               type="button"
               className={`system-button ${styles.viewerLightboxClose}`}
-              onClick={() => setExpandedSlide(null)}
+              onClick={() => setLightboxOpen(false)}
             >
               Close
             </button>
-            <img
-              className={styles.viewerLightboxImage}
-              src={expandedSlide.imageSrc}
-              alt={expandedSlide.imageAlt}
-              draggable={false}
-            />
+            <div className={styles.viewerLightboxMedia}>
+              <img
+                className={styles.viewerLightboxImage}
+                src={expandedSlide.imageSrc}
+                alt={expandedSlide.imageAlt}
+                draggable={false}
+              />
+            </div>
             <p className={styles.viewerLightboxCaption}>
               {expandedSlide.caption ?? expandedSlide.title}
             </p>

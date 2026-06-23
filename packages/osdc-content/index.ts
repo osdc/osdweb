@@ -96,7 +96,7 @@ function createCoordinatorSlide(
   imageAlt: string,
   thumbLabel: string,
   description: string,
-  githubHandle: string,
+  profileLinks: ClubbookProfileLink[] | null,
   meta: ClubbookMetaItem[]
 ): ClubbookSlide {
   return {
@@ -111,9 +111,7 @@ function createCoordinatorSlide(
     preferredAspectRatio: 0.84,
     viewerFocus: 'content',
     meta,
-    profileLinks: [
-      { label: `GitHub // @${githubHandle}`, href: `https://github.com/${githubHandle}` },
-    ],
+    profileLinks: profileLinks ?? undefined,
   };
 }
 
@@ -358,7 +356,9 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         'Portrait of Harsh Jha',
         'Harsh J.',
         'Harsh is one of the people we trust with the difficult bits: shipping ideas, fixing things under pressure, and keeping the weird retro shell from becoming empty theatre. If something needs to work end-to-end, he is usually somewhere in the blast radius.',
-        'life2harsh',
+        [
+          { label: 'GitHub // @life2harsh', href: 'https://github.com/life2harsh' },
+        ],
         [
           ...teamSlideMeta,
           { label: 'Their jam', value: 'Shipping the thing before the deadline eats us alive' },
@@ -371,7 +371,9 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         'Portrait of Karvy Singh',
         'Karvy',
         'Karvy helps keep the club sharp when it comes to execution. Fast context pickup, practical problem-solving, and not freezing when the plan mutates halfway through are very much part of the package.',
-        'Karvy-Singh',
+        [
+          { label: 'GitHub // @Karvy-Singh', href: 'https://github.com/Karvy-Singh' },
+        ],
         [
           ...teamSlideMeta,
           { label: 'Their jam', value: 'Turning loose ideas into a proper build path' },
@@ -384,7 +386,9 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         'Portrait of Harsh Sharma',
         'Harsh S.',
         'Harsh shows up in the layer where club ideas stop being vibes and become deliverables. He is part of the reason our events, build work, and post-event follow-through do not just disappear into attendance fog.',
-        'HarshSharma0801',
+        [
+          { label: 'GitHub // @codelif', href: 'https://github.com/codelif' },
+        ],
         [
           ...teamSlideMeta,
           { label: 'Their jam', value: 'Build momentum, cleanup passes, and making outputs stick' },
@@ -397,9 +401,17 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         'Portrait of Saksham Gupta',
         'Saksham',
         'Saksham is part of the reason the club can stay beginner-friendly without becoming watered down. He sits in that useful zone between helping people get unstuck and keeping the work technically honest.',
-        'sakshamGupta09',
         [
-          ...teamSlideMeta,
+          { label: 'GitHub // @Sakshamcozykun', href: 'https://github.com/Sakshamcozykun' },
+          {
+            label: 'Behance // Design Portfolio',
+            href: 'https://www.behance.net/gallery/246504151/Saksham-Gupta-Design-Portfolio-2025/modules/1424867425',
+          },
+        ],
+        [
+          { label: 'Layer', value: 'Current coordinator roster' },
+          { label: 'Role', value: 'Design coordinator' },
+          { label: 'Mode', value: 'Visual systems, identity, and event-facing polish' },
           { label: 'Their jam', value: 'Unblocking people without flattening the challenge' },
         ]
       ),
@@ -410,7 +422,9 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         'Profile card for Bhavya Khatri',
         'Bhavya',
         'Bhavya helps hold together the communication, presentation, and event-facing side of the club without letting it slip into generic society-page nonsense. Clean visuals, real context, and enough personality to still feel like us.',
-        'bhavyaKhatri2703',
+        [
+          { label: 'GitHub // @bhavyaKhatri2703', href: 'https://github.com/bhavyaKhatri2703' },
+        ],
         [
           ...teamSlideMeta,
           { label: 'Their jam', value: 'Posters, visual polish, and keeping the vibe recognisably ours' },
@@ -423,7 +437,7 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         'Portrait of Risha Gupta',
         'Risha',
         'Risha is part of the community glue. She helps keep the club readable to new people, survivable during event chaos, and a lot less intimidating than tech spaces usually try to be for no reason.',
-        'Risha-Gupta',
+        null,
         [
           ...teamSlideMeta,
           { label: 'Their jam', value: 'Community flow, coordination, and making people feel they can start' },
@@ -436,7 +450,9 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         'Profile card for Arnav Sharma',
         'Arnav',
         'Arnav belongs to the coordinator layer that quietly absorbs the messy work: follow-ups, logistics, internal context, and all the things people only notice when they are missing. That kind of reliability keeps the club alive.',
-        'ItsArnavSh',
+        [
+          { label: 'GitHub // @ItsArnavSh', href: 'https://github.com/ItsArnavSh' },
+        ],
         [
           ...teamSlideMeta,
           { label: 'Their jam', value: 'Ops reliability and handling the unglamorous but essential parts' },
@@ -449,7 +465,9 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         'Profile card for Ritika Jain',
         'Ritika',
         'Ritika is part of the batch that makes the club feel organised without sanding off the weirdness. She helps hold together people, planning, and follow-through so the fun does not come at the cost of actual execution.',
-        'RitikaJain8818',
+        [
+          { label: 'GitHub // @jainritikaa', href: 'https://github.com/jainritikaa' },
+        ],
         [
           ...teamSlideMeta,
           { label: 'Their jam', value: 'Coordination, planning, and keeping the build energy usable' },
