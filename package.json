@@ -8,6 +8,10 @@
   ],
   "scripts": {
     "build": "turbo run build",
+    "build:static:web": "STATIC_EXPORT=1 NEXT_PUBLIC_STATIC_EXPORT=1 npm run build --workspace web",
+    "build:static:desktop": "STATIC_EXPORT=1 NEXT_PUBLIC_STATIC_EXPORT=1 NEXT_PUBLIC_DESKTOP_BASE_PATH=/desktop npm run build --workspace desktop",
+    "copy:static:desktop": "node scripts/copy-desktop-export.mjs",
+    "build:static": "npm run build:static:desktop && npm run build:static:web && npm run copy:static:desktop",
     "dev": "turbo run dev",
     "dev:all": "turbo run dev",
     "dev:web": "npm run dev --workspace web",

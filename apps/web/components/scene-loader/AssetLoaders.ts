@@ -157,6 +157,9 @@ export function NoopLoader(): AssetLoader {
 
 function getDesktopTargetUrl(): string {
   const configuredTarget = process.env.NEXT_PUBLIC_TARGET_URL?.trim();
+  const isStaticExport =
+    process.env.NEXT_PUBLIC_STATIC_EXPORT === '1' ||
+    process.env.NEXT_PUBLIC_STATIC_EXPORT === 'true';
   const useSameOriginDesktop =
     process.env.NEXT_PUBLIC_USE_SAME_ORIGIN_DESKTOP === '1' ||
     process.env.NEXT_PUBLIC_USE_SAME_ORIGIN_DESKTOP === 'true';
@@ -165,7 +168,7 @@ function getDesktopTargetUrl(): string {
     return new URL(configuredTarget, window.location.href).toString();
   }
 
-  if (process.env.NODE_ENV === 'production' || useSameOriginDesktop) {
+  if (isStaticExport || process.env.NODE_ENV === 'production' || useSameOriginDesktop) {
     return new URL('/desktop/', window.location.origin).toString();
   }
 
