@@ -36,19 +36,33 @@ type ThumbnailRailProps = {
 
 type VariableStyle = CSSProperties & Record<`--${string}`, string>;
 
+function isPortraitLike(slide: ClubbookSlide, dimensions: SlideMediaDimensions | null): boolean {
+  if (slide.mediaKind === 'poster' || slide.mediaKind === 'portrait') {
+    return true;
+  }
+
+  if (dimensions) {
+    return dimensions.height > dimensions.width;
+  }
+
+  return (slide.preferredAspectRatio ?? 1.45) < 1;
+}
+
 function createDesktopViewerStyles(slide: ClubbookSlide, dimensions: SlideMediaDimensions | null): {
   shell: CSSProperties,
   imageWrap: CSSProperties,
   imageFrame: CSSProperties,
   image: CSSProperties,
   info: VariableStyle,
+  isPortraitLike: boolean,
 } {
   const profile = resolveSlideMediaProfile(slide, dimensions);
+  const portraitLike = isPortraitLike(slide, dimensions);
   const runtimeAspectRatio = dimensions
     ? dimensions.width / Math.max(dimensions.height, 1)
     : profile.effectiveAspectRatio;
   const densityGap = profile.viewerFocus === 'content' ? '0.82rem' : profile.viewerFocus === 'image' ? '1.05rem' : '0.94rem';
-  const protectedImageKinds = profile.kind === 'poster' || profile.kind === 'portrait';
+  const protectedImageKinds = portraitLike || profile.kind === 'poster' || profile.kind === 'portrait';
   const displayFitMode = protectedImageKinds ? 'contain' : profile.fitMode;
   const allowFrameToWrapImage = displayFitMode === 'contain' && (protectedImageKinds || profile.kind === 'square');
   const relaxedMaxHeight = displayFitMode === 'contain' && profile.orientation === 'portrait'
@@ -88,6 +102,7 @@ function createDesktopViewerStyles(slide: ClubbookSlide, dimensions: SlideMediaD
       '--viewer-card-gap': densityGap,
       '--viewer-meta-columns': profile.viewerFocus === 'content' ? 'repeat(2, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))',
     },
+    isPortraitLike: portraitLike,
   };
 }
 
@@ -144,6 +159,12 @@ function SlideViewer(props: ViewerProps) {
   const viewerBackdropStyle = { backgroundImage: `url("${slide.imageSrc}")` };
   const [imageDimensions, setImageDimensions] = useState<SlideMediaDimensions | null>(null);
   const viewerStyles = createDesktopViewerStyles(slide, imageDimensions);
+  const imageFrameClassName = viewerStyles.isPortraitLike
+    ? `${styles.viewerImageFrame} ${styles.viewerImageFramePortrait}`
+    : `${styles.viewerImageFrame} ${styles.viewerImageFrameLandscape}`;
+  const imageButtonClassName = viewerStyles.isPortraitLike
+    ? `${styles.viewerImageButton} ${styles.viewerImageButtonPortrait}`
+    : `${styles.viewerImageButton} ${styles.viewerImageButtonLandscape}`;
 
   function handleImageLoad(event: SyntheticEvent<HTMLImageElement>) {
     const image = event.currentTarget;
@@ -175,11 +196,11 @@ function SlideViewer(props: ViewerProps) {
             <div className={styles.viewerImageBadge}>Mounted</div>
             <button
               type="button"
-              className={styles.viewerImageButton}
+              className={imageButtonClassName}
               onClick={() => onExpand(slide)}
               aria-label={`Expand ${slide.imageAlt}`}
             >
-              <div className={styles.viewerImageFrame} style={viewerStyles.imageFrame}>
+              <div className={imageFrameClassName} style={viewerStyles.imageFrame}>
                 <img
                   className={styles.viewerImage}
                   style={viewerStyles.image}
@@ -280,6 +301,7 @@ export default function AboutApplicationView(props: WindowProps) {
   const [slideIndex, setSlideIndex] = useState(0);
   const [needsMobileView, setNeedsMobileView] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImageDimensions, setLightboxImageDimensions] = useState<SlideMediaDimensions | null>(null);
   const contentParent = useRef<HTMLDivElement>(null);
 
   const apis = application.apis;
@@ -287,6 +309,7 @@ export default function AboutApplicationView(props: WindowProps) {
   const slides = section.slides;
   const activeSlide = slides[slideIndex];
   const expandedSlide = lightboxOpen ? activeSlide : null;
+  const lightboxPortrait = expandedSlide ? isPortraitLike(expandedSlide, lightboxImageDimensions) : false;
 
   function openContact() {
     application.manager.open('/Applications/Contact.app');
@@ -340,6 +363,7 @@ export default function AboutApplicationView(props: WindowProps) {
   useEffect(() => {
     resetSubPageScroll();
     setLightboxOpen(false);
+    setLightboxImageDimensions(null);
   }, [sectionId]);
 
   useEffect(() => {
@@ -414,6 +438,12 @@ export default function AboutApplicationView(props: WindowProps) {
     };
   }, [lightboxOpen, slides.length]);
 
+  useEffect(() => {
+    if (!lightboxOpen) {
+      setLightboxImageDimensions(null);
+    }
+  }, [lightboxOpen, activeSlide.id]);
+
   return (
     <div className="content-outer">
       <div className="content">
@@ -464,7 +494,13 @@ export default function AboutApplicationView(props: WindowProps) {
 
       {expandedSlide && (
         <div className={styles.viewerLightbox} onClick={() => setLightboxOpen(false)}>
-          <div className={styles.viewerLightboxFrame} onClick={(event) => event.stopPropagation()}>
+          <div
+            className={[
+              styles.viewerLightboxFrame,
+              lightboxPortrait ? styles.viewerLightboxFramePortrait : styles.viewerLightboxFrameLandscape,
+            ].join(' ')}
+            onClick={(event) => event.stopPropagation()}
+          >
             <button
               type="button"
               className={`system-button ${styles.viewerLightboxClose}`}
@@ -472,12 +508,27 @@ export default function AboutApplicationView(props: WindowProps) {
             >
               Close
             </button>
-            <div className={styles.viewerLightboxMedia}>
+            <div
+              className={[
+                styles.viewerLightboxMedia,
+                lightboxPortrait ? styles.viewerLightboxMediaPortrait : styles.viewerLightboxMediaLandscape,
+              ].join(' ')}
+            >
               <img
-                className={styles.viewerLightboxImage}
+                className={[
+                  styles.viewerLightboxImage,
+                  lightboxPortrait ? styles.viewerLightboxImagePortrait : styles.viewerLightboxImageLandscape,
+                ].join(' ')}
                 src={expandedSlide.imageSrc}
                 alt={expandedSlide.imageAlt}
                 draggable={false}
+                onLoad={(event) => {
+                  const image = event.currentTarget;
+                  setLightboxImageDimensions({
+                    width: image.naturalWidth,
+                    height: image.naturalHeight,
+                  });
+                }}
               />
             </div>
             <p className={styles.viewerLightboxCaption}>

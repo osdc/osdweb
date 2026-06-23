@@ -446,7 +446,7 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
       createCoordinatorSlide(
         'team-arnav-sharma',
         'Arnav Sharma',
-        '/images/osdc-clubbook/team/default-user.png',
+        '/images/osdc-clubbook/team/arnav-sharma.jpg',
         'Profile card for Arnav Sharma',
         'Arnav',
         'Arnav belongs to the coordinator layer that quietly absorbs the messy work: follow-ups, logistics, internal context, and all the things people only notice when they are missing. That kind of reliability keeps the club alive.',

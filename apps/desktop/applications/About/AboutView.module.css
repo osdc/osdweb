@@ -282,6 +282,25 @@
   cursor: zoom-in;
 }
 
+.viewerImageButtonPortrait {
+  width: auto;
+}
+
+.viewerImageButtonLandscape {
+  width: 100%;
+}
+
+.viewerImageFramePortrait {
+  width: fit-content !important;
+  max-width: min(100%, 24rem) !important;
+  min-height: 0 !important;
+  aspect-ratio: auto !important;
+}
+
+.viewerImageFrameLandscape {
+  width: min(100%, 100%);
+}
+
 .viewerImage {
   display: block;
   width: auto;
@@ -486,6 +505,15 @@
   overflow: auto;
 }
 
+.viewerLightboxFramePortrait {
+  width: fit-content;
+  justify-items: center;
+}
+
+.viewerLightboxFrameLandscape {
+  width: min(calc(100vw - 48px), max-content);
+}
+
 .viewerLightboxClose {
   justify-self: end;
 }
@@ -505,6 +533,15 @@
     inset -1px -1px rgba(0, 0, 0, 0.16);
 }
 
+.viewerLightboxMediaPortrait {
+  width: fit-content;
+  max-width: min(calc(100vw - 72px), 26rem);
+}
+
+.viewerLightboxMediaLandscape {
+  width: fit-content;
+}
+
 .viewerLightboxImage {
   display: block;
   width: auto;
@@ -512,6 +549,14 @@
   max-width: min(calc(100vw - 96px), 100%);
   max-height: min(calc(100vh - 156px), 72rem);
   object-fit: contain;
+}
+
+.viewerLightboxImagePortrait {
+  max-width: min(calc(100vw - 96px), 24rem);
+}
+
+.viewerLightboxImageLandscape {
+  max-width: calc(100vw - 96px);
 }
 
 .viewerLightboxCaption {

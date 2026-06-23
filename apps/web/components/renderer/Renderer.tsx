@@ -665,9 +665,17 @@ export const Renderer = (props: RendererProps) => {
       phoneOverlayOpenTimeoutRef.current = null;
     }
 
+    setPhoneOverlayOpen(false);
+
+    const returnState = phoneOverlayReturnStateRef.current === CameraHandlerState.PhoneView
+      ? CameraHandlerState.FreeRoam
+      : phoneOverlayReturnStateRef.current;
+
+    phoneOverlayReturnStateRef.current = CameraHandlerState.FreeRoam;
+
     if (immersivePhoneModeRef.current) {
-      setPhoneOverlayOpen(false);
-      phoneOverlayReturnStateRef.current = CameraHandlerState.FreeRoam;
+      setImmersivePhoneMode(false);
+      immersivePhoneModeRef.current = false;
 
       const context = cameraHandlerRef.current?.getContext();
       if (context) {
@@ -681,11 +689,7 @@ export const Renderer = (props: RendererProps) => {
       return;
     }
 
-    const returnState = phoneOverlayReturnStateRef.current === CameraHandlerState.PhoneView
-      ? CameraHandlerState.FreeRoam
-      : phoneOverlayReturnStateRef.current;
-
-    cameraHandlerRef.current?.changeState(returnState);
+    cameraHandlerRef.current?.changeState(returnState ?? CameraHandlerState.FreeRoam);
   }
 
   function openPhoneOverlayFromDesk() {
