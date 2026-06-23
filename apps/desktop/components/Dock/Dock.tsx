@@ -10,18 +10,15 @@ import { ApplicationIcon, FileSystem } from '@/apis/FileSystem/FileSystem';
 import { SystemAPIs } from '../OperatingSystem';
 import { FileSystemItemDragDrop, FileSystemItemDragEnter, FileSystemItemDragEvent, FileSystemItemDragLeave } from '@/apis/DragAndDrop/DragAndDrop';
 import { contactConfig } from '@/applications/Contract/Contact';
-import { skillsConfig } from '@/applications/Skills/Skills';
-import { algorithmVisualizerConfig } from '@/applications/AlgorithmVisualizer/AlgorithmVisualizer';
 import { terminalConfig } from '@/applications/Terminal/TerminalApplication';
 import { notesConfig } from '@/applications/Notes/Notes';
 import { doomConfig } from '@/applications/Doom/Doom';
+import { publicPath } from '@/util/publicPath';
 
 const DockApplications = [
   finderConfig,
   aboutConfig,
   contactConfig,
-  algorithmVisualizerConfig,
-  skillsConfig,
   terminalConfig
 ];
 
@@ -46,10 +43,10 @@ function DockItemViewApplication(props: { item: ApplicationDockItem }) {
     <button className={styles['dock-application']} onClick={() => item.onClick()} data-tooltip={item.config.displayName}>
       <img
         className={styles['dock-app-image']}
-        src={item.config.appIcon.src}
+        src={publicPath(item.config.appIcon.src)}
         alt={item.config.appIcon.alt}
-        width={64}
-        height={64}
+        width={48}
+        height={48}
         draggable={false}
       />
       <div className={[styles.status, item.active ? styles.active : styles.inactive].join(' ')}>
@@ -66,10 +63,10 @@ function DockItemMinimizedApplication(props: { item: MinimizedApplicationDockIte
     <button className={styles['dock-application']} onClick={() => item.onClick()} data-tooltip={item.config.displayName}>
       <img
         className={styles['dock-app-image']}
-        src={item.config.appIcon.src}
+        src={publicPath(item.config.appIcon.src)}
         alt={item.config.appIcon.alt}
-        width={64}
-        height={64}
+        width={48}
+        height={48}
         draggable={false}
       />
       <div className={[styles.status].join(' ')}></div>
@@ -131,10 +128,10 @@ function DockItemDirectory(props: { item: DirectoryDockItem, fileSystem: FileSys
       data-tooltip={item.title}>
       <img
         className={styles['dock-app-image']}
-        src={item.icon.src}
+        src={publicPath(item.icon.src)}
         alt={item.icon.alt}
-        width={64}
-        height={64}
+        width={48}
+        height={48}
         draggable={false}
       />
       <div className={styles.status}></div>
@@ -327,8 +324,6 @@ export function Dock(props: {
       notesConfig,
       terminalConfig,
       doomConfig,
-      skillsConfig,
-      algorithmVisualizerConfig,
     ];
 
     return <>

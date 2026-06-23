@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ES6",
     "lib": [
       "dom",
@@ -24,6 +25,15 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "rpc": [
+        "../../packages/rpc/index.ts"
+      ],
+      "result": [
+        "../../packages/result/index.ts"
+      ],
+      "osdc-content": [
+        "../../packages/osdc-content/index.ts"
       ]
     }
   },

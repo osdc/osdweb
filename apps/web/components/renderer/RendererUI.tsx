@@ -190,7 +190,7 @@ function CinematicInstructions(props: SubViewProps) {
   useEffect(() => {
     if (!isActive) { return; }
 
-    const cancelation = writeOutChars("Click anywhere to enter the hub", setInstructions, MStoWriteChar);
+    const cancelation = writeOutChars("Click the monitor or phone to enter the hub", setInstructions, MStoWriteChar);
 
     return () => { cancelation(); }
 

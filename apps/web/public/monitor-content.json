@@ -1,22 +1,22 @@
 {
   "briefing": {
-    "intro": "Saturday desk is live. The monitor is now the operating surface for launches, docs, review, and demos.",
+    "intro": "We are OSDC. We build things, break things, ship weird ideas, help each other improve, and leave enough behind for the next batch to keep going.",
     "stats": [
-      { "label": "Season", "value": "Monsoon Build Loop" },
-      { "label": "Open Issues", "value": "14" },
-      { "label": "Active Builders", "value": "28" },
-      { "label": "Next Drop", "value": "OSDHack Poster v3" }
+      { "label": "Mode", "value": "Build first, explain later" },
+      { "label": "Open Source", "value": "Yes, Actually" },
+      { "label": "Active Builders", "value": "28 humans + 1 Doom icon" },
+      { "label": "Next Drop", "value": "OSDHack + freshers onboarding" }
     ],
     "agenda": [
-      { "time": "17:30", "lane": "Design", "task": "Poster review and social cutdowns" },
-      { "time": "18:15", "lane": "Community", "task": "New member onboarding desk" },
-      { "time": "19:00", "lane": "Build", "task": "Open sprint on issues 12-18" },
-      { "time": "20:30", "lane": "Ops", "task": "Demo capture and archive upload" }
+      { "time": "17:30", "lane": "Design", "task": "Make the poster loud enough to stop a hallway scroll" },
+      { "time": "18:15", "lane": "Community", "task": "Get new people from 'I just joined' to 'I can ship one thing'" },
+      { "time": "19:00", "lane": "Build", "task": "Open sprint, pairing tables, repo triage, no spectator mode" },
+      { "time": "20:30", "lane": "Ops", "task": "Archive screenshots, notes, and all the lessons future us will forget" }
     ],
     "focus": [
-      "Ship the monitor polish pass",
-      "Lock OSDHack registration assets",
-      "Prepare archive cards for the last sprint"
+      "Keep OSDC beginner-friendly without turning it into tutorial soup",
+      "Make open source feel like something members can enter this week, not next year",
+      "Leave enough lore in the archive for the next core team to continue the bit"
     ],
     "links": [
       { "label": "Discord", "url": "https://discord.gg/osdc" },
@@ -25,7 +25,7 @@
     ]
   },
   "events": {
-    "intro": "Current launch board. These are the event surfaces being shipped, reviewed, or queued right now.",
+    "intro": "Our events are build spaces. Hackathons, jams, CTFs, workshops, demo nights, and occasional controlled chaos.",
     "items": [
       {
         "eyebrow": "FLAGSHIP",
@@ -34,7 +34,7 @@
         "venue": "LT-3 + Discord Stage",
         "state": "Registration Live",
         "seats": "120 seats",
-        "description": "Club-wide shipping sprint with mentor tables, midnight demos, and fast feedback loops.",
+        "description": "A club-wide shipping sprint with mentor tables, fast feedback loops, and enough energy drinks to concern the ops desk.",
         "link": "https://hack.osdc.dev",
         "cta": "Open registration"
       },
@@ -45,7 +45,7 @@
         "venue": "Lab 2",
         "state": "Poster Review",
         "seats": "48 seats",
-        "description": "Timed challenge blocks, exploit walkthroughs, and writeup reviews for newer members.",
+        "description": "Challenge blocks, exploit walkthroughs, and post-round writeups so newcomers leave smarter, not just confused louder.",
         "link": "https://discord.gg/osdc",
         "cta": "Join on Discord"
       },
@@ -56,14 +56,14 @@
         "venue": "Seminar Hall",
         "state": "Guest Lock Pending",
         "seats": "80 seats",
-        "description": "Lightning talks, live triage, and advice on moving from contribution to stewardship.",
+        "description": "Lightning talks, live triage, and the path from 'first PR merged' to 'wait why am I responsible for this repo now'.",
         "link": "https://discord.gg/osdc",
         "cta": "See schedule"
       }
     ]
   },
   "members": {
-    "intro": "Active roster board. Squads rotate, but every lane has a visible focus and next handoff.",
+    "intro": "We work best when people do not stay passive for long. Join, pick a lane, get context, ship something, then help the next person do the same.",
     "metrics": [
       { "label": "Contributors", "value": "28" },
       { "label": "Mentor Pairs", "value": "11" },
@@ -74,91 +74,91 @@
       {
         "lane": "Build",
         "count": "12 people",
-        "focus": "Desktop polish, launch pages, infra cleanup",
-        "next": "Merge monitor interaction pass"
+        "focus": "Club site, experiments, event tooling, and whatever repo someone bravely opened",
+        "next": "Ship visible work every cycle"
       },
       {
         "lane": "Design",
         "count": "7 people",
-        "focus": "Poster system, icon cleanup, event cutdowns",
-        "next": "Approve OSDHack poster v3"
+        "focus": "Poster systems, motion, UI accents, and making chaos readable",
+        "next": "Approve the OSDHack poster before someone adds another glow layer"
       },
       {
         "lane": "Community",
         "count": "5 people",
-        "focus": "Onboarding, review pairing, member spotlight loop",
-        "next": "Run Saturday onboarding desk"
+        "focus": "Onboarding, pairing, member spotlights, and making newcomers feel expected",
+        "next": "Run the onboarding desk and route people into real work"
       },
       {
         "lane": "Ops",
         "count": "4 people",
-        "focus": "Venue checklists, archive capture, stage logistics",
-        "next": "Lock demo recording workflow"
+        "focus": "Venue wrangling, archive capture, volunteer logistics, and preventing preventable fire",
+        "next": "Lock demo recording workflow before demo night becomes lost media"
       }
     ],
     "board": [
-      "Pinned contributor board lives in Discord",
-      "Each sprint picks one reviewer for onboarding PRs",
-      "Members can rotate lanes between event cycles"
+      "Beginners are welcome, but not sentenced to spectator mode",
+      "Every sprint should leave behind something reusable: code, docs, posters, or lore",
+      "Lane changes are allowed; the only banned state is permanent hesitation"
     ]
   },
   "alumni": {
-    "intro": "Mentor routing, review help, and guest session slots currently live here.",
+    "intro": "Our alumni are how knowledge survives handoffs, how review loops stay honest, and how newer members see what comes next.",
     "officeHours": [
       {
         "lane": "Mentor Desk",
         "window": "Wed 20:00",
-        "focus": "Portfolio review, internship prep, contribution path",
+        "focus": "Portfolio review, internship prep, contribution path, and mild reality checks",
         "contact": "Discord office-hours room"
       },
       {
         "lane": "Systems / Infra",
         "window": "Fri 18:30",
-        "focus": "Platform engineering, Linux, tooling, OSS careers",
+        "focus": "Platform engineering, Linux, tooling, OSS careers, and one inevitable package-manager rant",
         "contact": "Guest rotation every fortnight"
       },
       {
         "lane": "Design / Product",
         "window": "Sun 17:00",
-        "focus": "Poster critiques, storytelling, interface direction",
+        "focus": "Poster critiques, storytelling, interface direction, and stopping us from centering everything",
         "contact": "Design review channel"
       }
     ],
     "outcomes": [
-      "Returning mentors review event pages before launch",
-      "Guest maintainers help triage issues before build sprints",
-      "Legacy repos stay documented so new teams can continue work"
+      "Mentors review event pages before launch so the main team does not disappear into its own tunnel vision",
+      "Guest maintainers help newer members understand not just what to build, but how to contribute responsibly",
+      "Legacy repos stay documented so good work does not die with graduating seniors"
     ]
   },
   "pastEvents": {
-    "intro": "Archive log. Used to track what actually worked, what shipped, and what should repeat next season.",
+    "intro": "Archive log. We keep receipts: what shipped, what flopped, what people loved, and what should never again be scheduled five minutes before a quiz.",
     "archive": [
       {
         "date": "18 Apr 2026",
         "title": "Spring Open Sprint",
         "turnout": "41 attendees",
         "shipped": "9 merged fixes",
-        "note": "Small teams + visible task board worked best"
+        "note": "Small teams plus a public task board beat heroic solo grinding"
       },
       {
         "date": "02 Mar 2026",
         "title": "Poster-led Demo Night",
         "turnout": "63 attendees",
         "shipped": "6 showcase decks",
-        "note": "Motion-heavy posters drove better turnout"
+        "note": "Ridiculously loud posters worked. regrettably, the internet was right"
       },
       {
         "date": "21 Jan 2026",
         "title": "Maintainer Loop Session",
         "turnout": "52 attendees",
         "shipped": "3 follow-up issue threads",
-        "note": "Live triage made contribution paths clearer"
+        "note": "Live triage turned vague interest into actual first issues"
       }
     ],
     "repeat": [
-      "Keep poster-first promotion",
-      "Always pair demos with issue follow-ups",
-      "Archive screenshots on the same night as the event"
+      "Make the weird idea legible, not sterile",
+      "Always pair hype with a concrete next step",
+      "Archive the screenshots the same night or accept that they are gone forever"
     ]
   }
 }

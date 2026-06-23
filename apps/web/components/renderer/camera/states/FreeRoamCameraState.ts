@@ -1,8 +1,10 @@
 import { Spherical, Vector3 } from "three";
+import { degToRad } from "three/src/math/MathUtils";
 import { CameraHandler, CameraHandlerContext, CameraHandlerState } from "../CameraHandler";
 import { CameraState } from "../CameraState";
-import { PanOriginData, blurDesktop, constructIsOverDisplay, isMouseMoveCamera, isMouseRotateCamera, isTouchMoveCamera, isTouchRotateCamera, isTouchTap, isTouchZoom } from "./util";
+import { PanOriginData, SceneInteractionTarget, blurDesktop, calculateCameraPosition, constructGetInteractionTarget, getDisplay, isMouseMoveCamera, isMouseRotateCamera, isTouchMoveCamera, isTouchRotateCamera, isTouchTap, isTouchZoom, openPhotoFrameDestination } from "./util";
 import { MouseData, PointerCoordinates, ConfirmationData, TouchData, UserInteractionEvent, toUserInteractionTouchConfirmationEvent, toUserInteractionMouseConfirmationEvent, MouseInstructionData, cancelUserInteractionMouseConfirmationEvent } from "@/events/UserInteractionEvents";
+import { OfficeSeatCameraTarget } from "@/components/scene-loader/AssetLoaders";
 
 export class FreeRoamCameraState extends CameraState {
 
@@ -11,47 +13,67 @@ export class FreeRoamCameraState extends CameraState {
 
   private panOrigin: PanOriginData | null = null;
 
-  private isOverDisplay: (data: PointerCoordinates) => boolean;
-  private wasOverDisplay: boolean = false;
+  private getInteractionTarget: ReturnType<typeof constructGetInteractionTarget>;
+  private previousInteractionTarget: SceneInteractionTarget = null;
 
   constructor(manager: CameraHandler, ctx: CameraHandlerContext) {
     super(manager, ctx);
 
-    this.isOverDisplay = constructIsOverDisplay(this.ctx);
+    this.getInteractionTarget = constructGetInteractionTarget(this.ctx);
   }
 
   transition(): void {
     this.ctx.enableWebGLPointerEvents();
 
-    const position = new Vector3();
-    position.y = 6.8;
+    const display = getDisplay(this.ctx.scene);
+    const overview = display
+      ? calculateCameraPosition(display, this.ctx.cameraController.getCamera().fov, 2.9)
+      : null;
 
-    const rotation = new Spherical();
-    rotation.phi = 1.0;
-    rotation.theta = 0.0;
+    const position = overview?.position.clone() ?? new Vector3(
+      OfficeSeatCameraTarget.x,
+      OfficeSeatCameraTarget.y,
+      OfficeSeatCameraTarget.z
+    );
 
-    const zoom = 10.0;
+    const rotation = overview?.spherical.clone() ?? new Spherical();
+    rotation.phi = Math.max(1.0, rotation.phi + 0.08);
+
+    const zoom = overview ? Math.max(overview.distance * 2.55, 6.5) : 7.1;
 
     this.ctx.cameraController.enableDamping();
     this.ctx.cameraController.disableCameraFollow();
 
-    this.ctx.cameraController.setMinZoom(2.0);
-    this.ctx.cameraController.setMaxZoom(15.0);
+    this.ctx.cameraController.setMinZoom(2.8);
+    this.ctx.cameraController.setMaxZoom(12.5);
 
-    this.ctx.cameraController.setOriginBoundaryX(40.0);
-    this.ctx.cameraController.setOriginBoundaryY(40.0);
-    this.ctx.cameraController.setOriginBoundaryZ(null);
+    this.ctx.cameraController.setOriginBoundaryX(7.5);
+    this.ctx.cameraController.setOriginBoundaryY(4.5);
+    this.ctx.cameraController.setOriginBoundaryZ(7.5);
 
-    this.ctx.cameraController.transition(position, rotation, zoom, 500);
+    this.ctx.cameraController.transition(position, rotation, zoom, 620);
 
     blurDesktop();
   }
 
   private handleDisplayClick(data: PointerCoordinates): void {
-    if (!this.isOverDisplay(data)) { return; }
+    const target = this.getInteractionTarget(data) ?? this.previousInteractionTarget;
+
+    if (target === null) { return; }
 
     this.clearMouseInstruction();
-    this.manager.changeState(CameraHandlerState.MonitorView);
+
+    if (target === 'display') {
+      this.manager.changeState(CameraHandlerState.MonitorView);
+      return;
+    }
+
+    if (target === 'frame') {
+      openPhotoFrameDestination();
+      return;
+    }
+
+    this.manager.changeState(CameraHandlerState.PhoneView);
   }
 
   private moveCamera(coords: PointerCoordinates): void {
@@ -98,7 +120,7 @@ export class FreeRoamCameraState extends CameraState {
   private updateCursor(data: PointerCoordinates): void {
     const ctx = this.ctx;
 
-    ctx.setCursor(this.isOverDisplay(data) ? 'pointer' : 'auto');
+    ctx.setCursor(this.getInteractionTarget(data) ? 'pointer' : 'grab');
   }
 
   private clearRotateCamera(): void {
@@ -129,20 +151,25 @@ export class FreeRoamCameraState extends CameraState {
   }
 
   private handleMouseInstruction(data: MouseData): void {
-    const isOverDisplay = this.isOverDisplay(data);
+    const target = this.getInteractionTarget(data);
+    const hasChangedInteractionTarget = (): boolean => target !== this.previousInteractionTarget;
 
-    const hasChangedOverDisplay = (): boolean => isOverDisplay !== this.wasOverDisplay;
-
-    if (hasChangedOverDisplay()) {
-      if (isOverDisplay) {
-        const confirmEvent = toUserInteractionMouseConfirmationEvent(MouseInstructionData.fromMouseData(data, 'Click to zoom in'));
+    if (hasChangedInteractionTarget()) {
+      if (target === 'display') {
+        const confirmEvent = toUserInteractionMouseConfirmationEvent(MouseInstructionData.fromMouseData(data, 'Click to open desktop'));
+        this.manager.emitUserInteractionEvent(confirmEvent);
+      } else if (target === 'frame') {
+        const confirmEvent = toUserInteractionMouseConfirmationEvent(MouseInstructionData.fromMouseData(data, 'Open OSDHack'));
+        this.manager.emitUserInteractionEvent(confirmEvent);
+      } else if (target === 'phone') {
+        const confirmEvent = toUserInteractionMouseConfirmationEvent(MouseInstructionData.fromMouseData(data, 'Click to open pocket mode'));
         this.manager.emitUserInteractionEvent(confirmEvent);
       } else {
         this.clearMouseInstruction();
       }
     }
 
-    this.wasOverDisplay = isOverDisplay;
+    this.previousInteractionTarget = target;
   }
 
   private handleMouseMove(data: MouseData): void {
@@ -188,11 +215,23 @@ export class FreeRoamCameraState extends CameraState {
   }
 
   private handleTouchDisplayClick(data: TouchData) {
-    if (!this.isOverDisplay(data.pointerCoordinates())) { return; }
+    const target = this.getInteractionTarget(data.pointerCoordinates());
+    if (target === null) { return; }
 
     const onSuccess = () => {
       this.clearMouseInstruction();
-      this.manager.changeState(CameraHandlerState.MonitorView);
+
+      if (target === 'display') {
+        this.manager.changeState(CameraHandlerState.MonitorView);
+        return;
+      }
+
+      if (target === 'frame') {
+        openPhotoFrameDestination();
+        return;
+      }
+
+      this.manager.changeState(CameraHandlerState.PhoneView);
     };
 
     const confirm = ConfirmationData.fromTouchData(

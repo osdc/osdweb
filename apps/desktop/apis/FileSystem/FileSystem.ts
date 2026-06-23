@@ -15,8 +15,6 @@ import { doomConfig } from "@/applications/Doom/Doom";
 import { imageViewerConfig } from "@/applications/ImageViewer/ImageViewer";
 import { contactConfig } from "@/applications/Contract/Contact";
 import { IconHeight, IconWidth } from "@/components/Icons/FolderIcon";
-import { skillsConfig } from "@/applications/Skills/Skills";
-import { algorithmVisualizerConfig } from "@/applications/AlgorithmVisualizer/AlgorithmVisualizer";
 import { terminalConfig } from "@/applications/Terminal/TerminalApplication";
 import { ProgramConfig } from "@/programs/Programs";
 import { lsConfig } from "@/programs/ListFiles/ListFiles";
@@ -291,13 +289,11 @@ export function createBaseFileSystem(): FileSystem {
 
   fileSystem.addApplication(finderConfig);
   fileSystem.addApplication(contactConfig);
-  fileSystem.addApplication(aboutConfig);
+  const about = fileSystem.addApplication(aboutConfig);
   const notes = fileSystem.addApplication(notesConfig);
   fileSystem.addApplication(terminalConfig);
-  const algoViz = fileSystem.addApplication(algorithmVisualizerConfig);
   const doom = fileSystem.addApplication(doomConfig);
   fileSystem.addApplication(imageViewerConfig);
-  const clubStack = fileSystem.addApplication(skillsConfig);
 
   // Create unix like /home folder (macOS also has one)
   fileSystem.addDirectory(root, 'home', false, false);
@@ -313,68 +309,20 @@ export function createBaseFileSystem(): FileSystem {
 
   fileSystem.addHyperLink(desktop, applications, 'Applications', applicationFolderIcon, true);
 
+  if (about.ok) {
+    const aboutShortcutIcon = { src: '/icons/about-app.png', alt: 'Open OSDC clubbook' };
+    fileSystem.addHyperLink(desktop, about.value, 'OSDC.app', aboutShortcutIcon, true);
+  }
+
   if (doom.ok) {
     const doomShortcutIcon = { src: '/icons/doom-icon.png', alt: 'Play Doom' };
     fileSystem.addHyperLink(desktop, doom.value, 'Doom', doomShortcutIcon, true);
-  }
-
-  if (algoViz.ok) {
-    const algoVizShortcutIcon = { src: '/icons/algorithm-visualizer-icon.png', alt: 'Start Algorithm Visualizer' };
-    fileSystem.addHyperLink(desktop, algoViz.value, 'Algorithms', algoVizShortcutIcon, true);
   }
 
   if (notes.ok) {
     const notesShortcutIcon = { src: '/icons/file-icon.png', alt: 'Open notes workspace' };
     fileSystem.addHyperLink(desktop, notes.value, 'Notes', notesShortcutIcon, true);
   }
-
-  if (clubStack.ok) {
-    const clubStackShortcutIcon = { src: '/icons/skills-icon.png', alt: 'Open club stack overview' };
-    fileSystem.addHyperLink(desktop, clubStack.value, 'Club Stack', clubStackShortcutIcon, true);
-  }
-
-  const readmeText = `Welcome to the OSDC desktop layer.
-
-This workspace powers the monitor workroom.
-
-Use it for notes, internal utilities, experiments, and club-facing tool surfaces that should not live in the public shell.
-`;
-
-  const clubBriefText = `OSDC club desktop brief
-
-- The monitor shell is the public-facing surface.
-- This inner desktop is for tools, docs, experiments, and playful extras like Doom.
-- Keep content modular so the club can swap events, members, and archive material without rewriting the shell.
-`;
-
-  const eventPipelineText = `Event pipeline
-
-1. Poster concept
-2. Registration link
-3. Speaker or maintainer context
-4. Countdown / launch copy
-5. Archive screenshot + recap notes
-`;
-
-  const memberOnboardingText = `Member onboarding
-
-- Join the Discord and pick a channel to lurk in first.
-- Start with docs, visual polish, bug fixes, or event support if you are new.
-- Move into builds, review, infra, or poster work once you have context.
-`;
-
-  const librariesText = `This clone currently relies on a few key libraries:
-Three - https://threejs.org/ 3D scene rendering and camera work.
-Nextjs - https://nextjs.org/ Application shell and routing.
-Turborepo - https://turbo.build/ Monorepo task orchestration.
-xtermjs - https://xtermjs.org/ Terminal emulation inside the desktop layer.
-`;
-
-  fileSystem.addTextFile(desktop, 'readme', readmeText, true);
-  fileSystem.addTextFile(desktop, 'club-brief', clubBriefText, true);
-  fileSystem.addTextFile(documents, 'libraries', librariesText, true);
-  fileSystem.addTextFile(documents, 'event-pipeline', eventPipelineText, true);
-  fileSystem.addTextFile(documents, 'member-onboarding', memberOnboardingText, true);
 
   // We keep Cheems in the trash can :ˆ)
   fileSystem.addImage(trash, 'Cheems', '.png', '/images/temp.png', "A lovely debug image", true);

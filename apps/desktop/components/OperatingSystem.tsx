@@ -44,10 +44,8 @@ const DesktopToolTargets = {
   terminal: '/Applications/Terminal.app',
   about: '/Applications/About.app',
   contact: '/Applications/Contact.app',
-  algorithms: '/Applications/Algorithms.app',
   doom: '/Applications/Doom.app',
   notes: '/Applications/Notes.app',
-  skills: '/Applications/Skills.app',
 };
 
 function openDesktopTool(tool: string | null | undefined): void {
@@ -105,6 +103,7 @@ export const OperatingSystem = () => {
   const touchOrigin = useRef<TouchData | null>(null);
   const [monitorMode, setMonitorMode] = useState(false);
   const [wallpaperUrl, setWallpaperUrl] = useState<string | null>(null);
+  const [embedded, setEmbedded] = useState(false);
 
   const initialCamera = useRef<Camera | null>(null);
   const camera = useRef<Camera | null>(null);
@@ -211,6 +210,10 @@ export const OperatingSystem = () => {
     element.removeEventListener('touchend', handleTouchEndEvent);
   }
 
+  function returnToDesk() {
+    window.top?.postMessage({ type: 'osdc-close-desktop-overlay' }, '*');
+  }
+
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const isMonitorMode = searchParams.has('monitor');
@@ -218,6 +221,7 @@ export const OperatingSystem = () => {
 
     setMonitorMode(isMonitorMode);
     setWallpaperUrl(monitorWallpaperUrl);
+    setEmbedded(window.self !== window.top);
 
     system.init();
 
@@ -257,7 +261,12 @@ export const OperatingSystem = () => {
       ref={ref}
       className={[styles.operatingSystem, monitorMode ? styles.monitorMode : ""].join(" ").trim()}
     >
-      <MenuBar manager={applicationManager} monitorMode={monitorMode}/>
+      <MenuBar
+        manager={applicationManager}
+        monitorMode={monitorMode}
+        embedded={embedded}
+        onBackToDesk={embedded ? returnToDesk : undefined}
+      />
       <Desktop
         apis={apis}
         manager={applicationManager}

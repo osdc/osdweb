@@ -1,372 +1,440 @@
 import { WindowProps } from '@/components/WindowManagement/WindowCompositor';
-import { JSX, useEffect, useRef, useState } from 'react';
+import { startTransition, type CSSProperties, type SyntheticEvent, useEffect, useRef, useState } from 'react';
 import styles from './AboutView.module.css';
-import { BaseApplicationManager } from '../ApplicationManager';
-import { useTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
-import { ProjectAdventOfCode, ProjectAlbert, ProjectJScript, ProjectPCParts, ProjectPaintboy, ProjectPortfolio2021, ProjectPortfolio2024, ProjectRedisClone, ProjectTBot, ProjectYoui } from './Projects';
 import { ScreenResolution } from '@/apis/Screen/ScreenService';
+import {
+  clubbookSectionOrder,
+  clubbookSections,
+  ClubbookSectionId,
+  ClubbookSlide,
+  resolveSlideMediaProfile,
+  SlideMediaDimensions,
+} from 'osdc-content';
 
-type SubView = (
-  'home' |
-  'about' |
-  'experience' |
-  'projects' |
-  'project-redis' |
-  'project-portfolio-2024' |
-  'project-j-script' |
-  'project-advent-of-code' |
-  'project-portfolio-2021' |
-  'project-t-bot' |
-  'project-youi' |
-  'project-pcparts' |
-  'project-albert' |
-  'project-paintboy' |
-  'contact'
-);
-
-export type SubViewParams = {
+type SectionNavigationProps = {
+  activeSection: ClubbookSectionId,
   needsMobileView: boolean,
-  manager: BaseApplicationManager,
-  changeParent: (view: SubView) => void,
-  translate: TFunction,
-  language: string
+  onSectionChange: (section: ClubbookSectionId) => void,
+  onOpenContact: () => void,
+  onOpenSocials: () => void,
+};
+
+type ViewerProps = {
+  slide: ClubbookSlide,
+  slideIndex: number,
+  slideCount: number,
+  onPrev: () => void,
+  onNext: () => void,
+  onExpand: (slide: ClubbookSlide) => void,
+};
+
+type ThumbnailRailProps = {
+  activeIndex: number,
+  slides: ClubbookSlide[],
+  onSelect: (index: number) => void,
+};
+
+type VariableStyle = CSSProperties & Record<`--${string}`, string>;
+
+function createDesktopViewerStyles(slide: ClubbookSlide, dimensions: SlideMediaDimensions | null): {
+  shell: CSSProperties,
+  imageWrap: CSSProperties,
+  imageFrame: CSSProperties,
+  image: CSSProperties,
+  info: VariableStyle,
+} {
+  const profile = resolveSlideMediaProfile(slide, dimensions);
+  const densityGap = profile.viewerFocus === 'content' ? '0.82rem' : profile.viewerFocus === 'image' ? '1.05rem' : '0.94rem';
+  const protectedImageKinds = profile.kind === 'poster' || profile.kind === 'portrait';
+  const displayFitMode = protectedImageKinds ? 'contain' : profile.fitMode;
+  const allowFrameToWrapImage = displayFitMode === 'contain' && (protectedImageKinds || profile.kind === 'square');
+  const relaxedMaxHeight = displayFitMode === 'contain' && profile.orientation === 'portrait'
+    ? profile.desktopStage.maxMediaHeightRem + 3.5
+    : profile.desktopStage.maxMediaHeightRem;
+
+  return {
+    shell: {
+      gridTemplateColumns: `minmax(0, ${profile.desktopStage.imagePaneWeight}fr) minmax(18rem, ${profile.desktopStage.contentPaneWeight}fr)`,
+    },
+    imageWrap: {
+      minHeight: `${allowFrameToWrapImage ? profile.desktopStage.minHeightRem + 1.5 : profile.desktopStage.minHeightRem}rem`,
+    },
+    imageFrame: {
+      width: allowFrameToWrapImage ? 'fit-content' : `min(100%, ${profile.desktopStage.maxMediaWidthRem}rem)`,
+      minHeight: allowFrameToWrapImage ? '0' : `${profile.desktopStage.minHeightRem}rem`,
+      maxHeight: `${relaxedMaxHeight + 1.5}rem`,
+      aspectRatio: allowFrameToWrapImage ? 'auto' : `${profile.desktopStage.aspectRatio}`,
+      padding: `${profile.desktopStage.framePaddingRem}rem`,
+    },
+    image: {
+      width: displayFitMode === 'cover' ? '100%' : 'auto',
+      height: displayFitMode === 'cover' ? '100%' : 'auto',
+      maxHeight: displayFitMode === 'cover' ? 'none' : `${relaxedMaxHeight}rem`,
+      maxWidth: displayFitMode === 'cover' ? 'none' : '100%',
+      objectFit: displayFitMode,
+      objectPosition: profile.objectPosition,
+    },
+    info: {
+      '--viewer-card-gap': densityGap,
+      '--viewer-meta-columns': profile.viewerFocus === 'content' ? 'repeat(2, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))',
+    },
+  };
 }
 
-function Contact(props: { manager: BaseApplicationManager, language: string }) {
-  function openContactApp() {
-    props.manager.open('/Applications/Contact.app');
-  }
-
-  if (props.language === 'nl') {
-    return (
-      <>
-        <p>
-          Gebruik de <a onClick={() => openContactApp()} href="#contact">contact applicatie</a> om feedback, bugs of nieuwe ideeën voor deze OSDC desktoplaag door te sturen.
-        </p>
-      </>
-    );
-  }
+function SectionNavigation(props: SectionNavigationProps) {
+  const { activeSection, needsMobileView, onSectionChange, onOpenContact, onOpenSocials } = props;
+  const mobileClass = needsMobileView ? styles.navigationMobile : '';
 
   return (
-    <>
-      <p>
-        Use the <a onClick={() => openContactApp()} href="#contact">contact application</a> to send feedback, bugs, or new ideas for this OSDC desktop layer.
+    <aside className={`${styles.navigation} ${mobileClass}`}>
+      <div className={styles.navigationBrand}>
+        <span className={styles.logoPart}>OSDC</span>
+        <span className={styles.logoPart}>CLUBBOOK</span>
+      </div>
+
+      <p className={styles.navigationIntro}>
+        Student-run open-source club.
+        <br />
+        No filler.
+        <br />
+        Click around.
       </p>
-    </>
-  );
-}
 
-function InfoPanel(props: { language: string }) {
-  const title = props.language === 'nl' ? 'Status van deze laag' : 'Layer status';
-  const text = props.language === 'nl'
-    ? 'Deze desktopzijde wordt omgebouwd tot een OSDC control room. Gebruik hem als interne laag voor modules, notities en experimenten terwijl de monitorervaring wordt uitgewerkt.'
-    : 'This desktop side is being repurposed into an OSDC control room. Use it as an internal layer for modules, notes, and experiments while the monitor experience is refined.';
+      <div className={styles.navigationButtonContainer}>
+        {clubbookSectionOrder.map((sectionId) => {
+          const section = clubbookSections[sectionId];
+          const activeClass = activeSection === sectionId ? styles.navigationButtonActive : '';
 
-  return (
-    <>
-      <div className={styles['download-cv']}>
-        <hr className={styles['about-hr']}/>
-        <div className={styles['download-content']}>
-          <img src="/icons/printer.png" alt="Printer" draggable={false} />
-          <div>
-            <h2>{title}</h2>
-            <p>{text}</p>
-          </div>
-        </div>
-        <hr className={styles['about-hr']}/>
+          return (
+            <button
+              key={sectionId}
+              className={`system-button ${styles.navigationButton} ${activeClass}`}
+              onClick={() => onSectionChange(sectionId)}
+            >
+              {section.label}
+            </button>
+          );
+        })}
       </div>
-    </>
-  );
-}
 
-function HomeSubView(params: SubViewParams) {
-  const t = params.translate;
-  const mobileClass = params.needsMobileView ? styles['mobile'] : '';
-
-  return (
-    <>
-      <div className={styles['subpage-home']}>
-        <h1 className={styles['home-title']}>OSDC</h1>
-        <h3 className={styles['home-subtitle']}>Workroom Brief</h3>
-
-        <div className={styles['home-button-container']}>
-          <button className={`${styles['home-button']} system-button ${mobileClass}`} onClick={() => params.changeParent('about')}>{t("about.navigation.about")}</button>
-          <button className={`${styles['home-button']} system-button ${mobileClass}`} onClick={() => params.changeParent('experience')}>{t("about.navigation.experience")}</button>
-          <button className={`${styles['home-button']} system-button ${mobileClass}`} onClick={() => params.changeParent('projects')}>{t("about.navigation.projects")}</button>
-          <button className={`${styles['home-button']} system-button ${mobileClass}`} onClick={() => params.changeParent('contact')}>{t("about.navigation.contact")}</button>
-        </div>
-      </div>
-    </>
-  );
-}
-
-export function SubViewNavigation(params: SubViewParams) {
-  const t = params.translate;
-  const mobileClass = params.needsMobileView ? styles['mobile'] : '';
-
-  return (
-    <>
-      <div className={styles['navigation']}>
-        <div>
-          <span className={styles['logo-part']}>OSDC</span>
-          <span className={styles['logo-part']}>Briefing</span>
-        </div>
-
-        <div className={`${styles['navigation-button-container']} ${mobileClass}`}>
-          <button className='system-button' onClick={() => params.changeParent('home')}>{t("about.navigation.home")}</button>
-          <button className='system-button' onClick={() => params.changeParent('about')}>{t("about.navigation.about")}</button>
-          <button className='system-button' onClick={() => params.changeParent('experience')}>{t("about.navigation.experience")}</button>
-          <button className='system-button' onClick={() => params.changeParent('projects')}>{t("about.navigation.projects")}</button>
-          <button className='system-button' onClick={() => params.changeParent('contact')}>{t("about.navigation.contact")}</button>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function AboutSubView(params: SubViewParams) {
-  function RenderDutchContent() {
-    return (
-      <div>
-        <h1 className={styles['page-h1']}>Welkom</h1>
-
-        <p>Deze desktoplaag is nu een OSDC werkruimte in plaats van een persoonlijk portfolio. De focus ligt op de monitor, de globe-integratie en de retro CRT-ervaring eromheen.</p>
-        <p>Gebruik deze pagina als plek voor context, interne uitleg en toekomstige modules die niet direct op het grote scherm hoeven te staan.</p>
-
-        <InfoPanel language='nl' />
-
-        <h2>Wat deze build nu doet</h2>
-        <p>De 3D desk scene blijft intact, maar de inhoud is omgebogen naar OSDC. De monitor laadt de originele globe in een CRT-shell, terwijl de rest van de desktop als interne laag kan dienen.</p>
-        <p>De nadruk ligt nog niet op feature-volledigheid, maar op visuele richting, consistente thematiek en een heldere scheiding tussen publiek scherm en toolachtige panelen.</p>
-
-        <h2>Waar dit heen kan</h2>
-        <p>De volgende stappen kunnen bestaan uit member tooling, event scheduling, poster-achtige views en interne control surfaces die dezelfde schermtaal delen.</p>
-
-        <Contact manager={params.manager} language={params.language} />
-      </div>
-    );
-  }
-
-  function RenderEnglishContent() {
-    return (
-      <div>
-        <h1 className={styles['page-h1']}>Welcome</h1>
-
-        <p>This desktop layer is now an OSDC workspace instead of a personal portfolio. The focus is the monitor, the globe integration, and the retro CRT shell around it.</p>
-        <p>Use this page as a place for context, internal notes, and future modules that do not need to live directly on the main screen.</p>
-
-        <InfoPanel language='en' />
-
-        <h2>What this build does right now</h2>
-        <p>The 3D desk scene stays intact, but the content is redirected toward OSDC. The monitor loads the original globe inside a CRT wrapper, while the rest of the desktop can act as an internal layer.</p>
-        <p>The emphasis is not full feature parity yet, but visual direction, thematic consistency, and a clear split between the public monitor and tool-like panels.</p>
-
-        <h2>Where this can go next</h2>
-        <p>Next steps can branch into member tooling, event scheduling, poster-driven views, and internal control surfaces that share the same screen language.</p>
-
-        <Contact manager={params.manager} language={params.language} />
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <div data-subpage className={styles['subpage']}>
-        {SubViewNavigation(params)}
-        <div data-subpage-content className={styles['subpage-content']}>
-          {params.language === 'nl' ? RenderDutchContent() : RenderEnglishContent()}
-        </div>
-      </div>
-    </>
-  );
-}
-
-function ExperienceSubView(params: SubViewParams) {
-  const t = params.translate;
-
-  function dutchContent() {
-    return (
-      <>
-        <h2>2026 - Repurposing pass</h2>
-        <p>In deze fase wordt de originele desk scene opnieuw ingericht rondom OSDC. Het belangrijkste doel is een overtuigende entree-ervaring bouwen zonder de handgemaakte globe of CRT-feel te verliezen.</p>
-
-        <h2>Huidige focus</h2>
-        <p>De monitorervaring krijgt prioriteit: juiste bulge, scanlines, overlay UI en een duidelijke relatie tussen de publieke hero en de interne desktoplaag.</p>
-
-        <h2>Volgende modules</h2>
-        <p>Na de monitor volgen event-oppervlakken, member tooling, statuspanelen en andere schermen die meer utility kunnen toevoegen zonder de visuele lijn te breken.</p>
-      </>
-    );
-  }
-
-  function englishContent() {
-    return (
-      <>
-        <h2>2026 - Repurposing pass</h2>
-        <p>In this phase the original desk scene is being redirected around OSDC. The primary goal is to build a convincing entry experience without losing the handcrafted globe or CRT feel.</p>
-
-        <h2>Current focus</h2>
-        <p>The monitor experience comes first: correct bulge, scanlines, overlay UI, and a clear relationship between the public hero and the internal desktop layer.</p>
-
-        <h2>Next modules</h2>
-        <p>After the monitor, the next surfaces can include event panels, member tooling, status boards, and other screens that add utility without breaking the visual line.</p>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <div data-subpage className={styles['subpage']}>
-        {SubViewNavigation(params)}
-        <div data-subpage-content className={styles['subpage-content']}>
-          <h1 className={styles['page-h1']}>{t("about.navigation.experience")}</h1>
-          {params.language === 'nl' ? dutchContent() : englishContent()}
-          <InfoPanel language={params.language} />
-          <Contact manager={params.manager} language={params.language} />
-        </div>
-      </div>
-    </>
-  );
-}
-
-function ProjectsSubView(params: SubViewParams) {
-  const t = params.translate;
-
-  function ProjectButton(name: string, target: SubView, imageUrl: string) {
-    return (
-      <>
-        <button className={styles['project-button']} onClick={() => params.changeParent(target)}>
-          <div>
-            <img src={imageUrl} alt={`${target} thumbnail`} width={25} height={25} />
-          </div>
-          <span>{name}</span>
+      <div className={styles.navigationFooter}>
+        <button className={`system-button ${styles.navigationAction}`} onClick={onOpenContact}>
+          Contact
         </button>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <div data-subpage className={styles['subpage']}>
-        {SubViewNavigation(params)}
-        <div data-subpage-content className={styles['subpage-content']}>
-          <h1 className={styles['page-h1']}>{t("about.navigation.projects")}</h1>
-
-          <h2>Core screen</h2>
-          <ul>
-            <li>{ProjectButton('Globe Engine', 'project-redis', '/icons/project-redis.png')}</li>
-            <li>{ProjectButton('CRT Hub', 'project-portfolio-2024', '/icons/project-portfolio-2024.png')}</li>
-          </ul>
-
-          <h2>Community modules</h2>
-          <ul>
-            <li>{ProjectButton('Events Console', 'project-j-script', '/icons/project-j-script.png')}</li>
-            <li>{ProjectButton('Members Index', 'project-advent-of-code', '/icons/project-advent-of-code.png')}</li>
-            <li>{ProjectButton('Archive Mode', 'project-portfolio-2021', '/icons/project-portfolio-2021.png')}</li>
-          </ul>
-
-          <h2>Internal tools</h2>
-          <ul>
-            <li>{ProjectButton('Community Ops', 'project-t-bot', '/icons/project-t-bot.png')}</li>
-            <li>{ProjectButton('Messaging Flow', 'project-youi', '/icons/project-youi.png')}</li>
-            <li>{ProjectButton('Resource Board', 'project-pcparts', '/icons/project-pcparts.png')}</li>
-            <li>{ProjectButton('Maintainer Desk', 'project-albert', '/icons/project-albert.png')}</li>
-            <li>{ProjectButton('Poster Lab', 'project-paintboy', '/icons/project-paintboy.png')}</li>
-          </ul>
-        </div>
+        <button className={`system-button ${styles.navigationAction}`} onClick={onOpenSocials}>
+          Socials
+        </button>
       </div>
-    </>
+    </aside>
   );
 }
 
-function RenderSubView(view: SubView, params: SubViewParams): JSX.Element {
-  switch (view) {
-    case 'home': return HomeSubView(params);
-    case 'about': return AboutSubView(params);
-    case 'experience': return ExperienceSubView(params);
-    case 'projects': return ProjectsSubView(params);
-    case 'project-redis': return ProjectRedisClone(params);
-    case 'project-portfolio-2024': return ProjectPortfolio2024(params);
-    case 'project-j-script': return ProjectJScript(params);
-    case 'project-advent-of-code': return ProjectAdventOfCode(params);
-    case 'project-portfolio-2021': return ProjectPortfolio2021(params);
-    case 'project-t-bot': return ProjectTBot(params);
-    case 'project-youi': return ProjectYoui(params);
-    case 'project-pcparts': return ProjectPCParts(params);
-    case 'project-albert': return ProjectAlbert(params);
-    case 'project-paintboy': return ProjectPaintboy(params);
+function SlideViewer(props: ViewerProps) {
+  const { slide, slideIndex, slideCount, onPrev, onNext, onExpand } = props;
+  const viewerBackdropStyle = { backgroundImage: `url("${slide.imageSrc}")` };
+  const [imageDimensions, setImageDimensions] = useState<SlideMediaDimensions | null>(null);
+  const viewerStyles = createDesktopViewerStyles(slide, imageDimensions);
+
+  function handleImageLoad(event: SyntheticEvent<HTMLImageElement>) {
+    const image = event.currentTarget;
+    setImageDimensions({
+      width: image.naturalWidth,
+      height: image.naturalHeight,
+    });
   }
 
-  return <></>;
+  useEffect(() => {
+    setImageDimensions(null);
+  }, [slide.id]);
+
+  return (
+    <div className={styles.viewerShell} style={viewerStyles.shell}>
+      <div className={styles.viewerStage}>
+        <div className={styles.viewerToolbar}>
+          <span className={styles.viewerPath}>/Users/osdc/Desktop/{slide.id}.img</span>
+          <span className={styles.viewerCounter}>
+            {slideIndex + 1} / {slideCount}
+          </span>
+        </div>
+
+        <div className={styles.viewerImageWrap} style={viewerStyles.imageWrap}>
+          <div className={styles.viewerImageBackdrop} style={viewerBackdropStyle} aria-hidden="true"></div>
+          <div className={styles.viewerImageGlow} aria-hidden="true"></div>
+
+          <div key={slide.id} className={styles.viewerImageStage}>
+            <div className={styles.viewerImageBadge}>Mounted</div>
+            <button
+              type="button"
+              className={styles.viewerImageButton}
+              onClick={() => onExpand(slide)}
+              aria-label={`Expand ${slide.imageAlt}`}
+            >
+              <div className={styles.viewerImageFrame} style={viewerStyles.imageFrame}>
+                <img
+                  className={styles.viewerImage}
+                  style={viewerStyles.image}
+                  src={slide.imageSrc}
+                  alt={slide.imageAlt}
+                  draggable={false}
+                  onLoad={handleImageLoad}
+                />
+              </div>
+            </button>
+            <div className={styles.viewerImageMeta}>{slide.thumbLabel}</div>
+          </div>
+        </div>
+
+        {slide.caption ? <div className={styles.viewerCaption}>{slide.caption}</div> : <div className={styles.viewerCaption}>Ready.</div>}
+      </div>
+
+      <div key={`${slide.id}-info`} className={styles.viewerInfo} style={viewerStyles.info}>
+        <p className={styles.slideKicker}>{slide.kicker}</p>
+        <h2 className={styles.slideTitle}>{slide.title}</h2>
+        <p className={styles.slideDescription}>{slide.description}</p>
+        {(slide.profileLinks?.length || slide.credits?.length) ? (
+          <div className={styles.viewerCallouts}>
+            {slide.profileLinks?.length ? (
+              <div className={styles.viewerProfileLinks}>
+                {slide.profileLinks.map((link) => (
+                  <a
+                    key={`${slide.id}-${link.href}`}
+                    className={styles.viewerProfileLink}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            ) : null}
+
+            {slide.credits?.length ? (
+              <p className={styles.viewerCredits}>
+                Creds: {slide.credits.join(' // ')}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className={styles.metaGrid}>
+          {slide.meta.map((item) => (
+            <div key={`${slide.id}-${item.label}`} className={styles.metaCard}>
+              <span className={styles.metaLabel}>{item.label}</span>
+              <span className={styles.metaValue}>{item.value}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.viewerControls}>
+          <button className={`system-button ${styles.viewerControlButton}`} onClick={onPrev}>
+            Previous
+          </button>
+          <button className={`system-button ${styles.viewerControlButton}`} onClick={onNext}>
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ThumbnailRail(props: ThumbnailRailProps) {
+  const { activeIndex, slides, onSelect } = props;
+
+  return (
+    <div className={styles.thumbnailRail}>
+      {slides.map((slide, index) => {
+        const activeClass = index === activeIndex ? styles.thumbnailButtonActive : '';
+
+        return (
+          <button
+            key={slide.id}
+            className={`${styles.thumbnailButton} ${activeClass}`}
+            onClick={() => onSelect(index)}
+          >
+            <div className={styles.thumbnailImageWrap}>
+              <img className={styles.thumbnailImage} src={slide.imageSrc} alt={slide.imageAlt} draggable={false} />
+            </div>
+            <span className={styles.thumbnailLabel}>{slide.thumbLabel}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function AboutApplicationView(props: WindowProps) {
-  const { application, windowContext } = props;
-
-  const [subView, setSubView] = useState<SubView>('home');
-  const [needsMobileView, setNeedsMobileView] = useState<boolean>(false);
-  const { t, i18n } = useTranslation("common");
-
-  const apis = application.apis;
+  const { application } = props;
+  const [sectionId, setSectionId] = useState<ClubbookSectionId>('club');
+  const [slideIndex, setSlideIndex] = useState(0);
+  const [needsMobileView, setNeedsMobileView] = useState(false);
+  const [expandedSlide, setExpandedSlide] = useState<ClubbookSlide | null>(null);
   const contentParent = useRef<HTMLDivElement>(null);
 
+  const apis = application.apis;
+  const section = clubbookSections[sectionId];
+  const slides = section.slides;
+  const activeSlide = slides[slideIndex];
+
+  function openContact() {
+    application.manager.open('/Applications/Contact.app');
+  }
+
+  function openSocials() {
+    application.manager.open('/Applications/Contact.app socials');
+  }
+
   function resetSubPageScroll() {
-    if (!contentParent.current) { return; }
-
-    const subViewParent = contentParent.current;
-    const subViewParentChildren = Array.from(subViewParent.children);
-
-    const subView = subViewParentChildren.find(x => x.hasAttribute('data-subpage'));
-    if (!subView) { return; }
-
-    const subViewChildren = Array.from(subView.children);
-    const contentView = subViewChildren.find(x => x.hasAttribute('data-subpage-content'));
-
-    if (!contentView) { return; }
-    contentView.scrollTop = 0;
+    const content = contentParent.current?.querySelector('[data-subpage-content]') as HTMLDivElement | null;
+    if (content) {
+      content.scrollTop = 0;
+    }
   }
 
   function onScreenChangeListener(resolution: ScreenResolution): void {
     setNeedsMobileView(resolution.isMobileDevice());
   }
 
+  function goToPreviousSlide() {
+    startTransition(() => {
+      setSlideIndex((currentIndex) => (currentIndex - 1 + slides.length) % slides.length);
+    });
+  }
+
+  function goToNextSlide() {
+    startTransition(() => {
+      setSlideIndex((currentIndex) => (currentIndex + 1) % slides.length);
+    });
+  }
+
+  function changeSection(nextSection: ClubbookSectionId) {
+    setSectionId(nextSection);
+    setSlideIndex(0);
+  }
+
   useEffect(() => {
     const unsubscribe = apis.screen.subscribe(onScreenChangeListener);
     const resolution = apis.screen.getResolution();
-    if (resolution) { onScreenChangeListener(resolution); }
+
+    if (resolution) {
+      onScreenChangeListener(resolution);
+    }
 
     return () => {
       unsubscribe();
-    }
-  }, []);
+    };
+  }, [apis.screen]);
 
   useEffect(() => {
     resetSubPageScroll();
-  }, [subView]);
+    setExpandedSlide(null);
+  }, [sectionId]);
 
-  function changeParent(view: SubView) {
-    if (view === 'contact') {
-      application.on({ kind: 'about-open-contact-event' }, windowContext);
-      return;
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const activeElement = document.activeElement;
+
+      if (
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        setSlideIndex((currentIndex) => (currentIndex - 1 + slides.length) % slides.length);
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        setSlideIndex((currentIndex) => (currentIndex + 1) % slides.length);
+      }
+
+      if (event.key === 'Escape') {
+        setExpandedSlide(null);
+      }
     }
 
-    setSubView(view);
-  }
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [slides.length]);
 
   return (
     <div className="content-outer">
       <div className="content">
-        <div className='content-inner' ref={contentParent}>
-          {RenderSubView(subView, {
-            needsMobileView,
-            manager: application.manager,
-            changeParent,
-            translate: t,
-            language: i18n.language
-          })}
+        <div className="content-inner" ref={contentParent}>
+          <div data-subpage className={styles.subpage}>
+            <SectionNavigation
+              activeSection={sectionId}
+              needsMobileView={needsMobileView}
+              onSectionChange={changeSection}
+              onOpenContact={openContact}
+              onOpenSocials={openSocials}
+            />
+
+            <div data-subpage-content className={styles.subpageContent}>
+              <div className={styles.sectionHeader}>
+                <div className={styles.sectionHeaderText}>
+                  <p className={styles.sectionEyebrow}>{section.fileHint}</p>
+                  <h1 className={styles.sectionTitle}>{section.title}</h1>
+                  <p className={styles.sectionIntro}>{section.intro}</p>
+                </div>
+
+                <div className={styles.headerActions}>
+                  <button className={`system-button ${styles.headerActionButton}`} onClick={openContact}>
+                    Contact us
+                  </button>
+                  <button className={`system-button ${styles.headerActionButton}`} onClick={openSocials}>
+                    Socials
+                  </button>
+                </div>
+              </div>
+
+              <SlideViewer
+                slide={activeSlide}
+                slideIndex={slideIndex}
+                slideCount={slides.length}
+                onPrev={goToPreviousSlide}
+                onNext={goToNextSlide}
+                onExpand={setExpandedSlide}
+              />
+
+              <ThumbnailRail activeIndex={slideIndex} slides={slides} onSelect={setSlideIndex} />
+
+              <p className={styles.footerNote}>{section.footer}</p>
+            </div>
+          </div>
         </div>
       </div>
+
+      {expandedSlide && (
+        <div className={styles.viewerLightbox} onClick={() => setExpandedSlide(null)}>
+          <div className={styles.viewerLightboxFrame} onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              className={`system-button ${styles.viewerLightboxClose}`}
+              onClick={() => setExpandedSlide(null)}
+            >
+              Close
+            </button>
+            <img
+              className={styles.viewerLightboxImage}
+              src={expandedSlide.imageSrc}
+              alt={expandedSlide.imageAlt}
+              draggable={false}
+            />
+            <p className={styles.viewerLightboxCaption}>
+              {expandedSlide.caption ?? expandedSlide.title}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }

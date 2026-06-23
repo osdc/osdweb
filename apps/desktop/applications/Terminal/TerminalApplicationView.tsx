@@ -2,6 +2,7 @@ import { WindowProps } from '@/components/WindowManagement/WindowCompositor';
 import { useEffect, useRef, useState } from 'react';
 import { Terminal } from '@xterm/xterm';
 import { TerminalManager } from './TerminalManager';
+import { publicPath } from '@/util/publicPath';
 
 export interface TerminalConnector {
   clear(): void;
@@ -66,7 +67,7 @@ export default function TerminalApplicationView(props: WindowProps) {
   // But the browsers accept it anyway :ˆ)
   return (
     <>
-      <link rel="stylesheet" href="/xterm/xterm.css"/>
+      <link rel="stylesheet" href={publicPath('/xterm/xterm.css')}/>
       <div ref={terminalRef} style={{ height: '100%', width: '100%', background: '#000' }}></div>
     </>
   )

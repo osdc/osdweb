@@ -66,6 +66,12 @@ export function joinStyles(styles: (string | null)[]) {
 }
 
 export function sendMessageToIframe(message: MessageFromParent) {
-  const iframe = document.getElementById('operating-system-iframe') as HTMLIFrameElement;
-  sendMessageToChild(iframe.contentWindow, message);
+  const frames = [
+    document.getElementById('operating-system-iframe') as HTMLIFrameElement | null,
+    document.getElementById('operating-system-overlay-iframe') as HTMLIFrameElement | null,
+  ];
+
+  for (const iframe of frames) {
+    sendMessageToChild(iframe?.contentWindow ?? null, message);
+  }
 }

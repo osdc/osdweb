@@ -1,9 +1,12 @@
 const { config } = require('process')
 
+const desktopProxyUrl = (process.env.DESKTOP_PROXY_URL || 'http://localhost:3001').replace(/\/$/, '');
+const desktopProxyBasePath = (process.env.DESKTOP_PROXY_BASE_PATH || '/desktop').replace(/\/$/, '');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['rpc'],
+  transpilePackages: ['rpc', 'result', 'osdc-content'],
   devIndicators: false,
   turbopack: {
     rules: {
@@ -29,6 +32,18 @@ const nextConfig = {
         ]
       }
     ]
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/desktop',
+        destination: `${desktopProxyUrl}${desktopProxyBasePath}`,
+      },
+      {
+        source: '/desktop/:path*',
+        destination: `${desktopProxyUrl}${desktopProxyBasePath}/:path*`,
+      },
+    ];
   }
 }
 

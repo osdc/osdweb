@@ -31,7 +31,7 @@ export class MouseInputHandler {
     window.addEventListener('pointermove', this.onPointerMoveListener);
     window.addEventListener('pointerleave', this.onPointerLeaveListener);
     window.addEventListener('contextmenu', this.onContextMenuListener);
-    window.addEventListener('wheel', this.onWheelListener);
+    window.addEventListener('wheel', this.onWheelListener, { passive: false });
   }
 
   destroy(): void {
@@ -98,6 +98,8 @@ export class MouseInputHandler {
 
   private onWheel(evt: WheelEvent): void {
     if (!this.allowInput()) { return; }
+
+    evt.preventDefault();
 
     const data = MouseData.fromWheelEvent('wheel', evt);
     const event = toUserInteractionMouseEvent(data);

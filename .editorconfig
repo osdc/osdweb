@@ -1,7 +1,7 @@
 root = true
 
-[apps/**.{ts, js,json,js}]
-end_osf_line = crlf
+[*.{ts,tsx,js,jsx,json,md,css}]
+end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true

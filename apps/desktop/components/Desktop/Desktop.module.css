@@ -1,4 +1,6 @@
 .desktop {
+  --desktop-dock-reserve: 82px;
+  --desktop-monitor-dock-reserve: 44px;
   position: relative;
   background-color: #11b2b2;
   display: block;
@@ -48,11 +50,12 @@
   position: absolute;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: var(--desktop-dock-reserve);
   
   pointer-events: none;
-  width: 100%;
-  /* TODO: Change this to the eventual height of the dock */
-  height: calc(100% - 90px);
+  width: auto;
+  height: auto;
   z-index: 1;
 }
 
@@ -61,7 +64,7 @@
 }
 
 .monitorApplicationContainer {
-  height: calc(100% - 40px);
+  bottom: var(--desktop-monitor-dock-reserve);
 }
 
 .desktopContextMenu {

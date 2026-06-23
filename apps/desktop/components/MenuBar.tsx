@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './MenuBar.module.css';
 import { ApplicationManager, ApplicationManagerEvent, MenuEntry, MenuItem } from '@/applications/ApplicationManager';
 import { minimumDigits } from './util';
-import { useTranslation, I18n, TFunction } from 'next-i18next';
+import { useTranslation, TFunction } from 'next-i18next';
 import React from 'react';
 
 function renderApplicationMenu(menuItems: MenuEntry[]) {  
@@ -108,29 +108,11 @@ function renderClock(date: Date | undefined) {
   return <>{time}</>
 }
 
-function languageSelection(t: TFunction, i18n: I18n) {
-  function changeLanguage(language: string) {
-    i18n.changeLanguage(language);
-  }
-
-  const englishEntry  = `${t('language.tags.en')} - ${t('language.english')}`;
-  const dutchEntry    = `${t('language.tags.nl')} - ${t('language.dutch')}`;
-
-  let entry: MenuEntry = {
-    displayOptions: {},
-    name: i18n.language.toLowerCase(),
-    items: [
-      { kind: 'action', value: englishEntry, action: () => changeLanguage('en')},
-      { kind: 'action', value: dutchEntry, action: () => changeLanguage('nl')}
-    ]
-  }
-
-  return <MenuEntryView menuEntries={entry} />;
-}
-
 type MenuBarProps = {
   manager: ApplicationManager,
   monitorMode?: boolean,
+  embedded?: boolean,
+  onBackToDesk?: () => void,
 }
 
 const DateAndTime = () => {
@@ -157,7 +139,7 @@ const DateAndTime = () => {
 
 export const MenuBar = (props: MenuBarProps) => {
   const { t, i18n } = useTranslation('common');
-  const { manager, monitorMode = false } = props;
+  const { manager, monitorMode = false, embedded = false, onBackToDesk } = props;
 
   const [appMenuEntries, setAppMenuEntries] = useState<MenuEntry[]>([]);
 
@@ -180,14 +162,27 @@ export const MenuBar = (props: MenuBarProps) => {
     return <></>;
   }
 
+  const menuBarClassName = [
+    styles.menuBar,
+    embedded ? styles.embeddedMenuBar : '',
+  ].filter(Boolean).join(' ');
+
+  const backToDeskButtonClassName = [
+    'system-button',
+    styles.backToDeskButton,
+  ].join(' ');
+
   return <>
-    <div className={styles.menuBar}>
+    <div className={menuBarClassName}>
       <div className={styles.appEntries}>
-        { renderApplicationMenu(appMenuEntries) }
+        {embedded ? (
+          <button className={backToDeskButtonClassName} onClick={onBackToDesk}>Back to desk</button>
+        ) : (
+          renderApplicationMenu(appMenuEntries)
+        )}
       </div>
       <div className={styles.spacer}></div>
       <div className={styles.utility}>
-        {languageSelection(t, i18n)}
         <DateAndTime/>
       </div>
     </div>

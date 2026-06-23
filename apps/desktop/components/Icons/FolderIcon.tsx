@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import styles from '@/components/Icons/FolderIcon.module.css';
 import { DirectoryEntry, getIconFromNode } from '@/apis/FileSystem/FileSystem';
 import { Rectangle } from '@/applications/math';
+import { publicPath } from '@/util/publicPath';
 
 export const IconWidth    = 120;
 export const IconHeight   = 80;
@@ -177,6 +178,7 @@ export default function FolderIcon(props: { folderIconEntry: FolderIconEntry, in
   const selected = folderIconEntry.selected ? styles.selected : '';
   const title = folderIconEntry.editing.active ? <EditTitle entry={folderIconEntry}/> : <RenderTitle title={file.name + file.filenameExtension}/>;
   const icon = getIconFromNode(entry.node);
+  const iconSrc = publicPath(icon.src);
 
   return <>
     <div className={file.kind + " " + styles.container + ' ' + selected} style={{
@@ -190,7 +192,7 @@ export default function FolderIcon(props: { folderIconEntry: FolderIconEntry, in
             quality={100}
             draggable="false"
             className={styles.image}
-            src={icon.src}
+            src={iconSrc}
             alt={icon.alt}
             width={ImageWidth}
             height={ImageHeight}

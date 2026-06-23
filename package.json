@@ -8,8 +8,10 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev": "npm run dev --workspace web",
+    "dev": "turbo run dev",
     "dev:all": "turbo run dev",
+    "dev:web": "npm run dev --workspace web",
+    "dev:desktop": "npm run dev --workspace desktop",
     "start": "npm run start --workspace web",
     "start:all": "turbo run start",
     "start-clean": "turbo run build && turbo run start",

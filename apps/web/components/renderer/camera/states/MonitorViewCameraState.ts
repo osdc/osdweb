@@ -20,7 +20,7 @@ export class MonitorViewCameraState extends CameraState {
     const display = getDisplay(this.ctx.scene);
     if (!display) { return; }
 
-    const zoomDistance = 2.4;
+    const zoomDistance = 2.9;
     const cameraFov = this.ctx.cameraController.getCamera().fov;
 
     const { spherical, position, distance } = calculateCameraPosition(display, cameraFov, zoomDistance);
@@ -36,7 +36,7 @@ export class MonitorViewCameraState extends CameraState {
 
     this.ctx.cameraController.enableDamping();
 
-    this.ctx.cameraController.transition(position, spherical, distance, 1250 / distance, lerp, callback);
+    this.ctx.cameraController.transition(position, spherical, distance, 760, lerp, callback);
 
     this.ctx.cameraController.setMinZoom(1.0);
     this.ctx.cameraController.setMaxZoom(5.0);

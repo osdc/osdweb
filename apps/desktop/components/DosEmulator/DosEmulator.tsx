@@ -7,6 +7,7 @@ import styles from './DosEmulator.module.css';
 import { isFirefox } from "../util";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
+import { publicPath } from "@/util/publicPath";
 
 declare const emulators: Emulators;
 declare const emulatorsUi: EmulatorsUi;
@@ -182,7 +183,7 @@ export default function DosEmulator(props: { gameLocation: string, soundService:
   }
   
   useEffect(() => {
-    emulators.pathPrefix = "/emulators/";
+    emulators.pathPrefix = publicPath("/emulators/");
 
     if (canvasContainerRef.current === null) { return; }
     if (canvasRef.current === null) { return; }

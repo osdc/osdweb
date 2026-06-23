@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { LoadingManager } from "three";
 import { Renderer, RendererScenes } from "../renderer/Renderer";
 import { AssetManager, LoadingProgress, LoadingProgressEntry, UpdateAction } from "./AssetManager";
-import { CablesLoader, DeskLoader, FloorLoader, KeyboardLoader, LightsLoader, MonitorLoader, MouseLoader, HydraLoader, NoopLoader, createRenderScenes, PlantLoader } from "./AssetLoaders";
+import { LightsLoader, NoopLoader, OfficeDisplayLoader, OfficeEnvironmentLoader, PhoneLoader, SceneAssetRevision, createRenderScenes } from "./AssetLoaders";
 import { detectWebGL, isDebug, isMobileDevice } from "./util";
 import styles from './SceneLoader.module.css';
 
@@ -204,6 +204,7 @@ export function SceneLoader() {
   const [showMessage, setShowMessage] = useState(true);
   const [showLoadingUnderscore, setLoadingUnderscore] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [sceneActions, setSceneActions] = useState<UpdateAction[]>([]);
 
   const scenesRef   = useRef<RendererScenes>(createRenderScenes());
   const managerRef  = useRef<AssetManager | null>(null);
@@ -211,11 +212,23 @@ export function SceneLoader() {
 
   const [loadingProgress, setLoadingProgress] = useState<LoadingProgress | null>(null);
   const [supportsWebGL, setSupportsWebGL] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (isMobileDevice()) {
+      setShowMessage(false);
+    }
+  }, []);
   
   useEffect(() => {
     const hasWebGL = detectWebGL();
     setSupportsWebGL(hasWebGL);
     if (!hasWebGL) { return; }
+
+    scenesRef.current = createRenderScenes();
+    actions.current = [];
+    setSceneActions([]);
+    setLoading(true);
+    setLoadError(null);
 
     managerRef.current = new AssetManager(scenesRef.current, new LoadingManager())
     const manager = managerRef.current;
@@ -226,15 +239,10 @@ export function SceneLoader() {
     manager.add('Linked to Magi-1', NoopLoader());
     manager.add('Linked to Magi-2', NoopLoader());
     manager.add('Linked to Magi-3', NoopLoader());
-    manager.add('Loading desk', DeskLoader());
-    manager.add('Loading cables', CablesLoader());
-    manager.add('Loading mouse', MouseLoader());
+    manager.add('Loading office', OfficeEnvironmentLoader());
     manager.add('Loading lights', LightsLoader());
-    manager.add('Loading floor', FloorLoader());
-    manager.add('Loading plant', PlantLoader());
-    manager.add('Loading Alchemical Hydra', HydraLoader());
-    manager.add('Loading keyboard', KeyboardLoader());
-    manager.add('Loading monitor', MonitorLoader());
+    manager.add('Loading pocket computer', PhoneLoader());
+    manager.add('Loading monitor', OfficeDisplayLoader());
 
     setLoadingProgress(managerRef.current.loadingProgress());
 
@@ -248,6 +256,7 @@ export function SceneLoader() {
 
         if (!abortController.signal.aborted) {
           actions.current = updateActions;
+          setSceneActions(updateActions);
           setLoading(false);
         }
       } catch (error) {
@@ -268,7 +277,7 @@ export function SceneLoader() {
     return () => {
       abortController.abort();
     }
-  }, []);
+  }, [SceneAssetRevision]);
 
   useEffect(() => {
     if (!loadingProgress) { return; }
@@ -298,11 +307,12 @@ export function SceneLoader() {
     { showLoadingUnderscore && <LoadingUnderscore/> }
     { showMessage && <ShowUserMessage onClick={() => setShowMessage(false)}/> }
     <Renderer
+      key={SceneAssetRevision}
       loading={loading}
       showMessage={showMessage}
       
       scenes={scenesRef.current}
-      actions={actions.current}
+      actions={sceneActions}
     />
   </>);
 };

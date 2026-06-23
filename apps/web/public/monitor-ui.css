@@ -15,21 +15,23 @@ body {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: #000;
+  background: #07182a;
 }
 
 body {
-  background: #000;
+  position: relative;
+  background: #07182a;
   color: #f5f7ff;
   font-family: "MS Sans Serif", Tahoma, sans-serif;
 }
 
 .crt-root {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #000;
+  background: #07182a;
 }
 
 .crt-glass {
@@ -62,8 +64,12 @@ body {
 
 .screen-safe-area {
   position: absolute;
-  inset: 18px 20px 22px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+  --monitor-safe-top: clamp(10px, 3.2vh, 22px);
+  --monitor-globe-size: min(112vw, 108vh);
 }
 
 .hero-enter {
@@ -80,45 +86,120 @@ body {
 
 .hero-clock {
   position: absolute;
-  top: 24px;
+  top: clamp(14px, 5.2vh, 34px);
   left: 50%;
   z-index: 6;
   color: #ffffff;
   font-family: "IBM Plex Mono", "MS Sans Serif", monospace;
-  font-size: 30px;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  font-size: clamp(18px, 5.2vh, 44px);
   font-weight: 600;
-  letter-spacing: 0.28em;
+  line-height: 1;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   transform: translateX(-50%);
+  white-space: nowrap;
+  text-align: center;
+  overflow: visible;
   text-shadow: 0 0 18px rgba(255, 255, 255, 0.18);
   transition:
     opacity 220ms ease,
     transform 220ms ease;
 }
 
-.globe-shell {
-  position: absolute;
-  z-index: 2;
-  overflow: hidden;
-  background: transparent;
-  transition:
-    top 540ms cubic-bezier(0.16, 1, 0.3, 1),
-    left 540ms cubic-bezier(0.16, 1, 0.3, 1),
-    width 540ms cubic-bezier(0.16, 1, 0.3, 1),
-    height 540ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 540ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 220ms ease;
+#monitor-clock {
+  position: absolute !important;
+  top: 9% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 999 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  height: auto !important;
+  font-size: clamp(18px, 5vh, 38px) !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-align: center !important;
+  pointer-events: none !important;
 }
 
-.globe-frame {
+.globe-shell {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  border: 0;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  overflow: hidden;
+  background: transparent;
+  border-radius: 0;
+  transition:
+    opacity 220ms ease;
+}
+
+.globe-placeholder {
+  position: absolute;
+  width: min(92vw, 86vh);
+  height: min(92vw, 86vh);
+  z-index: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(111, 212, 255, 0.34), rgba(111, 212, 255, 0.1) 34%, transparent 58%),
+    radial-gradient(circle at 50% 50%, rgba(9, 24, 48, 0.08), rgba(9, 24, 48, 0.32) 58%, rgba(3, 8, 18, 0.88) 100%);
+  box-shadow:
+    0 0 90px rgba(92, 183, 255, 0.14),
+    inset 0 0 42px rgba(255, 255, 255, 0.06);
+  opacity: 0.82;
+  filter: saturate(0.9);
+}
+
+.globe-placeholder::before,
+.globe-placeholder::after {
+  content: "";
+  position: absolute;
+  inset: 10% 12%;
+  border-radius: 50%;
+  border: 1px solid rgba(158, 222, 255, 0.18);
+}
+
+.globe-placeholder::after {
+  inset: 24% 10%;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  opacity: 0.8;
+}
+
+.globe-preview-video {
+  position: relative;
+  z-index: 1;
+  width: min(112vw, 108vh);
+  height: min(112vw, 108vh);
+  max-width: none;
+  max-height: none;
   display: block;
+  border: 0;
+  border-radius: 50%;
+  object-fit: cover;
   pointer-events: none;
-  background: #071a3d;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.crt-root.globe-preview-active .globe-preview-video {
+  opacity: 0.94;
+}
+
+.crt-root.globe-preview-active .globe-placeholder {
+  opacity: 0.22;
+}
+
+.crt-root.monitor-full .globe-placeholder {
+  opacity: 0.12;
 }
 
 .globe-widget-label {
@@ -445,6 +526,48 @@ body {
   pointer-events: none;
 }
 
+.desktop-context-menu {
+  position: absolute;
+  width: 196px;
+  padding: 5px;
+  z-index: 6;
+  background: var(--ButtonFace);
+  box-shadow:
+    inset 1px 1px 0 var(--ButtonHilight),
+    inset -1px -1px 0 var(--ButtonShadow),
+    0 16px 28px rgba(0, 0, 0, 0.28);
+}
+
+.desktop-context-menu[hidden] {
+  display: none;
+}
+
+.desktop-context-menu__item {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 6px 8px;
+  border: 0;
+  background: transparent;
+  color: #18273a;
+  font-family: "MS Sans Serif", sans-serif;
+  font-size: 11px;
+  text-align: left;
+}
+
+.desktop-context-menu__item:hover,
+.desktop-context-menu__item:focus-visible {
+  background: var(--Hilight);
+  color: var(--HilightText);
+  outline: none;
+}
+
+.desktop-context-menu__divider {
+  height: 1px;
+  margin: 4px 3px;
+  background: rgba(27, 40, 61, 0.22);
+}
+
 .taskbar-start-menu {
   position: absolute;
   left: 8px;
@@ -558,10 +681,6 @@ body {
   transform: none;
   border-radius: 0;
   box-shadow: none;
-}
-
-.globe-shell.is-windowed .globe-frame {
-  inset: 0;
 }
 
 .desktop-taskbar {
@@ -1201,12 +1320,13 @@ body {
 }
 
 .mode-hero .globe-shell {
-  top: 102px;
-  left: 50%;
-  width: min(60vw, 560px);
-  height: min(60vw, 560px);
-  border-radius: 28px;
-  transform: translateX(-50%);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  transform: none;
 }
 
 .mode-hero .desktop-layer {
@@ -1232,6 +1352,38 @@ body {
 .mode-desktop .desktop-layer {
   opacity: 1;
   pointer-events: auto;
+  inset: 0;
+}
+
+.mode-desktop .screen-safe-area {
+  inset: 0;
+}
+
+.mode-desktop .crt-glass {
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.mode-desktop .crt-curved {
+  border-radius: 0;
+  background: none;
+  filter: none;
+  transform: none;
+  inset: 0;
+  overflow: visible;
+}
+
+.mode-desktop .phosphor,
+.mode-desktop .scanlines,
+.mode-desktop .vignette,
+.mode-desktop .glare,
+.mode-desktop .edge-falloff {
+  display: none;
+}
+
+.mode-desktop .desktop-stage {
+  inset: 0 0 38px;
 }
 
 .is-entering .screen-flash {
@@ -1274,13 +1426,12 @@ body {
 
 @media (max-width: 900px) {
   .hero-clock {
-    font-size: 22px;
+    font-size: clamp(20px, 5vh, 34px);
   }
 
-  .mode-hero .globe-shell {
-    top: 94px;
-    width: min(70vw, 460px);
-    height: min(70vw, 460px);
+  .globe-preview-video {
+    width: min(125vw, 118vh);
+    height: min(125vw, 118vh);
   }
 
   .desktop-icons {

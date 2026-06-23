@@ -1,55 +1,81 @@
 import { MouseData, PointerCoordinates, TouchData, UserInteractionEvent } from "@/events/UserInteractionEvents";
 import { UpdatableCameraState } from "../CameraState";
 import { CameraHandler, CameraHandlerContext, CameraHandlerState } from "../CameraHandler";
-import { clickedDOMButton, constructIsOverDisplay, easeInOutSine, getDisplay } from "./util";
+import { SceneInteractionTarget, calculateCameraPosition, clickedDOMButton, constructGetInteractionTarget, easeInOutSine, getDisplay, openPhotoFrameDestination } from "./util";
 import { degToRad } from "three/src/math/MathUtils";
-import { Spherical, Vector3 } from "three";
+import { Mesh, Spherical, Vector3 } from "three";
 import { easeOutCubicErp } from "../util";
 import { CameraController } from "../Camera";
+import { OfficeSeatCameraTarget } from "@/components/scene-loader/AssetLoaders";
 
-export function setInitialCameraPosition(cameraController: CameraController) {
-  cameraController.setPanOffsetY(7);
-  cameraController.setPanOffsetZ(3);
+function createOverviewCamera(display: Mesh, fov: number) {
+  const { position, spherical, distance } = calculateCameraPosition(display, fov, 2.9);
+  const rotation = spherical.clone();
+
+  rotation.phi = Math.max(0.98, spherical.phi + 0.06);
+
+  return {
+    position,
+    rotation,
+    baseTheta: spherical.theta,
+    zoom: Math.max(distance * 2.45, 6.3),
+  };
+}
+
+export function setInitialCameraPosition(cameraController: CameraController, display?: Mesh) {
+  if (!display) {
+    cameraController.setPanOffsetX(OfficeSeatCameraTarget.x);
+    cameraController.setPanOffsetY(OfficeSeatCameraTarget.y);
+    cameraController.setPanOffsetZ(OfficeSeatCameraTarget.z + 2.1);
+    cameraController.update(0);
+    return;
+  }
+
+  const overview = createOverviewCamera(display, cameraController.getCamera().fov);
+
+  cameraController.setPanOffsetX(overview.position.x);
+  cameraController.setPanOffsetY(overview.position.y);
+  cameraController.setPanOffsetZ(overview.position.z);
+  cameraController.setRotationTheta(overview.baseTheta + degToRad(-3.5));
+  cameraController.setRotationPhi(overview.rotation.phi);
+  cameraController.setZoom(overview.zoom);
   cameraController.update(0);
 }
 
 export class CinematicCameraState extends UpdatableCameraState {
 
-  private cameraRotationSpeed = 7.5;
+  private cameraRotationSpeed = 3.2;
+  private overviewBaseTheta = 0;
 
-  private initialTransitionMs = 2000;
-  private otherTransitionsMs = 500;
+  private initialTransitionMs = 0;
+  private otherTransitionsMs = 680;
 
-  private hasBeenOverDisplay: boolean = false;
-  private isOverDisplay: (data: PointerCoordinates) => boolean;
-  private wasOverDisplay: boolean = true;
+  private getInteractionTarget: ReturnType<typeof constructGetInteractionTarget>;
 
   private progress: number = 0;
+  private previousTarget: SceneInteractionTarget = null;
 
   constructor(manager: CameraHandler, ctx: CameraHandlerContext) {
     super(manager, ctx);
 
-    this.isOverDisplay = constructIsOverDisplay(this.ctx);
+    this.getInteractionTarget = constructGetInteractionTarget(this.ctx);
   }
 
   transition(): void {
     const display = getDisplay(this.ctx.scene);
     if (!display) { return; }
 
-    if (this.ctx.isInitialScene()) {
-      // If we're an initial scene we kinda want to start somewhere else
-      // So set the position, and instantly calculate the new position
-      setInitialCameraPosition(this.ctx.cameraController)
-    }
+    const overview = createOverviewCamera(display, this.ctx.cameraController.getCamera().fov);
+    this.overviewBaseTheta = overview.baseTheta;
 
-    const position = new Vector3();
-    position.y = 6.8;
-
-    const rotation = new Spherical();
-    rotation.phi = 1.0;
+    const position = overview.position.clone();
+    const rotation = overview.rotation.clone();
     rotation.theta = this.calculateRotation(0);
+    const zoom = overview.zoom;
 
-    const zoom = 10.0;
+    if (this.ctx.isInitialScene()) {
+      cameraControllerSeed(this.ctx.cameraController, position, rotation, zoom);
+    }
 
     const delay = this.ctx.isInitialScene() ? this.initialTransitionMs : this.otherTransitionsMs;
 
@@ -63,8 +89,8 @@ export class CinematicCameraState extends UpdatableCameraState {
   private calculateRotation(progress: number): number {
     progress %= 100;
 
-    const min = degToRad(-30);
-    const max = degToRad(30);
+    const min = this.overviewBaseTheta + degToRad(-3.5);
+    const max = this.overviewBaseTheta + degToRad(3.5);
 
     const moveToRight = progress < 50;
     const t = moveToRight ? progress / 50 : (progress - 50) / 50;
@@ -80,6 +106,10 @@ export class CinematicCameraState extends UpdatableCameraState {
   }
 
   update(deltaTime: number): void {
+    if (this.previousTarget !== null) {
+      return;
+    }
+
     this.progress += this.cameraRotationSpeed * deltaTime;
 
     this.ctx.cameraController.setRotationTheta(this.calculateRotation(this.progress));
@@ -94,43 +124,59 @@ export class CinematicCameraState extends UpdatableCameraState {
     }
   }
 
-  private toggleHasBeenOverDisplay(isOverDisplay: boolean) {
-    if (!isOverDisplay) { return; }
-    if (this.wasOverDisplay) { return; }
-
-    this.hasBeenOverDisplay = true;
-  }
-
-  private handleOverMonitor(data: PointerCoordinates): void {
-    const overDisplay = this.isOverDisplay(data);
-
-    this.toggleHasBeenOverDisplay(overDisplay);
-
-    if (overDisplay && this.hasBeenOverDisplay) {
-      this.manager.changeState(CameraHandlerState.MonitorView);
-    }
-
-    this.wasOverDisplay = overDisplay;
-  }
-
   private handleMouseClickEvent(data: MouseData): void {
     if (!data.isPrimaryDown()) { return; }
-
     if (clickedDOMButton(true, data.x, data.y)) { return; }
+    
+    const target = this.getInteractionTarget(data) ?? this.previousTarget;
 
-    this.manager.changeState(CameraHandlerState.MonitorView);
+    if (target === 'display') {
+      this.manager.changeState(CameraHandlerState.MonitorView);
+      return;
+    }
+
+    if (target === 'phone') {
+      this.manager.changeState(CameraHandlerState.PhoneView);
+      return;
+    }
+
+    if (target === 'frame') {
+      openPhotoFrameDestination();
+      return;
+    }
+
+    this.manager.changeState(CameraHandlerState.FreeRoam);
   }
 
   private handleMouseEvent(data: MouseData) {
-    this.handleOverMonitor(data);
+    const target = this.getInteractionTarget(data);
+    this.previousTarget = target;
+    this.ctx.setCursor(target ? 'pointer' : 'grab');
     this.handleMouseClickEvent(data);
   }
 
   private handleTouchStartEvents(data: TouchData) {
     const coords = data.pointerCoordinates();
     if (clickedDOMButton(data.hasTouchesDown(1), coords.x, coords.y)) { return; }
+    
+    const target = this.getInteractionTarget(coords);
 
-    this.manager.changeState(CameraHandlerState.MonitorView);
+    if (target === 'display') {
+      this.manager.changeState(CameraHandlerState.MonitorView);
+      return;
+    }
+
+    if (target === 'phone') {
+      this.manager.changeState(CameraHandlerState.PhoneView);
+      return;
+    }
+
+    if (target === 'frame') {
+      openPhotoFrameDestination();
+      return;
+    }
+
+    this.manager.changeState(CameraHandlerState.FreeRoam);
   }
 
   private handleTouchEvent(data: TouchData) {
@@ -138,4 +184,19 @@ export class CinematicCameraState extends UpdatableCameraState {
       this.handleTouchStartEvents(data);
     }
   }
+}
+
+function cameraControllerSeed(
+  cameraController: CameraController,
+  position: Vector3,
+  rotation: Spherical,
+  zoom: number
+) {
+  cameraController.setPanOffsetX(position.x);
+  cameraController.setPanOffsetY(position.y);
+  cameraController.setPanOffsetZ(position.z);
+  cameraController.setRotationTheta(rotation.theta);
+  cameraController.setRotationPhi(rotation.phi);
+  cameraController.setZoom(zoom);
+  cameraController.update(0);
 }

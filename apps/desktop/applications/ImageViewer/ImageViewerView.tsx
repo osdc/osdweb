@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useEffect, useState } from "react";
 import styles from './ImageViewerView.module.css';
 import { useTranslation } from "react-i18next";
+import { publicPath } from '@/util/publicPath';
 
 function ErrorMessage(message: string) {
   return (
@@ -60,7 +61,7 @@ export default function ImageViewerView(props: WindowProps) {
         <div className={styles.image}>
           <Image
             draggable={false}
-            src={image.source}
+            src={publicPath(image.source)}
             fill
             quality={90}
             style={{

@@ -3,14 +3,6 @@
     "new_directory": "untitled folder",
     "new_file": "untitled file"
   },
-  "language": {
-    "tags": {
-      "en": "en",
-      "nl": "nl"
-    },
-    "english": "English",
-    "dutch": "Dutch"
-  },
   "image": {
     "no_image_to_load": "There is no image to load. Open the application by clicking on an image",
     "loading": "Loading..."
@@ -43,8 +35,8 @@
     "company_optional": "Company (optional)",
     "message": "Message",
     "send": "Send",
-    "processed": "Your message has been queued for the configured inbox.",
-    "message_forwarding_instructions": "All messages are forwarded to the configured inbox for this build",
+    "processed": "Message sent. We will route it to the right people.",
+    "message_forwarding_instructions": "This goes straight to the OSDC team inbox",
     "required": "Required",
     "error": {
       "invalid-email": "Please enter a valid email."
@@ -75,13 +67,12 @@
     "navigation": {
       "home": "Home",
       "about": "Briefing",
-      "experience": "Build Status",
-      "projects": "Modules",
-      "contact": "Inbox"
+      "experience": "What We Do",
+      "contact": "Contact"
     },
     "download_cv": {
-      "title": "Looking for a hub brief?",
-      "instruction": "Open the current OSDC shell overview",
+      "title": "Looking for the club brief?",
+      "instruction": "Open the current OSDC desk overview",
       "download_link": "/"
     }
   },

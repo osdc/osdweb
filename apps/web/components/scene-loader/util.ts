@@ -15,6 +15,31 @@ export function isDebug(): boolean {
   return searchParams.has('debug');
 }
 
+export type QualityLevel = 'high' | 'medium' | 'low';
+
+export function getQualityLevel(): QualityLevel {
+  const query = window.location.search;
+  const searchParams = new URLSearchParams(query);
+  const quality = searchParams.get('quality');
+
+  switch (quality) {
+    case 'high':
+    case 'medium':
+    case 'low':
+      return quality;
+    default:
+      return 'medium';
+  }
+}
+
+export function hasPerfFlag(flag: string): boolean {
+  const query = window.location.search;
+  const searchParams = new URLSearchParams(query);
+  const value = searchParams.get(flag);
+
+  return value === '1' || value === 'true';
+}
+
 export function isMobileDevice(): boolean {
   return window.innerWidth < 500;
 }

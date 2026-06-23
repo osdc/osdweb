@@ -60,5 +60,28 @@ export type EnableSoundMessage = {
   enabled: boolean,
 }
 
+export type ExitDesktopMessage = {
+  method: 'exit_desktop_message',
+}
+
+export type EnterDesktopMessage = {
+  method: 'enter_desktop_message',
+}
+
+export type ActivateMonitorMessage = {
+  method: 'activate_monitor_message',
+}
+
+export type DeactivateMonitorMessage = {
+  method: 'deactivate_monitor_message',
+}
+
 export type RequestToParent = Mounted | TouchInteractionRequest | CameraZoomDistanceRequest | SetPossibleCameraParametersRequest | SetCameraParametersRequest;
-export type MessageFromParent = CameraZoomDistanceResponse | EnableSoundMessage | DisplaySize;
+export type MessageFromParent =
+  | CameraZoomDistanceResponse
+  | EnableSoundMessage
+  | DisplaySize
+  | ExitDesktopMessage
+  | EnterDesktopMessage
+  | ActivateMonitorMessage
+  | DeactivateMonitorMessage;

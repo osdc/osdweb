@@ -116,6 +116,7 @@ export class CutOutRenderShaderPass extends Pass {
   setSize(width: number, height: number) {
     // TODO: Check if we need to recreate the depth buffers with the correct size, or if this is fine.
     this.sourceTarget.setSize(width, height);
+    this.sourceDepthTarget?.setSize(width, height);
     this.cutoutTarget.setSize(width, height);
   }
 

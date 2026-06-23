@@ -41,17 +41,23 @@
           aria-label="Enter the OSDC retro desktop"
         ></div>
 
-        <div class="hero-clock" id="hero-clock">00:00</div>
+        <div class="hero-clock" id="monitor-clock">00:00</div>
 
         <div class="globe-shell" id="globe-shell">
-          <div class="globe-widget-label">LIVE GLOBE WIDGET</div>
-          <iframe
-            class="globe-frame"
-            id="globe-frame"
-            src="/globe.html?mode=background&fps=28&dpr=1.2"
-            title="OSDC Globe"
-            loading="eager"
-          ></iframe>
+          <div class="globe-placeholder" id="globe-placeholder" aria-hidden="true"></div>
+          <video
+            class="globe-preview-video"
+            id="globe-preview-video"
+            poster="/assets/globe-preview.jpg"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+          >
+            <source src="/assets/globe-preview.webm" type="video/webm" />
+          </video>
+          <div class="globe-widget-label">OSDC GLOBE PREVIEW</div>
         </div>
 
         <div class="desktop-layer" id="desktop-layer" aria-hidden="true">
@@ -104,12 +110,7 @@
 
               <div class="desktop-icon desktop-icon--tools" role="button" tabindex="0" data-icon-id="projects" data-tool="projects">
                 <span class="desktop-icon__art desktop-icon__art--projects" aria-hidden="true"></span>
-                <span class="desktop-icon__label">Projects.app</span>
-              </div>
-
-              <div class="desktop-icon desktop-icon--tools" role="button" tabindex="0" data-icon-id="skills" data-tool="skills">
-                <span class="desktop-icon__art desktop-icon__art--toolbox" aria-hidden="true"></span>
-                <span class="desktop-icon__label">Club Stack.app</span>
+                <span class="desktop-icon__label">Build Board.app</span>
               </div>
 
               <div class="desktop-icon desktop-icon--tools" role="button" tabindex="0" data-icon-id="doom" data-tool="doom">
@@ -120,6 +121,16 @@
 
             <div class="desktop-workspace">
               <div class="windows-layer" id="windows-layer"></div>
+            </div>
+
+            <div class="desktop-context-menu" id="desktop-context-menu" hidden>
+              <button class="desktop-context-menu__item" type="button" data-context-action="enter">Enter full desktop</button>
+              <button class="desktop-context-menu__item" type="button" data-context-action="briefing">Open club brief</button>
+              <button class="desktop-context-menu__item" type="button" data-context-action="terminal">Open terminal</button>
+              <button class="desktop-context-menu__item" type="button" data-context-action="projects">Open build board</button>
+              <button class="desktop-context-menu__item" type="button" data-context-action="discord">Open Discord</button>
+              <div class="desktop-context-menu__divider"></div>
+              <button class="desktop-context-menu__item" type="button" data-context-action="close">Close menu</button>
             </div>
 
             <div class="taskbar-start-menu" id="taskbar-start-menu" hidden>
@@ -142,8 +153,7 @@
                 <button class="taskbar-start-menu__item" type="button" data-tool="finder">Finder</button>
                 <button class="taskbar-start-menu__item" type="button" data-tool="notes">Notes</button>
                 <button class="taskbar-start-menu__item" type="button" data-tool="terminal">Terminal</button>
-                <button class="taskbar-start-menu__item" type="button" data-tool="projects">Projects</button>
-                <button class="taskbar-start-menu__item" type="button" data-tool="skills">Club Stack</button>
+                <button class="taskbar-start-menu__item" type="button" data-tool="projects">Build Board</button>
                 <button class="taskbar-start-menu__item" type="button" data-tool="doom">Doom</button>
               </div>
 

@@ -1,4 +1,5 @@
 import { ObserverSubject } from "@/data/Observer";
+import { publicPath } from "@/util/publicPath";
 
 export class SoundService extends ObserverSubject<boolean> {
   private enabled = true;
@@ -81,7 +82,7 @@ export class SoundService extends ObserverSubject<boolean> {
   public play(source: string, volume: number = 1.0): number {
     const currentIndex = this.index++;
 
-    const audio = new Audio(source);
+    const audio = new Audio(publicPath(source));
     audio.volume = volume;
     audio.muted = !this.enabled;
     audio.play().catch(() => { console.error('Cannot play audio'); });
@@ -111,7 +112,7 @@ export class SoundService extends ObserverSubject<boolean> {
   public playOnRepeat(source: string, volume: number = 1.0): number {
     const currentIndex = this.index++;
 
-    const audio = new Audio(source);
+    const audio = new Audio(publicPath(source));
     audio.volume = volume;
     audio.muted = !this.enabled;
     audio.play().catch(() => { console.error('Cannot play audio'); });

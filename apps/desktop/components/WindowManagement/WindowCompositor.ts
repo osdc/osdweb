@@ -143,6 +143,55 @@ export class WindowCompositor {
   public setSize(width: number, height: number) {
     this.viewWidth = width;
     this.viewHeight = height;
+
+    let changed = false;
+
+    for (const windowNode of this.windows.iterFromTail()) {
+      const window = windowNode.value;
+      const boundedWindow = this.clampWindowBounds(window.x, window.y, window.width, window.height);
+
+      if (
+        boundedWindow.x !== window.x ||
+        boundedWindow.y !== window.y ||
+        boundedWindow.width !== window.width ||
+        boundedWindow.height !== window.height
+      ) {
+        window.x = boundedWindow.x;
+        window.y = boundedWindow.y;
+        window.width = boundedWindow.width;
+        window.height = boundedWindow.height;
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      this.publish(UpdateWindowsEvent());
+    }
+  }
+
+  private clampWindowBounds(
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ): { x: number, y: number, width: number, height: number } {
+    const viewWidth = this.viewWidth || window.innerWidth;
+    const viewHeight = this.viewHeight || window.innerHeight;
+
+    const minimumWidth = Math.min(240, Math.max(120, viewWidth));
+    const minimumHeight = Math.min(180, Math.max(96, viewHeight));
+    const clampedWidth = Math.max(minimumWidth, Math.min(width, viewWidth));
+    const clampedHeight = Math.max(minimumHeight, Math.min(height, viewHeight));
+
+    const maxX = Math.max(0, viewWidth - clampedWidth);
+    const maxY = Math.max(0, viewHeight - clampedHeight);
+
+    return {
+      x: Math.min(Math.max(0, x), maxX),
+      y: Math.min(Math.max(0, y), maxY),
+      width: clampedWidth,
+      height: clampedHeight,
+    };
   }
 
   public open(config: WindowConfig): Window {
@@ -164,8 +213,18 @@ export class WindowCompositor {
 
     let [x, y] = [config.x, config.y];
 
-    const width = config.width ?? DefaultWindowWidth;
-    const height = config.height ?? DefaultWindowHeight;
+    const boundedWindow = this.clampWindowBounds(
+      x,
+      y,
+      config.width ?? DefaultWindowWidth,
+      config.height ?? DefaultWindowHeight
+    );
+
+    x = boundedWindow.x;
+    y = boundedWindow.y;
+
+    const width = boundedWindow.width;
+    const height = boundedWindow.height;
 
     const windows = getWindowsOfTheSameApplication(this.windows, config);
 
@@ -193,8 +252,8 @@ export class WindowCompositor {
     const window = new Window(
       id,
       x, y,
-      config.width ?? DefaultWindowWidth,
-      config.height ?? DefaultWindowHeight,
+      width,
+      height,
       config.title,
       config.args,
       config.application,
@@ -478,6 +537,5 @@ export class WindowCompositor {
     this.windows = new Chain();
 
     this.windowNodeLookup = {};
-    this.observers = [];
   }
 }

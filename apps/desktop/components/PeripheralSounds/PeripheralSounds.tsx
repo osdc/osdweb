@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { SystemAPIs } from "../OperatingSystem";
 import { isSafari } from "../util";
 import { SoundService } from "@/apis/Sound/Sound";
+import { publicPath } from "@/util/publicPath";
 
 type AudioFragment = {
   onDown?: string,
@@ -58,7 +59,7 @@ export function playKeyDownSound(soundService: SoundService, code: string): void
   if (['VolumeUp', 'VolumeDown'].includes(code)) { return; }
 
   const sound = chooseRandomKeyboardAudioFragment(code);
-  const audio = new Audio(sound.onDown);
+  const audio = new Audio(publicPath(sound.onDown ?? ''));
 
   soundService.playAudioFragment(audio, 0.6);
 }
@@ -73,7 +74,7 @@ export function PeripheralSounds(props: { apis: SystemAPIs }) {
     const cacheEntry = audioCache.current[source];
     if (cacheEntry) { return cacheEntry; }
 
-    const audioFragment = new Audio(source);
+    const audioFragment = new Audio(publicPath(source));
     audioCache.current[source] = audioFragment;
 
     return audioFragment;

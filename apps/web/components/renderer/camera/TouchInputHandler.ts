@@ -7,6 +7,10 @@ export class TouchInputHandler {
   private onTouchMoveListener: (evt: TouchEvent) => void;
   private onTouchEndListener: (evt: TouchEvent) => void;
 
+  private isOverlayTouchTarget(target: EventTarget | null): boolean {
+    return target instanceof Element && target.closest('[data-pocket-overlay="true"]') !== null;
+  }
+
   private allowInput(): boolean {
     return this.allowInputRef.current ?? false;
   }
@@ -33,6 +37,7 @@ export class TouchInputHandler {
 
   private onTouchStart(evt: TouchEvent): void {
     if (!this.allowInput()) { return; }
+    if (this.isOverlayTouchTarget(evt.target)) { return; }
 
     const data = TouchData.fromTouchEvent('start', evt);
     const event = toUserInteractionTouchEvent(data);
@@ -42,6 +47,7 @@ export class TouchInputHandler {
 
   private onTouchMove(evt: TouchEvent): void {
     if (!this.allowInput()) { return; }
+    if (this.isOverlayTouchTarget(evt.target)) { return; }
 
     const data = TouchData.fromTouchEvent('move', evt);
     const event = toUserInteractionTouchEvent(data);
@@ -51,6 +57,7 @@ export class TouchInputHandler {
 
   private onTouchEnd(evt: TouchEvent): void {
     if (!this.allowInput()) { return; }
+    if (this.isOverlayTouchTarget(evt.target)) { return; }
 
     const data = TouchData.fromTouchEvent('end', evt);
     const event = toUserInteractionTouchEvent(data);

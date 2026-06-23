@@ -2,13 +2,18 @@ import Head from "next/head";
 import { SceneLoader } from "../components";
 import { useEffect, useState } from "react";
 import { NoScriptWarning } from "@/components/noscript/NoScript";
+import { PhoneClubbook } from "@/components/renderer/PhoneClubbook";
 import { Analytics } from "@vercel/analytics/react"
 
 const focusedTitle = "OSDC - Interactive Hub";
 const blurredTitle = "👀 OSDC - Interactive Hub";
+const MobileBreakpointQuery = "(max-width: 700px)";
 
 export default function Web() {
   const [title, setTitle] = useState("OSDC - Interactive Hub");
+  const [hasMounted, setHasMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [force3D, setForce3D] = useState(false);
 
   function onVisibilityChange() {
     const title = document.visibilityState === 'visible' ? focusedTitle : blurredTitle;
@@ -17,12 +22,35 @@ export default function Web() {
   }
 
   useEffect(() => {
+    setHasMounted(true);
+    const mediaQuery = window.matchMedia(MobileBreakpointQuery);
+    const legacyMediaQuery = mediaQuery as MediaQueryList & {
+      addListener?: (listener: (event: MediaQueryListEvent) => void) => void,
+      removeListener?: (listener: (event: MediaQueryListEvent) => void) => void,
+    };
+
+    const syncViewportMode = () => {
+      setIsMobile(mediaQuery.matches);
+    };
+
+    syncViewportMode();
+
+    if ('addEventListener' in mediaQuery) {
+      mediaQuery.addEventListener('change', syncViewportMode);
+    } else {
+      legacyMediaQuery.addListener?.(syncViewportMode);
+    }
+
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
+      if ('removeEventListener' in mediaQuery) {
+        mediaQuery.removeEventListener('change', syncViewportMode);
+      } else {
+        legacyMediaQuery.removeListener?.(syncViewportMode);
+      }
       document.removeEventListener('visibilitychange', onVisibilityChange);
     }
-
   }, []);
 
   return (
@@ -43,7 +71,13 @@ export default function Web() {
         <link rel="icon" type="image/x-icon" href="favicon.ico" />
       </Head>
       <NoScriptWarning />
-      <SceneLoader />
+      {!hasMounted ? (
+        <></>
+      ) : isMobile && !force3D ? (
+        <PhoneClubbook mode="embedded" onEnterDesk={() => setForce3D(true)} />
+      ) : (
+        <SceneLoader />
+      )}
       <Analytics />
     </>
   );

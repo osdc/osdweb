@@ -11,30 +11,29 @@ type ValidationError = (
   'invalid-email'
 );
 
-function DutchContent() {
-  return (
-    <>
-      <p className={styles['contact-info']}>
-        Gebruik dit formulier om feedback, bug reports of verzoeken voor de OSDC hub door te geven. Deze clone gebruikt een geconfigureerde inbox in plaats van persoonlijke contactgegevens.
-      </p>
-    </>
-  );
-}
+const SocialLinks = [
+  { label: 'Discord', href: 'https://discord.gg/osdc' },
+  { label: 'Instagram', href: 'https://www.instagram.com/osdc.dev/' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/osdcjiit/' },
+  { label: 'GitHub', href: 'https://github.com/Open-Source-Developers-Community' },
+];
 
 function EnglishContent() {
   return (
     <>
       <p className={styles['contact-info']}>
-        Use this form to send feedback, bug reports, or requests for the OSDC hub. This clone routes messages to a configured inbox instead of personal contact details.
+        Use this form for event ideas, bug reports, collab requests, or a plain old "hey, I want in." We read this together and route it to the right people without making you decode club lore first.
       </p>
     </>
   );
 }
 
 export default function ContactApplicationView(props: WindowProps) {
+  const { args } = props;
   const nameRef = useRef<HTMLInputElement>(null);
+  const socialsRef = useRef<HTMLDivElement>(null);
 
-  const { t, i18n } = useTranslation('common');
+  const { t } = useTranslation('common');
 
   const [inputFields, setInputFields] = useState({
     name: "",
@@ -116,6 +115,14 @@ export default function ContactApplicationView(props: WindowProps) {
     nameRef.current.focus();
   }, []);
 
+  useEffect(() => {
+    if (!args.toLowerCase().includes('socials')) { return; }
+    if (!socialsRef.current) { return; }
+
+    socialsRef.current.scrollIntoView({ block: 'nearest' });
+    socialsRef.current.focus();
+  }, [args]);
+
   return (
     <div className="content-outer">
       <div className="content">
@@ -124,7 +131,29 @@ export default function ContactApplicationView(props: WindowProps) {
             <div className={styles['contact-header']}>
               <h1>Contact</h1>
             </div>
-            { i18n.language === 'nl' ? DutchContent() : EnglishContent() }
+            <div
+              className={styles['contact-socials-panel']}
+              ref={socialsRef}
+              tabIndex={-1}
+            >
+              <p className={styles['contact-socials-copy']}>
+                Find us where the build logs, announcements, memes, and last-minute event chaos actually happen.
+              </p>
+              <div className={styles['contact-socials']}>
+                {SocialLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={link.label}
+                  >
+                    <span>{link.label}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+            {EnglishContent()}
             <form onSubmit={onSubmit}>
               { processed ?
                 <div className={[styles['form-row'], styles['processed']].join(' ')}>

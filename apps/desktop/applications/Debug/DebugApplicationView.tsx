@@ -1,8 +1,9 @@
 import { WindowProps } from '@/components/WindowManagement/WindowCompositor';
 import { useEffect, useState } from 'react';
+import { publicPath } from '@/util/publicPath';
 
 function getTargetUrl(time: number): string {
-  return `/images/temp.png?t=${time}`;
+  return `${publicPath('/images/temp.png')}?t=${time}`;
 }
 
 export default function DebugApplicationView(props: WindowProps) {
@@ -12,7 +13,7 @@ export default function DebugApplicationView(props: WindowProps) {
   const url = getTargetUrl(time);
   
   function onClickButton() {
-    application.apis.sound.play('/sounds/meow.mp3', 0.25);
+    application.apis.sound.play(publicPath('/sounds/meow.mp3'), 0.25);
   }
 
   useEffect(() => { 

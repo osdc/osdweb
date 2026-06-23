@@ -1,11 +1,12 @@
 (function () {
   const root = document.getElementById("monitor-root");
-  const heroClock = document.getElementById("hero-clock");
+  const heroClock = document.getElementById("monitor-clock");
   const taskbarClock = document.getElementById("taskbar-clock");
   const heroEnter = document.getElementById("hero-enter");
   const globeShell = document.getElementById("globe-shell");
-  const globeFrame = document.getElementById("globe-frame");
+  const previewVideo = document.getElementById("globe-preview-video");
   const desktopLayer = document.getElementById("desktop-layer");
+  const desktopContextMenu = document.getElementById("desktop-context-menu");
   const windowsLayer = document.getElementById("windows-layer");
   const taskbarWindows = document.getElementById("taskbar-windows");
   const taskbarStart = document.querySelector(".taskbar-start");
@@ -13,14 +14,26 @@
 
   const $ = window.jQuery || window.$;
   const WindowCtor = window.$Window;
+  const searchParams = new URLSearchParams(window.location.search);
+  const debug = searchParams.has("debug");
+  const perfNoGlobe = searchParams.get("perfNoGlobe") === "1" || searchParams.get("perfNoGlobe") === "true";
+  const perfNoGlobePreview =
+    perfNoGlobe ||
+    searchParams.get("perfNoGlobePreview") === "1" ||
+    searchParams.get("perfNoGlobePreview") === "true";
+  const requestedMonitorMode = searchParams.get("mode") === "full" ? "full" : "lite";
 
   const openWindows = new Map();
   let globeWindow = null;
   let desktopBootstrapped = false;
   let currentMode = "hero";
+  let monitorMode = requestedMonitorMode;
+  let monitorRuntimeActivated = false;
+  let clockIntervalId = null;
   let startMenuOpen = false;
   let activeWindowKey = null;
   let lastSoundEnabled = null;
+  let contextMenuOpen = false;
   let monitorContent = createDefaultMonitorContent();
 
   const CLICK_SOUND_SOURCE = "/sounds/left_mouse_down_2.mp3";
@@ -28,6 +41,85 @@
   const TERMINAL_FS_STORAGE_KEY = "osdc-monitor-terminal-fs";
   const TERMINAL_DEFAULT_CWD = "/Users/osdc/Desktop/";
   const ICON_POSITIONS_STORAGE_KEY = "osdc-monitor-icon-positions";
+  const DESKTOP_URL = searchParams.get("desktopUrl") || "";
+
+  function debugLog() {
+    if (!debug) {
+      return;
+    }
+
+    console.info.apply(console, arguments);
+  }
+
+  function setMonitorMode(mode) {
+    monitorMode = mode;
+    root.classList.toggle("monitor-lite", mode === "lite");
+    root.classList.toggle("monitor-full", mode === "full");
+    debugLog("[MonitorLoader] monitor mode:", mode);
+  }
+
+  function pausePreviewVideo() {
+    if (!previewVideo) {
+      return;
+    }
+
+    previewVideo.pause();
+    debugLog("[MonitorLoader] preview video paused");
+  }
+
+  function playPreviewVideo() {
+    if (!previewVideo || perfNoGlobePreview) {
+      return;
+    }
+
+    previewVideo.muted = true;
+    const playPromise = previewVideo.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(function (error) {
+        debugLog("[MonitorLoader] preview video play blocked", error);
+      });
+    }
+    debugLog("[MonitorLoader] preview video active");
+  }
+
+  function setPreviewState(active) {
+    const previewActive = active && !perfNoGlobePreview;
+    root.classList.toggle("globe-preview-active", previewActive);
+
+    if (!previewActive) {
+      pausePreviewVideo();
+      return;
+    }
+
+    playPreviewVideo();
+  }
+
+  function ensureMonitorRuntime() {
+    if (monitorRuntimeActivated) {
+      return;
+    }
+
+    loadMonitorContent();
+    setupDraggableIcons();
+    monitorRuntimeActivated = true;
+    debugLog("[MonitorLoader] full monitor runtime activated");
+  }
+
+  function activateMonitor() {
+    setMonitorMode("full");
+    ensureMonitorRuntime();
+    setPreviewState(true);
+    debugLog("[MonitorLoader] activate_monitor_message received; using WebM preview");
+  }
+
+  function deactivateMonitor() {
+    if (currentMode !== "desktop") {
+      setMonitorMode("lite");
+    }
+
+    setPreviewState(true);
+    debugLog("[MonitorLoader] deactivate_monitor_message received; keeping WebM preview active");
+  }
 
   const socialLinks = {
     discord: "https://discord.gg/osdc",
@@ -37,81 +129,81 @@
 
   const projectGroups = [
     {
-      title: "Live Projects",
+      title: "What we're shipping",
       items: [
         {
-          eyebrow: "PUBLIC",
-          title: "Monitor Shell",
-          status: "In Build",
-          owner: "UI + Infra",
-          nextShip: "Start menu pass + icon polish",
-          artifact: "Landing directly on /osdc-monitor",
+          eyebrow: "FRONT DOOR",
+          title: "Club Website",
+          status: "Live",
+          owner: "Build + Design",
+          nextShip: "Make people understand who we are before they bounce after five seconds",
+          artifact: "A desk, a monitor, a desktop, and absolutely no corporate brochure energy",
         },
         {
           eyebrow: "SIGNATURE",
-          title: "Globe Widget",
+          title: "OSDC Globe",
           status: "Stable",
           owner: "Visual Systems",
-          nextShip: "Context overlays for event mode",
-          artifact: "Persistent particle globe in-window",
+          nextShip: "Season variants, event states, and more reasons to stare at it",
+          artifact: "A suspiciously pretty globe that keeps the whole thing feeling alive",
         },
       ],
     },
     {
-      title: "Club Modules",
+      title: "How the semester moves",
       items: [
         {
           eyebrow: "EVENTS",
-          title: "OSDHack Launch Board",
-          status: "Review",
+          title: "Build Nights + Hackathons",
+          status: "Live",
           owner: "Events Crew",
-          nextShip: "Poster v3 + registration sync",
-          artifact: "hack.osdc.dev handoff checklist",
+          nextShip: "Sharper registration flow and stronger post-event archive",
+          artifact: "Hackathons, jams, workshops, CTFs, and demo nights with actual follow-through",
         },
         {
           eyebrow: "MEMBERS",
-          title: "Roster + Onboarding",
-          status: "In Build",
+          title: "Onboarding Loop",
+          status: "Live",
           owner: "Community",
-          nextShip: "Contributor board import",
-          artifact: "Discord roles -> monitor roster map",
+          nextShip: "Make first contribution paths impossible to miss",
+          artifact: "From 'hi' in Discord to shipping something without needing secret lore",
         },
         {
           eyebrow: "ARCHIVE",
-          title: "Season Archive",
-          status: "Queued",
+          title: "Club Memory",
+          status: "In Build",
           owner: "Ops",
-          nextShip: "2025 recap cards",
-          artifact: "Screenshot + turnout timeline",
+          nextShip: "Preserve posters, screenshots, writeups, and the funny parts too",
+          artifact: "A semester should leave traces, not just attendance numbers",
         },
       ],
     },
     {
-      title: "Internal Surfaces",
+      title: "Desk jobs nobody claps for",
       items: [
         {
           eyebrow: "OPS",
-          title: "Community Ops",
+          title: "Core Team Desk",
           status: "Live",
           owner: "Maintainers",
-          nextShip: "Volunteer shift board",
-          artifact: "Run-of-show + moderation shortcuts",
+          nextShip: "Volunteer board, archive shortcuts, and event runbooks",
+          artifact: "The part where the slightly chaotic club becomes weirdly competent",
         },
         {
           eyebrow: "DOCS",
           title: "Notes + Finder",
           status: "Live",
           owner: "Everyone",
-          nextShip: "Pinned docs folder",
-          artifact: "Local planning notes and docs browser",
+          nextShip: "Pinned docs and better starter breadcrumbs",
+          artifact: "Planning notes, references, and all the files nobody should have to hunt for twice",
         },
         {
           eyebrow: "PLAY",
-          title: "Doom Breakglass",
+          title: "Morale Patch",
           status: "Live",
           owner: "Tool Desk",
-          nextShip: "Audio + fullscreen polish",
-          artifact: "Pointer-lock ready js-dos mount",
+          nextShip: "Keep it unnecessary and therefore essential",
+          artifact: "Yes the Doom icon is intentional. no it is not replacing mentorship",
         },
       ],
     },
@@ -119,35 +211,35 @@
 
   const clubStackSections = [
     {
-      title: "Incoming",
+      title: "How OSDC Works",
       entries: [
-        "Capture-the-flag poster copy review",
-        "Freshers onboarding sheet cleanup",
-        "Maintainer Night guest confirmations",
+        "Student-led core team, not a spectator committee",
+        "Open source is a practice here, not a sticker",
+        "People learn by building, reviewing, breaking, and fixing",
       ],
     },
     {
-      title: "Building",
+      title: "What People Actually Do",
       entries: [
-        "Monitor desktop icon pass",
-        "Roster board data cards",
-        "Finder document shortcuts",
+        "Hackathons, jams, workshops, competitions, build nights",
+        "Posters, websites, tooling, archives, docs, and event systems",
+        "Mentor newer members until they become the next mentors",
       ],
     },
     {
-      title: "Review",
+      title: "Club Values",
       entries: [
-        "OSDHack launch checklist",
-        "Archive recap card design",
-        "Terminal command set",
+        "Beginner-friendly without becoming technically hollow",
+        "Playful, internet-native, and slightly cursed on purpose",
+        "Collaboration beats individual hero mode every time",
       ],
     },
     {
-      title: "Live",
+      title: "Known Easter Eggs",
       entries: [
-        "Globe widget",
-        "Discord jump link",
-        "Doom breakglass",
+        "The Doom icon is a morale device",
+        "The terminal respects cat, ls, and questionable confidence",
+        "If the archive gets too neat, something has gone wrong",
       ],
     },
   ];
@@ -205,23 +297,23 @@
     return {
       briefing: {
         intro:
-          "Saturday desk is live. The monitor is now the operating surface for launches, docs, review, and demos.",
+          "We are OSDC. We build things, break things, ship weird ideas, help each other improve, and leave enough behind for the next batch to keep going.",
         stats: [
-          { label: "Season", value: "Monsoon Build Loop" },
-          { label: "Open Issues", value: "14" },
-          { label: "Active Builders", value: "28" },
-          { label: "Next Drop", value: "OSDHack Poster v3" }
+          { label: "Mode", value: "Build First, Explain Later" },
+          { label: "Open Source", value: "Yes, Actually" },
+          { label: "Active Builders", value: "28 humans + 1 Doom icon" },
+          { label: "Next Drop", value: "OSDHack + freshers onboarding" }
         ],
         agenda: [
-          { time: "17:30", lane: "Design", task: "Poster review and social cutdowns" },
-          { time: "18:15", lane: "Community", task: "New member onboarding desk" },
-          { time: "19:00", lane: "Build", task: "Open sprint on issues 12-18" },
-          { time: "20:30", lane: "Ops", task: "Demo capture and archive upload" }
+          { time: "17:30", lane: "Design", task: "Make the poster loud enough to stop a hallway scroll" },
+          { time: "18:15", lane: "Community", task: "Get new people from 'I just joined' to 'I can ship one thing'" },
+          { time: "19:00", lane: "Build", task: "Open sprint, pairing tables, repo triage, no spectator mode" },
+          { time: "20:30", lane: "Ops", task: "Archive screenshots, notes, and all the lessons future us will forget" }
         ],
         focus: [
-          "Ship the monitor polish pass",
-          "Lock OSDHack registration assets",
-          "Prepare archive cards for the last sprint"
+          "Keep OSDC beginner-friendly without turning it into tutorial soup",
+          "Make open source feel like something members can enter this week, not next year",
+          "Leave enough lore in the archive for the next core team to continue the bit"
         ],
         links: [
           { label: "Discord", url: "https://discord.gg/osdc" },
@@ -231,7 +323,7 @@
       },
       events: {
         intro:
-          "Current launch board. These are the event surfaces being shipped, reviewed, or queued right now.",
+          "Current launch board. These are the events we are actively running, reviewing, or lining up next.",
         items: [
           {
             eyebrow: "FLAGSHIP",
@@ -381,27 +473,32 @@
       "/Users/osdc/Desktop/readme.txt": {
         title: "README.TXT",
         content:
-          "OSDC monitor desktop\n\nThis is the real club desk now.\n\nQuick use:\n- Finder -> docs and shortcuts\n- Notes -> planning pad\n- Terminal -> ls/cd/cat/open/status/events/projects\n- Projects -> live ship board\n- Doom -> breakglass morale tool",
+          "OSDC desk readme\n\nWelcome to the workroom.\n\nIf you are trying to understand us, start with Briefing, Events, Members, and Build Board.\n\nQuick use:\n- Briefing -> who we are\n- Events -> what we run\n- Members -> current roster\n- Alumni -> older hands in the orbit\n- Build Board -> what is shipping right now\n- Doom -> morale patch, spiritually critical",
       },
       "/Users/osdc/Documents/club-brief.txt": {
         title: "CLUB-BRIEF.TXT",
         content:
-          "OSDC club brief\n\nToday:\n- OSDHack poster review\n- Onboarding desk prep\n- Open sprint on issues 12-18\n\nMain rule:\nThe monitor should feel useful, not decorative. Every window should either ship info, move work forward, or help tell the story of the club.",
+          "OSDC club brief\n\nWe are a student-led open-source developer community.\n\nWe run hackathons, workshops, game jams, coding events, CTFs, build nights, collaborative projects, and whatever else gives people a reason to make something real.\n\nMain rule:\nno passive membership. stay long enough and you will build, help, review, organize, document, mentor, or accidentally become part of operations.",
       },
       "/Users/osdc/Documents/event-pipeline.txt": {
         title: "EVENT-PIPELINE.TXT",
         content:
-          "Event pipeline\n\n1. Pick owner + ship date\n2. Lock poster copy\n3. Publish registration page\n4. Push Discord + socials cutdowns\n5. Capture screenshots same night\n6. Archive turnout, demos, follow-up tasks",
+          "Event pipeline\n\n1. Pick an owner and a ship date\n2. Decide what people will build, not just what they will attend\n3. Make the poster weird enough to be remembered\n4. Publish registration and Discord handoff\n5. Run the event like a build space, not a lecture hall\n6. Capture demos, screenshots, winners, mistakes, and follow-up tasks before the memory leaks",
       },
       "/Users/osdc/Documents/member-onboarding.txt": {
         title: "MEMBER-ONBOARDING.TXT",
         content:
-          "Member onboarding\n\n- Join Discord and read the pinned board.\n- Pick one lane: Build / Design / Community / Ops.\n- Shadow one review or sprint before claiming tasks.\n- First task should ship in under one week.\n- Ask for a reviewer before polishing in isolation.",
+          "Member onboarding\n\n- Join Discord and read the pinned board.\n- Pick a lane: Build / Design / Community / Ops.\n- Shadow one sprint, review, or event prep cycle.\n- Your first contribution should be small, real, and shippable.\n- Ask questions early. mysterious competence is fake.\n- If you are lost, that is normal. stay anyway.",
       },
       "/Users/osdc/Documents/libraries.txt": {
         title: "LIBRARIES.TXT",
         content:
-          "Runtime stack\n\n- Three.js -> desk scene and camera\n- Next.js -> app shell\n- os-gui -> Win95/98 chrome\n- js-dos -> Doom mount\n- localStorage -> notes persistence\n- monitor-ui.js -> desktop behavior, windows, terminal data",
+          "This thing is held together by\n\n- Three.js -> desk scene and monitor trickery\n- Next.js -> shell and app surfaces\n- os-gui -> retro window chrome\n- js-dos -> the completely necessary morale executable\n- localStorage -> notes and small desktop persistence\n- monitor-ui.js -> the cursed glue keeping the monitor alive\n\nIf you found this file on purpose, congratulations, you are already the kind of person OSDC likes.",
+      },
+      "/Users/osdc/Documents/please-do-not-panic.txt": {
+        title: "PLEASE-DO-NOT-PANIC.TXT",
+        content:
+          "please do not panic\n\nIf something on this desktop looks slightly chaotic, that is because OSDC is built by real students and not by a brand committee.\n\nThis is a feature.\n\nProbably.",
       },
     };
 
@@ -414,8 +511,7 @@
         { kind: "app", name: "Finder.app", app: "finder", icon: "folder" },
         { kind: "app", name: "Notes.app", app: "notes", icon: "doc" },
         { kind: "app", name: "Terminal.app", app: "terminal", icon: "terminal" },
-        { kind: "app", name: "Projects.app", app: "projects", icon: "projects" },
-        { kind: "app", name: "ClubStack.app", app: "skills", icon: "toolbox" },
+        { kind: "app", name: "Build Board.app", app: "projects", icon: "projects" },
         { kind: "app", name: "Doom.app", app: "doom", icon: "game" },
       ],
       "/Users/osdc/": [
@@ -424,11 +520,8 @@
       ],
       "/Users/osdc/Desktop/": [
         { kind: "directory", name: "Applications", path: "/Applications/", icon: "folder" },
-        { kind: "text", name: "readme.txt", path: "/Users/osdc/Desktop/readme.txt", icon: "doc" },
-        { kind: "text", name: "club-brief.txt", path: "/Users/osdc/Documents/club-brief.txt", icon: "doc" },
         { kind: "app", name: "Notes.app", app: "notes", icon: "doc" },
-        { kind: "app", name: "Projects.app", app: "projects", icon: "projects" },
-        { kind: "app", name: "ClubStack.app", app: "skills", icon: "toolbox" },
+        { kind: "app", name: "Build Board.app", app: "projects", icon: "projects" },
         { kind: "app", name: "Doom.app", app: "doom", icon: "game" },
         { kind: "link", name: "Discord.url", url: socialLinks.discord, icon: "network" },
       ],
@@ -437,6 +530,7 @@
         { kind: "text", name: "event-pipeline.txt", path: "/Users/osdc/Documents/event-pipeline.txt", icon: "doc" },
         { kind: "text", name: "member-onboarding.txt", path: "/Users/osdc/Documents/member-onboarding.txt", icon: "doc" },
         { kind: "text", name: "libraries.txt", path: "/Users/osdc/Documents/libraries.txt", icon: "doc" },
+        { kind: "text", name: "please-do-not-panic.txt", path: "/Users/osdc/Documents/please-do-not-panic.txt", icon: "doc" },
       ],
     };
 
@@ -1160,6 +1254,8 @@
     if (mode !== "desktop") {
       setStartMenuOpen(false);
     }
+
+    closeContextMenu();
   }
 
   function pulseGlobeWidget() {
@@ -1167,6 +1263,87 @@
     window.setTimeout(function () {
       root.classList.remove("globe-pulse");
     }, 520);
+  }
+
+  function launchDesktop() {
+    if (!DESKTOP_URL) {
+      enterDesktop();
+      return;
+    }
+
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(
+          {
+            type: "osdc-open-desktop-overlay",
+            desktopUrl: DESKTOP_URL,
+          },
+          "*"
+        );
+        return;
+      }
+    } catch (error) {
+      console.error("Unable to request desktop overlay from parent", error);
+    }
+
+    window.location.href = DESKTOP_URL;
+  }
+
+  function closeContextMenu() {
+    contextMenuOpen = false;
+
+    if (desktopContextMenu) {
+      desktopContextMenu.hidden = true;
+    }
+  }
+
+  function openContextMenu(x, y) {
+    if (!desktopContextMenu) {
+      return;
+    }
+
+    const safeArea = document.querySelector(".screen-safe-area");
+    if (!safeArea) {
+      return;
+    }
+
+    const bounds = safeArea.getBoundingClientRect();
+    const maxX = Math.max(12, bounds.width - 204);
+    const maxY = Math.max(12, bounds.height - 228);
+
+    desktopContextMenu.style.left = `${Math.min(Math.max(12, x - bounds.left), maxX)}px`;
+    desktopContextMenu.style.top = `${Math.min(Math.max(12, y - bounds.top), maxY)}px`;
+    desktopContextMenu.hidden = false;
+    contextMenuOpen = true;
+  }
+
+  function handleContextAction(action) {
+    switch (action) {
+      case "enter":
+        launchDesktop();
+        break;
+      case "briefing":
+        enterDesktop();
+        openContentWindow("briefing");
+        break;
+      case "terminal":
+        enterDesktop();
+        openTool("terminal");
+        break;
+      case "projects":
+        enterDesktop();
+        openTool("projects");
+        break;
+      case "skills":
+        enterDesktop();
+        openTool("skills");
+        break;
+      case "discord":
+        window.open(socialLinks.discord, "_blank", "noopener,noreferrer");
+        break;
+    }
+
+    closeContextMenu();
   }
 
   function enterDesktop() {
@@ -1191,6 +1368,43 @@
     window.setTimeout(function () {
       root.classList.remove("is-entering");
     }, 470);
+  }
+
+  function exitDesktop() {
+    if (currentMode !== "desktop") return;
+
+    openWindows.forEach(function (record, key) {
+      if (record.$win) {
+        record.$win.close();
+      }
+    });
+    openWindows.clear();
+    globeWindow = null;
+    desktopBootstrapped = false;
+    activeWindowKey = null;
+
+    if (globeShell) {
+      var safeArea = document.querySelector(".screen-safe-area");
+      if (safeArea && globeShell.parentNode !== safeArea) {
+        var heroClock = document.getElementById("monitor-clock");
+        if (heroClock && heroClock.nextSibling) {
+          safeArea.insertBefore(globeShell, heroClock.nextSibling);
+        } else {
+          safeArea.appendChild(globeShell);
+        }
+        globeShell.classList.remove("is-windowed");
+      }
+    }
+
+    setMode("hero");
+    if (monitorMode !== "full") {
+      setMonitorMode("lite");
+    }
+    setStartMenuOpen(false);
+
+    if (taskbarWindows) {
+      taskbarWindows.innerHTML = "";
+    }
   }
 
   function focusExistingWindow(key) {
@@ -1700,6 +1914,7 @@
   function renderProjectsWindow() {
     return (
       `<div class="window-scroll-area"><div class="window-stack window-stack--tight">` +
+      `<div class="window-card"><div class="window-card__eyebrow">BUILD BOARD</div><h3>What we're building</h3><p>These are the club systems, event loops, and side quests we are keeping alive this semester.</p></div>` +
       projectGroups
         .map(function (group) {
           return (
@@ -1736,8 +1951,8 @@
 
     openOrCreateWindow(key, function () {
       createMonitorWindow(key, {
-        title: "PROJECTS.EXE",
-        taskTitle: "Projects",
+        title: "BUILDBOARD.EXE",
+        taskTitle: "Build Board",
         width: 516,
         height: 354,
         x: 116,
@@ -1750,7 +1965,7 @@
   function renderClubStackWindow() {
     return (
       `<div class="window-scroll-area"><div class="window-stack window-stack--tight">` +
-      `<div class="window-card"><div class="window-card__eyebrow">CLUB STACK</div><h3>Ship Board</h3><p>Lane view of what is incoming, building, under review, and already live on the desk.</p></div>` +
+      `<div class="window-card"><div class="window-card__eyebrow">CLUB STACK</div><h3>How we run OSDC</h3><p>This is how the club works when nobody is pretending we are formal: what we do, how people contribute, and what keeps the place alive.</p></div>` +
       `<div class="stack-grid">` +
       clubStackSections
         .map(function (section) {
@@ -2175,6 +2390,8 @@
               notes: "notes",
               terminal: "terminal",
               projects: "projects",
+              buildboard: "projects",
+              "build-board": "projects",
               doom: "doom",
               "club-stack": "skills",
               clubstack: "skills",
@@ -2337,7 +2554,7 @@
                     formatHelpCommand("status", "Show current desk status."),
                     formatHelpCommand("events", "List live event board items."),
                     formatHelpCommand("members", "Show active roster lanes."),
-                    formatHelpCommand("projects", "Show current ship board."),
+                    formatHelpCommand("buildboard", "Show what we are shipping."),
                     formatHelpCommand("links", "Show club jump links."),
                     formatHelpCommand("cat", "Print file content."),
                     formatHelpCommand("open", "Open files or applications."),
@@ -2360,6 +2577,7 @@
                   lines: [
                     "OSDC monitor shell alpha build, (C)2026 OSDC.",
                     "Authorized club workspace.",
+                    "Build weird things. document them. teach the next person.",
                     "The monitor is the desk. Ship from here.",
                     "",
                   ],
@@ -2431,6 +2649,8 @@
               }
 
               case "projects":
+              case "buildboard":
+              case "build-board":
                 return {
                   lines: projectGroups.flatMap(function (group) {
                     return [
@@ -2617,7 +2837,7 @@
                     formatNeofetchLine("Directory", state.cwd),
                     formatNeofetchLine("Open windows", String(openWindows.size)),
                     formatNeofetchLine("Season", "Monsoon Build Loop"),
-                    formatNeofetchLine("Apps", "Finder Notes Terminal Projects ClubStack Doom"),
+                    formatNeofetchLine("Apps", "Finder Notes Terminal BuildBoard ClubStack Doom"),
                   ],
                   tone: "terminal-line--muted",
                 };
@@ -2786,7 +3006,7 @@
             [
               "OSDC Monitor Terminal v95.2",
               "Club shell online. Type HELP for commands or MOTD for desk status.",
-              "Try: neofetch, ls, cat club-brief.txt, open projects",
+              "Try: neofetch, ls, open briefing, open build-board",
               "",
             ],
             "terminal-line--muted"
@@ -2868,14 +3088,6 @@
     }
   }
 
-  function forwardGlobeMessage(message) {
-    if (!globeFrame || !globeFrame.contentWindow) {
-      return;
-    }
-
-    globeFrame.contentWindow.postMessage(message, window.location.origin);
-  }
-
   function loadMonitorContent() {
     fetch("/monitor-content.json", { cache: "no-store" })
       .then(function (response) {
@@ -2893,7 +3105,9 @@
       });
   }
 
-  bindActivator(heroEnter, enterDesktop);
+  bindActivator(heroEnter, function () {
+    launchDesktop();
+  });
   bindActivator(taskbarStart, function () {
     if (currentMode !== "desktop") {
       enterDesktop();
@@ -2938,6 +3152,14 @@
       playClickSound();
     }
 
+    if (contextMenuOpen) {
+      if (desktopContextMenu && desktopContextMenu.contains(target)) {
+        return;
+      }
+
+      closeContextMenu();
+    }
+
     if (!startMenuOpen || !startMenu || !taskbarStart) {
       return;
     }
@@ -2952,12 +3174,50 @@
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
       setStartMenuOpen(false);
+      closeContextMenu();
     }
   });
 
+  document.addEventListener("contextmenu", function (event) {
+    const target = event.target;
+
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    if (!target.closest(".screen-safe-area")) {
+      return;
+    }
+
+    event.preventDefault();
+    setStartMenuOpen(false);
+    openContextMenu(event.clientX, event.clientY);
+  });
+
+  if (desktopContextMenu) {
+    desktopContextMenu.querySelectorAll("[data-context-action]").forEach(function (button) {
+      bindActivator(button, function () {
+        handleContextAction(button.getAttribute("data-context-action"));
+      });
+    });
+  }
+
   window.addEventListener("message", function (event) {
-    if (event.data && event.data.type === "osdc-globe-control") {
-      forwardGlobeMessage(event.data);
+    if (
+      event.source === window.parent &&
+      event.data &&
+      event.data.method === "activate_monitor_message"
+    ) {
+      activateMonitor();
+      return;
+    }
+
+    if (
+      event.source === window.parent &&
+      event.data &&
+      event.data.method === "deactivate_monitor_message"
+    ) {
+      deactivateMonitor();
       return;
     }
 
@@ -2968,14 +3228,35 @@
       event.data.method === "enable_sound_message"
     ) {
       lastSoundEnabled = Boolean(event.data.enabled);
+      return;
+    }
+
+    if (
+      event.source === window.parent &&
+      event.data &&
+      event.data.method === "enter_desktop_message"
+    ) {
+      enterDesktop();
+    }
+
+    if (
+      event.source === window.parent &&
+      event.data &&
+      event.data.method === "exit_desktop_message"
+    ) {
+      exitDesktop();
     }
   });
 
   document.addEventListener("visibilitychange", function () {
-    forwardGlobeMessage({
-      type: "osdc-globe-control",
-      paused: document.hidden,
-    });
+    if (document.hidden) {
+      pausePreviewVideo();
+      return;
+    }
+
+    if (root.classList.contains("globe-preview-active")) {
+      playPreviewVideo();
+    }
   });
 
   window.addEventListener("resize", function () {
@@ -2994,9 +3275,13 @@
     }
   });
 
-  loadMonitorContent();
-  setupDraggableIcons();
   syncClock();
-  window.setInterval(syncClock, 1000);
+  clockIntervalId = window.setInterval(syncClock, 1000);
   setMode("hero");
+  setMonitorMode(requestedMonitorMode);
+  setPreviewState(requestedMonitorMode !== "full");
+
+  if (requestedMonitorMode === "full") {
+    activateMonitor();
+  }
 })();

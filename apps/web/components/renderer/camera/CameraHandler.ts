@@ -6,6 +6,7 @@ import { UserInteractionEvent, UserInteractionEventBus } from "@/events/UserInte
 import { UnsubscribeHandler } from "@/events/EventBus";
 import { Scene } from "three";
 import { CinematicCameraState } from "./states/CinematicCameraState";
+import { PhoneViewCameraState } from "./states/PhoneViewCameraState";
 
 export class CameraHandlerContext {
 
@@ -53,6 +54,7 @@ export enum CameraHandlerState {
   FreeRoam,
   MonitorView,
   Cinematic,
+  PhoneView,
 }
 
 export class CameraHandler {
@@ -84,6 +86,7 @@ export class CameraHandler {
       case CameraHandlerState.FreeRoam: return new FreeRoamCameraState(this, this.ctx);
       case CameraHandlerState.MonitorView: return new MonitorViewCameraState(this, this.ctx);
       case CameraHandlerState.Cinematic: return new CinematicCameraState(this, this.ctx);
+      case CameraHandlerState.PhoneView: return new PhoneViewCameraState(this, this.ctx);
       default: throw new Error("unsupported state");
     }
   }

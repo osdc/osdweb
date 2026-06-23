@@ -127,8 +127,7 @@ export const Desktop = (props: {
   }
 
   function onContextMenu(evt: React.MouseEvent<HTMLDivElement>) {
-    if (!monitorMode || !desktopNode.current) { return; }
-    if ((evt.target as HTMLElement).closest('[data-window-root="true"]')) { return; }
+    if (!desktopNode.current) { return; }
 
     evt.preventDefault();
 
@@ -238,10 +237,10 @@ export const Desktop = (props: {
       {monitorMode && applicationWindows.length === 0 && (
         <div className={styles.monitorEmptyState}>
           <p className={styles.monitorEmptyStateEyebrow}>WORKROOM READY</p>
-          <h2 className={styles.monitorEmptyStateTitle}>Launch a tool from the outer monitor shell.</h2>
+          <h2 className={styles.monitorEmptyStateTitle}>Open a window to start the desk session.</h2>
           <p className={styles.monitorEmptyStateCopy}>
-            Finder, Notes, Terminal, Algorithms, Doom, and the club stack will open here
-            without spawning a second desktop shell.
+            Notes, Terminal, Doom, the club stack, and Finder windows will appear here
+            as part of the same in-monitor workspace.
           </p>
         </div>
       )}
@@ -256,7 +255,7 @@ export const Desktop = (props: {
         {applications}
       </div>
 
-      {monitorMode && contextMenu.open && (
+      {contextMenu.open && (
         <div
           ref={contextMenuRef}
           className={styles.desktopContextMenu}
@@ -264,6 +263,7 @@ export const Desktop = (props: {
         >
           <button className={styles.desktopContextItem} onClick={openTerminal}>Open Terminal</button>
           <button className={styles.desktopContextItem} onClick={openFinder}>Open Finder</button>
+          <button className={styles.desktopContextItem} onClick={() => { manager.open('/Applications/Notes.app'); closeContextMenu(); }}>Open Notes</button>
           <button className={styles.desktopContextItem} onClick={openAbout}>About OSDC</button>
           <button className={styles.desktopContextItem} onClick={openContact}>Contact</button>
           <div className={styles.desktopContextDivider}></div>

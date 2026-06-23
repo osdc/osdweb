@@ -7,6 +7,11 @@
   box-shadow: inset -1px -1px #0a0a0a,inset 1px 1px #c8c8c8,inset -2px -2px grey,inset 2px 2px #fff;
 }
 
+.embeddedMenuBar {
+  height: 26px;
+  padding: 0 4px;
+}
+
 .spacer {
   flex: 1;
 }
@@ -26,12 +31,32 @@
   border: 1px solid #000;
 }
 
+.embeddedMenuBar .utility {
+  gap: 4px;
+  margin: 3px 0 3px 6px;
+  padding: 0 5px;
+}
+
+.embeddedMenuBar .date {
+  padding-right: 0;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.backToDeskButton {
+  min-height: 18px;
+  height: 18px;
+  margin: 4px 0;
+  padding: 1px 7px;
+  line-height: 1;
+  font-size: 0.72rem;
+}
+
 .weekday {
   text-transform: capitalize;
 }
 
-/* We don't do capitalization on months in Dutch */
-.date[data-locale="en"] .month {
+.month {
   text-transform: capitalize;
 }
 
@@ -42,6 +67,10 @@
   justify-content: center;
   height: 100%;
   padding: 0 8px;
+}
+
+.embeddedMenuBar .menuEntry {
+  padding: 0 5px;
 }
 
 .menuEntry span {

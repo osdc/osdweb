@@ -1,101 +1,58 @@
 import { WindowProps } from "@/components/WindowManagement/WindowCompositor";
 import styles from "./SkillsView.module.css";
-import { useTranslation } from "react-i18next";
 
 type StackSection = {
   title: string;
   entries: string[];
 };
 
-function getSections(language: string): StackSection[] {
-  if (language === "nl") {
-    return [
-      {
-        title: "Club loops",
-        entries: [
-          "Build nights en open sprints",
-          "Poster-first event launches",
-          "Mentorship en review loops",
-        ],
-      },
-      {
-        title: "Public shell",
-        entries: [
-          "CRT monitor desktop",
-          "Live globe widget",
-          "Events, members en archive windows",
-        ],
-      },
-      {
-        title: "Workroom tools",
-        entries: [
-          "Finder voor docs en assets",
-          "Notes voor club notities",
-          "Terminal, Algorithms en Doom",
-        ],
-      },
-      {
-        title: "Delivery",
-        entries: [
-          "Discord als coördinatie-laag",
-          "Registratie- en posterlinks",
-          "Archive notes voor volgende seizoenen",
-        ],
-      },
-    ];
-  }
-
+function getSections(): StackSection[] {
   return [
     {
-      title: "Club Loops",
+      title: "What we do",
       entries: [
-        "Build nights and open sprints",
-        "Poster-first event launches",
-        "Mentorship and review loops",
+        "Open-source projects",
+        "Hackathons, workshops, CTFs, jams, and build nights",
+        "Documentation, design, ops, and the stuff around shipping",
       ],
     },
     {
-      title: "Public Shell",
+      title: "How people get in",
       entries: [
-        "CRT monitor desktop",
-        "Live globe widget",
-        "Events, members, and archive windows",
+        "We learn by building, not by waiting until we feel ready",
+        "We try to get newer people into real work quickly",
+        "We leave behind docs, patterns, and systems future batches can reuse",
       ],
     },
     {
-      title: "Workroom Tools",
+      title: "What we protect",
       entries: [
-        "Finder for docs and assets",
-        "Notes for club planning",
-        "Terminal, Algorithms, and Doom",
+        "Not a passive attendance society",
+        "Not beginner-hostile",
+        "Not interested in looking polished at the cost of personality",
       ],
     },
     {
-      title: "Delivery",
+      title: "Culturally important nonsense",
       entries: [
-        "Discord as the coordination layer",
-        "Registration links and poster drops",
-        "Archive notes for future seasons",
+        "We like retro software, terminal windows, arcade energy, and internet-era weirdness",
+        "We also like substance, which is why the jokes are sitting next to actual club information",
+        "Yes the Doom icon stays",
       ],
     },
   ];
 }
 
 export default function SkillsView(_props: WindowProps) {
-  const { i18n } = useTranslation("common");
-  const sections = getSections(i18n.language);
+  const sections = getSections();
 
   return (
     <div className="content-outer">
       <div className="content">
         <div className="content-inner">
           <div className={styles["skills-content"]}>
-            <h1>{i18n.language === "nl" ? "Club stack" : "Club stack"}</h1>
-            <p>
-              {i18n.language === "nl"
-                ? "Deze view vat samen waar de desktoplaag nu voor is: publieke clubverhalen vooraan, utility-tools in de workroom, en genoeg structuur om seizoenen te laten evolueren."
-                : "This view summarizes what the desktop layer is for now: public club storytelling up front, utility tools in the workroom, and enough structure to let each season evolve."}
-            </p>
+            <h1>How we run OSDC</h1>
+            <p>We are not here to cosplay a corporate chapter. We run on builders, reviewers, poster goblins, ops people, mentors, and whoever decided 2 a.m. was a perfectly valid time to fix the website.</p>
 
             {sections.map((section) => (
               <section key={section.title}>
