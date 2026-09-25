@@ -80,3 +80,18 @@ The workflow will:
   - `npm run dev:desktop`
 - Static hosting does not use the local `/desktop -> localhost:3001` proxy.
 - In static export mode, the web app targets same-origin `/desktop/`.
+
+## T-shirt registration
+
+The `/tshirt/` page posts to `/api/tshirt`. The Cloudflare Pages handler lives in
+`functions/api/tshirt.js` at the project root. Configure these Cloudflare Pages
+secrets before taking registrations:
+
+- `RESEND_API_KEY`: Resend API key
+- `TSHIRT_FROM_EMAIL`: a verified sender address
+- `CONTACT_EMAIL`: recipient for registrations
+
+A non-static Next.js deployment uses the same route through
+`apps/web/pages/api/tshirt.ts` and requires `MAIL_SERVER`, `MAIL_PORT`,
+`MAIL_USER`, `MAIL_PASS`, and `CONTACT_EMAIL`. Without mail configuration, the
+form shows an error and does not claim a registration was received.

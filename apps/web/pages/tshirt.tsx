@@ -1,0 +1,66 @@
+import Head from 'next/head';
+import Link from 'next/link';
+import { FormEvent, useEffect, useState } from 'react';
+import styles from '../components/CommunityPage.module.css';
+import formStyles from '../components/TshirtForm.module.css';
+
+const sizes = [
+  { label: 'XS', chest: 40, length: 27, shoulder: 18.5 },
+  { label: 'S', chest: 42, length: 27.5, shoulder: 19.5 },
+  { label: 'M', chest: 44, length: 27.5, shoulder: 20.5 },
+  { label: 'L', chest: 46, length: 28.5, shoulder: 21.5 },
+  { label: 'XL', chest: 48, length: 28.5, shoulder: 22.5 },
+  { label: 'XXL', chest: 50, length: 29.5, shoulder: 23.5 },
+];
+
+export default function TshirtPage() {
+  const [state, setState] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+  useEffect(() => {
+    document.documentElement.classList.add('osdc-scroll-page');
+    document.body.classList.add('osdc-scroll-page');
+    return () => { document.documentElement.classList.remove('osdc-scroll-page'); document.body.classList.remove('osdc-scroll-page'); };
+  }, []);
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setState('sending');
+    setMessage('');
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
+    try {
+      const response = await fetch('/api/tshirt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!response.ok) throw new Error('Registration could not be sent. Please try again later.');
+      form.reset();
+      setState('success');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Registration could not be sent.');
+      setState('error');
+    }
+  }
+  return <div className={styles.page}>
+    <Head><title>Register for an OSDC T-shirt</title><meta name="description" content="Register your size and contact details for an OSDC T-shirt." /></Head>
+    <header className={styles.header}><Link href="/" className={styles.brand}>OSDC<span className={styles.brandMark}>✳</span></Link><nav><Link href="/">Back to home ↗</Link></nav></header>
+    <main className={formStyles.main}><p className={styles.eyebrow}>OSDC / T-shirt registration</p><h1>Wear the<br /><em>community.</em></h1><p className={formStyles.intro}>Choose your size for Design 1. We’ll follow up with availability and pickup details.</p>
+      <section className={formStyles.design} aria-labelledby="design-title">
+        <div className={formStyles.artworkLink}><img src="/images/tshirts/open-source-tees-poster.png" alt="Design 1 poster showing the beige OSDC T-shirt with open source city artwork and ₹699 price" width="1254" height="1254" /></div>
+        <div className={formStyles.designDetails}><span className={styles.eyebrow}>Design 01</span><h2 id="design-title">The Open Source Tees</h2><p>Hand-drawn open source city on a beige, oversized T-shirt.</p><strong>₹699</strong><a className={formStyles.previewLink} href="/images/tshirts/open-source-tees-artwork.png" target="_blank" rel="noreferrer">See the artwork up close ↗</a></div>
+      </section>
+      <section className={formStyles.sizeGuide} aria-labelledby="size-title">
+        <div className={formStyles.sizeHeading}><div><p className={styles.eyebrow}>Oversized fit</p><h2 id="size-title">Find your size</h2></div><a href="/images/tshirts/open-source-tees-size-chart.jpg" target="_blank" rel="noreferrer">Open size chart ↗</a></div>
+        <div className={formStyles.sizeContent}><a className={formStyles.chartImage} href="/images/tshirts/open-source-tees-size-chart.jpg" target="_blank" rel="noreferrer" aria-label="Open the original size chart full size"><img src="/images/tshirts/open-source-tees-size-chart.jpg" alt="Oversized fit size chart showing chest, length and shoulder measurements" width="957" height="1280" /></a><div className={formStyles.tableScroll}><table><caption>Measurements in inches</caption><thead><tr><th scope="col">Size</th>{sizes.map(size => <th scope="col" key={size.label}>{size.label}</th>)}</tr></thead><tbody><tr><th scope="row">Chest</th>{sizes.map(size => <td key={size.label}>{size.chest}</td>)}</tr><tr><th scope="row">Length</th>{sizes.map(size => <td key={size.label}>{size.length}</td>)}</tr><tr><th scope="row">Shoulder</th>{sizes.map(size => <td key={size.label}>{size.shoulder}</td>)}</tr></tbody></table></div></div>
+      </section>
+      {state === 'success' ? <div className={formStyles.result} role="status"><h2>Registration sent.</h2><p>We’ve received your T-shirt request. Watch your email for the next steps.</p><button type="button" onClick={() => setState('idle')}>Register another person</button></div> :
+      <form onSubmit={submit} className={formStyles.form}>
+        <input type="hidden" name="design" value="open-source-tees-design-1" />
+        <label>Full name<input name="name" type="text" autoComplete="name" minLength={2} maxLength={100} required /></label>
+        <label>Email address<input name="email" type="email" autoComplete="email" maxLength={200} required /></label>
+        <label>Phone number<input name="phone" type="tel" autoComplete="tel" minLength={8} maxLength={20} required /></label>
+        <label>T-shirt size<select name="size" defaultValue="" required><option value="" disabled>Select a size</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></label>
+        <label className={formStyles.full}>College / organization<input name="organization" type="text" maxLength={120} required /></label>
+        <label className={formStyles.honeypot} aria-hidden="true">Leave this empty<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label>
+        {state === 'error' && <p className={formStyles.error} role="alert">{message}</p>}
+        <button className={`${styles.primary} ${formStyles.submit}`} disabled={state === 'sending'} type="submit">{state === 'sending' ? 'Sending…' : 'Register for a T-shirt ↗'}</button>
+      </form>}
+    </main><footer className={styles.footer}><span>OSDC · JIIT, Noida</span><Link href="/">Back to home</Link></footer>
+  </div>;
+}
