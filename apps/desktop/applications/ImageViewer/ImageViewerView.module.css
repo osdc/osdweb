@@ -2,18 +2,96 @@
   display: flex;
   width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
+  background: #111719;
+}
+
+.viewer {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid #6d6455;
+  background: linear-gradient(180deg, #d7e8ef 0%, #bed5de 100%);
+  color: #173d43;
+  font-size: 0.76rem;
+}
+
+.filename {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.imageMeta {
+  flex: 0 0 auto;
+  color: #3f4c4f;
+}
+
+.canvas {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.025) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.025) 75%),
+    linear-gradient(45deg, rgba(255, 255, 255, 0.025) 25%, #111719 25%, #111719 75%, rgba(255, 255, 255, 0.025) 75%);
+  background-position: 0 0, 9px 9px;
+  background-size: 18px 18px;
 }
 
 .image {
-  display: block;
-  position: relative;
-  width: 100%;
-  height: 100%;
+  padding: 0.75rem;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.imageReady {
+  opacity: 1;
+}
+
+.status {
+  color: #d9e8e9;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .text-content {
   display: flex;
-  justify-content: center;
+  width: 100%;
   align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: #d9e8e9;
   text-align: center;
+}
+
+@media (max-width: 520px) {
+  .imageMeta {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image {
+    transition: none;
+  }
 }

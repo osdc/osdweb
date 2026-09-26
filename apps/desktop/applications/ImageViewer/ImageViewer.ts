@@ -41,11 +41,16 @@ export class ImageViewerApplication extends Application {
     this.baseHandler(event, windowContext);
 
     if (event.kind === 'application-open') {
+      const viewportWidth = globalThis.innerWidth || 1024;
+      const viewportHeight = globalThis.innerHeight || 768;
+      const width = Math.max(320, Math.min(760, viewportWidth - 48));
+      const height = Math.max(300, Math.min(580, viewportHeight - 72));
+
       this.compositor.open({
-        x: 200,
-        y: 200,
-        height: 400,
-        width: 400,
+        x: Math.max(24, Math.round((viewportWidth - width) / 2)),
+        y: Math.max(36, Math.round((viewportHeight - height) / 2)),
+        height,
+        width,
         title: `Image`,
         application: this,
         args: event.args,

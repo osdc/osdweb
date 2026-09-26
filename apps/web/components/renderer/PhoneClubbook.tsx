@@ -47,6 +47,10 @@ function formatTime(date: Date): string {
   });
 }
 
+function usesEmbeddedPosterCrop(slide: { imageSrc: string }): boolean {
+  return slide.imageSrc.endsWith('/linux-installfest.jpeg');
+}
+
 function createClubbookViewerStyles(
   activeSlide: (typeof clubbookSections)[ClubbookSectionId]['slides'][number],
   dimensions: SlideMediaDimensions | null,
@@ -105,16 +109,27 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
   const [sectionIndex, setSectionIndex] = useState(0);
   const [slideIndex, setSlideIndex] = useState(0);
   const [imageDimensions, setImageDimensions] = useState<SlideMediaDimensions | null>(null);
-  const [expandedImageSrc, setExpandedImageSrc] = useState<string | null>(null);
+  const [loadedImageSrc, setLoadedImageSrc] = useState<string | null>(null);
+  const [failedImageSrc, setFailedImageSrc] = useState<string | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxLoadedSrc, setLightboxLoadedSrc] = useState<string | null>(null);
+  const [lightboxFailedSrc, setLightboxFailedSrc] = useState<string | null>(null);
   const swipeStateRef = useRef<{ pointerId: number, startX: number, startY: number } | null>(null);
   const suppressImageTapRef = useRef(false);
+  const lightboxFrameRef = useRef<HTMLDivElement>(null);
+  const lightboxCloseRef = useRef<HTMLButtonElement>(null);
+  const lightboxTriggerRef = useRef<HTMLElement | null>(null);
 
   const activeSectionId = clubbookSectionOrder[sectionIndex];
   const activeSection = clubbookSections[activeSectionId];
   const activeSlide = activeSection.slides[slideIndex];
+  const imageReady = loadedImageSrc === activeSlide.imageSrc;
+  const imageFailed = failedImageSrc === activeSlide.imageSrc;
+  const lightboxImageReady = lightboxLoadedSrc === activeSlide.imageSrc;
+  const lightboxImageFailed = lightboxFailedSrc === activeSlide.imageSrc;
+  const cropEmbeddedPoster = usesEmbeddedPosterCrop(activeSlide);
   const viewerStyles = createClubbookViewerStyles(activeSlide, imageDimensions, !isOverlayMode);
-  const registrationUrl = process.env.NEXT_PUBLIC_OSDHACK_REGISTER_URL?.trim() || '';
-  const hasRegistrationUrl = registrationUrl.length > 0;
+
 
   function goToPreviousSlide() {
     startTransition(() => {
@@ -142,7 +157,12 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
       return;
     }
 
-    setExpandedImageSrc(activeSlide.imageSrc);
+    lightboxTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setLightboxOpen(true);
+  }
+
+  function closeLightbox() {
+    setLightboxOpen(false);
   }
 
   function handleSlidePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
@@ -209,14 +229,6 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
     window.location.assign('/');
   }
 
-  function handleRegisterForOsdhack() {
-    if (!hasRegistrationUrl) {
-      return;
-    }
-
-    openSocialLink(registrationUrl);
-  }
-
   useEffect(() => {
     if (props.mode !== 'embedded') { return; }
 
@@ -253,8 +265,8 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
   }, [activeSlide.id]);
 
   useEffect(() => {
-    setExpandedImageSrc(null);
-  }, [activeSlide.id, sectionIndex, isOpen]);
+    setLightboxOpen(false);
+  }, [sectionIndex, isOpen]);
 
   useEffect(() => {
     if (!isOpen) { return; }
@@ -268,9 +280,9 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
-        if (expandedImageSrc) {
+        if (lightboxOpen) {
           event.preventDefault();
-          setExpandedImageSrc(null);
+          closeLightbox();
           return;
         }
 
@@ -288,6 +300,23 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
       if (event.key === 'ArrowRight') {
         event.preventDefault();
         goToNextSlide();
+        return;
+      }
+
+      if (event.key === 'Tab' && lightboxOpen) {
+        const controls = lightboxFrameRef.current?.querySelectorAll<HTMLElement>('button, a[href], [tabindex]:not([tabindex="-1"])');
+
+        if (!controls?.length) { return; }
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     }
 
@@ -296,7 +325,31 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [activeSection.slides.length, expandedImageSrc, isOpen, onClose]);
+  }, [activeSection.slides.length, isOpen, lightboxOpen, onClose]);
+
+  useEffect(() => {
+    if (!lightboxOpen) { return; }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    lightboxCloseRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      lightboxTriggerRef.current?.focus();
+    };
+  }, [lightboxOpen]);
+
+  useEffect(() => {
+    const slides = activeSection.slides;
+    const previous = slides[(slideIndex - 1 + slides.length) % slides.length];
+    const next = slides[(slideIndex + 1) % slides.length];
+
+    [previous, next].forEach((slide) => {
+      const image = new window.Image();
+      image.src = slide.imageSrc;
+    });
+  }, [activeSection.slides, slideIndex]);
 
   if (!isOpen) { return null; }
 
@@ -491,16 +544,13 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
                 <p className={styles.sectionIntro}>{activeSection.intro}</p>
                 {activeSectionId === 'events' ? (
                   <div className={sectionActionsClassName}>
-                    <button
-                      type="button"
-                      className={styles.eventRegisterButton}
-                      onClick={handleRegisterForOsdhack}
-                      disabled={!hasRegistrationUrl}
-                    >
-                      {hasRegistrationUrl ? "Register for OSDHACK '26" : 'Registration opening soon'}
-                    </button>
+                    <a className={styles.eventRegisterButton} href="https://fossunited.org/c/jiit" target="_blank" rel="noreferrer">See all events on FOSS United ↗</a>
                   </div>
                 ) : null}
+                <div className={sectionActionsClassName}>
+                  <a className={styles.eventRegisterButton} href="/community#projects">Explore projects ↗</a>
+                  <a className={styles.eventRegisterButton} href="/tshirt">Register for a T-shirt ↗</a>
+                </div>
               </div>
 
               <div className={viewerClassName}>
@@ -521,17 +571,45 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
                       onClick={handleImageActivate}
                       aria-label={`Expand ${activeSlide.imageAlt}`}
                     >
-                      <img
-                        className={imageClassName}
-                        style={viewerStyles.image}
-                        src={activeSlide.imageSrc}
-                        alt={activeSlide.imageAlt}
-                        draggable={false}
-                        onLoad={handleImageLoad}
-                      />
+                      <span className={`${styles.imageCanvas} ${cropEmbeddedPoster ? styles.imageCanvasCropped : ''}`}>
+                        <img
+                          key={activeSlide.id}
+                          className={`${imageClassName} ${cropEmbeddedPoster ? styles.imageCropped : ''} ${imageReady ? styles.imageReady : ''}`}
+                          style={cropEmbeddedPoster ? undefined : viewerStyles.image}
+                          src={activeSlide.imageSrc}
+                          alt={activeSlide.imageAlt}
+                          draggable={false}
+                          onLoad={(event) => {
+                            handleImageLoad(event);
+                            setLoadedImageSrc(activeSlide.imageSrc);
+                            setFailedImageSrc(null);
+                          }}
+                          onError={() => setFailedImageSrc(activeSlide.imageSrc)}
+                        />
+                      </span>
                     </button>
+                    {!imageReady && !imageFailed ? <span className={styles.imageStatus}>Loading image…</span> : null}
+                    {imageFailed ? <span className={styles.imageStatus}>This image could not be loaded.</span> : null}
                   </div>
                 </div>
+
+                {activeSectionId === 'orbit' ? (
+                  <div className={styles.mobileThumbnailRail} aria-label={`${activeSection.label} photos`}>
+                    {activeSection.slides.map((slide, index) => (
+                      <button
+                        key={slide.id}
+                        type="button"
+                        className={`${styles.mobileThumbnail} ${index === slideIndex ? styles.mobileThumbnailActive : ''}`}
+                        onClick={() => setSlideIndex(index)}
+                        aria-label={`Show ${slide.title}`}
+                        aria-current={index === slideIndex ? 'true' : undefined}
+                      >
+                        <img src={slide.imageSrc} alt="" draggable={false} />
+                        <span>{slide.thumbLabel ?? slide.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
 
                 <div className={cardClassName} style={viewerStyles.card}>
                   <div className={styles.cardPath}>{activeSlide.mobileStatus ?? activeSlide.kicker}</div>
@@ -605,23 +683,54 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
         </div>
       </div>
 
-      {expandedImageSrc && (
-        <div className={styles.lightbox} onClick={() => setExpandedImageSrc(null)}>
-          <div className={styles.lightboxFrame} onClick={(event) => event.stopPropagation()}>
-            <button
-              type="button"
-              className={styles.lightboxClose}
-              onClick={() => setExpandedImageSrc(null)}
-            >
-              Close
-            </button>
-            <img
-              className={styles.lightboxImage}
-              src={expandedImageSrc}
-              alt={activeSlide.imageAlt}
-              draggable={false}
-            />
-            <div className={styles.lightboxCaption}>{activeSlide.caption ?? activeSlide.title}</div>
+      {lightboxOpen && (
+        <div className={styles.lightbox} onClick={closeLightbox}>
+          <div
+            ref={lightboxFrameRef}
+            className={styles.lightboxFrame}
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`phone-lightbox-title-${activeSlide.id}`}
+          >
+            <div className={styles.lightboxHeader}>
+              <div className={styles.lightboxHeading}>
+                <span>{slideIndex + 1} / {activeSection.slides.length}</span>
+                <h2 id={`phone-lightbox-title-${activeSlide.id}`}>{activeSlide.title}</h2>
+              </div>
+              <button
+                ref={lightboxCloseRef}
+                type="button"
+                className={styles.lightboxClose}
+                onClick={closeLightbox}
+                aria-label="Close photo viewer"
+              >
+                Close
+              </button>
+            </div>
+            <div className={styles.lightboxMedia}>
+              <span className={`${styles.lightboxImageCanvas} ${cropEmbeddedPoster ? styles.lightboxImageCanvasCropped : ''}`}>
+                <img
+                  key={`lightbox-${activeSlide.id}`}
+                  className={`${styles.lightboxImage} ${cropEmbeddedPoster ? styles.lightboxImageCropped : ''} ${lightboxImageReady ? styles.lightboxImageReady : ''}`}
+                  src={activeSlide.imageSrc}
+                  alt={activeSlide.imageAlt}
+                  draggable={false}
+                  onLoad={() => {
+                    setLightboxLoadedSrc(activeSlide.imageSrc);
+                    setLightboxFailedSrc(null);
+                  }}
+                  onError={() => setLightboxFailedSrc(activeSlide.imageSrc)}
+                />
+              </span>
+              {!lightboxImageReady && !lightboxImageFailed ? <span className={styles.lightboxStatus}>Loading full image…</span> : null}
+              {lightboxImageFailed ? <span className={styles.lightboxStatus}>This image could not be loaded.</span> : null}
+            </div>
+            <div className={styles.lightboxFooter}>
+              <button type="button" className={styles.lightboxNav} onClick={goToPreviousSlide}>Previous</button>
+              <div className={styles.lightboxCaption}>{activeSlide.caption ?? activeSlide.title}</div>
+              <button type="button" className={styles.lightboxNav} onClick={goToNextSlide}>Next</button>
+            </div>
           </div>
         </div>
       )}

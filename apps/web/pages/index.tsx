@@ -2,24 +2,14 @@ import Head from "next/head";
 import { SceneLoader } from "../components";
 import { useEffect, useState } from "react";
 import { NoScriptWarning } from "@/components/noscript/NoScript";
-import { PhoneClubbook } from "@/components/renderer/PhoneClubbook";
+import CommunityPage from "@/components/CommunityPage";
 import { Analytics } from "@vercel/analytics/react"
 
-const focusedTitle = "OSDC - Interactive Hub";
-const blurredTitle = "👀 OSDC - Interactive Hub";
 const MobileBreakpointQuery = "(max-width: 700px)";
 
 export default function Web() {
-  const [title, setTitle] = useState("OSDC - Interactive Hub");
   const [hasMounted, setHasMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [force3D, setForce3D] = useState(false);
-
-  function onVisibilityChange() {
-    const title = document.visibilityState === 'visible' ? focusedTitle : blurredTitle;
-
-    setTitle(title);
-  }
 
   useEffect(() => {
     setHasMounted(true);
@@ -41,31 +31,28 @@ export default function Web() {
       legacyMediaQuery.addListener?.(syncViewportMode);
     }
 
-    document.addEventListener('visibilitychange', onVisibilityChange);
-
     return () => {
       if ('removeEventListener' in mediaQuery) {
         mediaQuery.removeEventListener('change', syncViewportMode);
       } else {
         legacyMediaQuery.removeListener?.(syncViewportMode);
       }
-      document.removeEventListener('visibilitychange', onVisibilityChange);
     }
   }, []);
 
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>OSDC — Open Source Developers Community</title>
 
-        <meta name="description" content="Interactive hub for the Open Source Developers Community" />
+        <meta name="description" content="Open Source Developers Community at JIIT, Noida" />
 
-        <meta property="og:title" content="OSDC - Interactive Hub" />
-        <meta property="og:description" content="Interactive hub for the Open Source Developers Community" />
+        <meta property="og:title" content="OSDC — Open Source Developers Community" />
+        <meta property="og:description" content="Open Source Developers Community at JIIT, Noida" />
         <meta property="og:type" content="website" />
         <meta property="twitter:card" content="summary_large_image"/>
-        <meta property="twitter:title" content="OSDC - Interactive Hub"/>
-        <meta property="twitter:description" content="Interactive hub for the Open Source Developers Community"/>
+        <meta property="twitter:title" content="OSDC — Open Source Developers Community"/>
+        <meta property="twitter:description" content="Open Source Developers Community at JIIT, Noida"/>
         <meta property="og:site_name" content="OSDC"></meta>
 
         <link rel="icon" type="image/x-icon" href="favicon.ico" />
@@ -73,8 +60,8 @@ export default function Web() {
       <NoScriptWarning />
       {!hasMounted ? (
         <></>
-      ) : isMobile && !force3D ? (
-        <PhoneClubbook mode="embedded" onEnterDesk={() => setForce3D(true)} />
+      ) : isMobile ? (
+        <CommunityPage />
       ) : (
         <SceneLoader />
       )}

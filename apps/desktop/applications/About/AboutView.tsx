@@ -1,5 +1,6 @@
 import { WindowProps } from '@/components/WindowManagement/WindowCompositor';
-import { startTransition, type CSSProperties, type SyntheticEvent, useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './AboutView.module.css';
 import { ScreenResolution } from '@/apis/Screen/ScreenService';
 import {
@@ -7,8 +8,6 @@ import {
   clubbookSections,
   ClubbookSectionId,
   ClubbookSlide,
-  resolveSlideMediaProfile,
-  SlideMediaDimensions,
 } from 'osdc-content';
 
 type SectionNavigationProps = {
@@ -34,76 +33,8 @@ type ThumbnailRailProps = {
   onSelect: (index: number) => void,
 };
 
-type VariableStyle = CSSProperties & Record<`--${string}`, string>;
-
-function isPortraitLike(slide: ClubbookSlide, dimensions: SlideMediaDimensions | null): boolean {
-  if (slide.mediaKind === 'poster' || slide.mediaKind === 'portrait') {
-    return true;
-  }
-
-  if (dimensions) {
-    return dimensions.height > dimensions.width;
-  }
-
-  return (slide.preferredAspectRatio ?? 1.45) < 1;
-}
-
-function createDesktopViewerStyles(slide: ClubbookSlide, dimensions: SlideMediaDimensions | null): {
-  shell: CSSProperties,
-  imageWrap: CSSProperties,
-  imageFrame: CSSProperties,
-  image: CSSProperties,
-  info: VariableStyle,
-  isPortraitLike: boolean,
-} {
-  const profile = resolveSlideMediaProfile(slide, dimensions);
-  const portraitLike = isPortraitLike(slide, dimensions);
-  const runtimeAspectRatio = dimensions
-    ? dimensions.width / Math.max(dimensions.height, 1)
-    : profile.effectiveAspectRatio;
-  const densityGap = profile.viewerFocus === 'content' ? '0.82rem' : profile.viewerFocus === 'image' ? '1.05rem' : '0.94rem';
-  const protectedImageKinds = portraitLike || profile.kind === 'poster' || profile.kind === 'portrait';
-  const displayFitMode = protectedImageKinds ? 'contain' : profile.fitMode;
-  const allowFrameToWrapImage = displayFitMode === 'contain' && (protectedImageKinds || profile.kind === 'square');
-  const relaxedMaxHeight = displayFitMode === 'contain' && profile.orientation === 'portrait'
-    ? profile.desktopStage.maxMediaHeightRem + 3.5
-    : profile.desktopStage.maxMediaHeightRem;
-  const frameMaxWidthRem = allowFrameToWrapImage
-    ? Math.min(
-        profile.desktopStage.maxMediaWidthRem,
-        relaxedMaxHeight * Math.max(runtimeAspectRatio, 0.62) + (profile.desktopStage.framePaddingRem * 2) + 1.4
-      )
-    : profile.desktopStage.maxMediaWidthRem;
-
-  return {
-    shell: {
-      gridTemplateColumns: `minmax(0, ${profile.desktopStage.imagePaneWeight}fr) minmax(18rem, ${profile.desktopStage.contentPaneWeight}fr)`,
-    },
-    imageWrap: {
-      minHeight: `${allowFrameToWrapImage ? Math.max(profile.desktopStage.minHeightRem - 2, 16) : profile.desktopStage.minHeightRem}rem`,
-    },
-    imageFrame: {
-      width: allowFrameToWrapImage ? 'fit-content' : `min(100%, ${frameMaxWidthRem}rem)`,
-      maxWidth: `min(100%, ${frameMaxWidthRem}rem)`,
-      minHeight: allowFrameToWrapImage ? '0' : `${profile.desktopStage.minHeightRem}rem`,
-      maxHeight: `${relaxedMaxHeight + 1.5}rem`,
-      aspectRatio: allowFrameToWrapImage ? 'auto' : `${profile.desktopStage.aspectRatio}`,
-      padding: `${profile.desktopStage.framePaddingRem}rem`,
-    },
-    image: {
-      width: displayFitMode === 'cover' ? '100%' : 'auto',
-      height: displayFitMode === 'cover' ? '100%' : 'auto',
-      maxHeight: displayFitMode === 'cover' ? 'none' : `${relaxedMaxHeight}rem`,
-      maxWidth: displayFitMode === 'cover' ? 'none' : '100%',
-      objectFit: displayFitMode,
-      objectPosition: profile.objectPosition,
-    },
-    info: {
-      '--viewer-card-gap': densityGap,
-      '--viewer-meta-columns': profile.viewerFocus === 'content' ? 'repeat(2, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))',
-    },
-    isPortraitLike: portraitLike,
-  };
+function usesEmbeddedPosterCrop(slide: ClubbookSlide): boolean {
+  return slide.imageSrc.endsWith('/linux-installfest.jpeg');
 }
 
 function SectionNavigation(props: SectionNavigationProps) {
@@ -156,30 +87,14 @@ function SectionNavigation(props: SectionNavigationProps) {
 
 function SlideViewer(props: ViewerProps) {
   const { slide, slideIndex, slideCount, onPrev, onNext, onExpand } = props;
-  const viewerBackdropStyle = { backgroundImage: `url("${slide.imageSrc}")` };
-  const [imageDimensions, setImageDimensions] = useState<SlideMediaDimensions | null>(null);
-  const viewerStyles = createDesktopViewerStyles(slide, imageDimensions);
-  const imageFrameClassName = viewerStyles.isPortraitLike
-    ? `${styles.viewerImageFrame} ${styles.viewerImageFramePortrait}`
-    : `${styles.viewerImageFrame} ${styles.viewerImageFrameLandscape}`;
-  const imageButtonClassName = viewerStyles.isPortraitLike
-    ? `${styles.viewerImageButton} ${styles.viewerImageButtonPortrait}`
-    : `${styles.viewerImageButton} ${styles.viewerImageButtonLandscape}`;
-
-  function handleImageLoad(event: SyntheticEvent<HTMLImageElement>) {
-    const image = event.currentTarget;
-    setImageDimensions({
-      width: image.naturalWidth,
-      height: image.naturalHeight,
-    });
-  }
-
-  useEffect(() => {
-    setImageDimensions(null);
-  }, [slide.id]);
+  const [loadedImageSrc, setLoadedImageSrc] = useState<string | null>(null);
+  const [failedImageSrc, setFailedImageSrc] = useState<string | null>(null);
+  const imageReady = loadedImageSrc === slide.imageSrc;
+  const imageFailed = failedImageSrc === slide.imageSrc;
+  const cropEmbeddedPoster = usesEmbeddedPosterCrop(slide);
 
   return (
-    <div className={styles.viewerShell} style={viewerStyles.shell}>
+    <div className={styles.viewerShell}>
       <div className={styles.viewerStage}>
         <div className={styles.viewerToolbar}>
           <span className={styles.viewerPath}>/Users/osdc/Desktop/{slide.id}.img</span>
@@ -188,37 +103,37 @@ function SlideViewer(props: ViewerProps) {
           </span>
         </div>
 
-        <div className={styles.viewerImageWrap} style={viewerStyles.imageWrap}>
-          <div className={styles.viewerImageBackdrop} style={viewerBackdropStyle} aria-hidden="true"></div>
-          <div className={styles.viewerImageGlow} aria-hidden="true"></div>
-
+        <div className={styles.viewerImageWrap}>
           <div key={slide.id} className={styles.viewerImageStage}>
-            <div className={styles.viewerImageBadge}>Mounted</div>
             <button
               type="button"
-              className={imageButtonClassName}
+              className={styles.viewerImageButton}
               onClick={() => onExpand(slide)}
               aria-label={`Expand ${slide.imageAlt}`}
             >
-              <div className={imageFrameClassName} style={viewerStyles.imageFrame}>
+              <span className={`${styles.viewerImageCanvas} ${cropEmbeddedPoster ? styles.viewerImageCanvasCropped : ''}`}>
                 <img
-                  className={styles.viewerImage}
-                  style={viewerStyles.image}
+                  className={`${styles.viewerImage} ${cropEmbeddedPoster ? styles.viewerImageCropped : ''} ${imageReady ? styles.viewerImageReady : ''}`}
                   src={slide.imageSrc}
                   alt={slide.imageAlt}
                   draggable={false}
-                  onLoad={handleImageLoad}
+                  onLoad={() => {
+                    setLoadedImageSrc(slide.imageSrc);
+                    setFailedImageSrc(null);
+                  }}
+                  onError={() => setFailedImageSrc(slide.imageSrc)}
                 />
-              </div>
+              </span>
             </button>
-            <div className={styles.viewerImageMeta}>{slide.thumbLabel}</div>
+            {!imageReady && !imageFailed ? <div className={styles.viewerImageStatus}>Loading image…</div> : null}
+            {imageFailed ? <div className={styles.viewerImageStatus}>This image could not be loaded.</div> : null}
           </div>
         </div>
 
         {slide.caption ? <div className={styles.viewerCaption}>{slide.caption}</div> : <div className={styles.viewerCaption}>Ready.</div>}
       </div>
 
-      <div key={`${slide.id}-info`} className={styles.viewerInfo} style={viewerStyles.info}>
+      <div key={`${slide.id}-info`} className={styles.viewerInfo}>
         <p className={styles.slideKicker}>{slide.kicker}</p>
         <h2 className={styles.slideTitle}>{slide.title}</h2>
         <p className={styles.slideDescription}>{slide.description}</p>
@@ -301,15 +216,20 @@ export default function AboutApplicationView(props: WindowProps) {
   const [slideIndex, setSlideIndex] = useState(0);
   const [needsMobileView, setNeedsMobileView] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxImageDimensions, setLightboxImageDimensions] = useState<SlideMediaDimensions | null>(null);
+  const [lightboxLoadedSrc, setLightboxLoadedSrc] = useState<string | null>(null);
+  const [lightboxFailedSrc, setLightboxFailedSrc] = useState<string | null>(null);
   const contentParent = useRef<HTMLDivElement>(null);
+  const lightboxFrame = useRef<HTMLDivElement>(null);
+  const lightboxClose = useRef<HTMLButtonElement>(null);
+  const lightboxTrigger = useRef<HTMLElement | null>(null);
 
   const apis = application.apis;
   const section = clubbookSections[sectionId];
   const slides = section.slides;
   const activeSlide = slides[slideIndex];
   const expandedSlide = lightboxOpen ? activeSlide : null;
-  const lightboxPortrait = expandedSlide ? isPortraitLike(expandedSlide, lightboxImageDimensions) : false;
+  const lightboxImageReady = expandedSlide?.imageSrc === lightboxLoadedSrc;
+  const lightboxImageFailed = expandedSlide?.imageSrc === lightboxFailedSrc;
 
   function openContact() {
     application.manager.open('/Applications/Contact.app');
@@ -347,6 +267,15 @@ export default function AboutApplicationView(props: WindowProps) {
     setSlideIndex(0);
   }
 
+  function openLightbox() {
+    lightboxTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setLightboxOpen(true);
+  }
+
+  function closeLightbox() {
+    setLightboxOpen(false);
+  }
+
   useEffect(() => {
     const unsubscribe = apis.screen.subscribe(onScreenChangeListener);
     const resolution = apis.screen.getResolution();
@@ -363,7 +292,6 @@ export default function AboutApplicationView(props: WindowProps) {
   useEffect(() => {
     resetSubPageScroll();
     setLightboxOpen(false);
-    setLightboxImageDimensions(null);
   }, [sectionId]);
 
   useEffect(() => {
@@ -415,7 +343,7 @@ export default function AboutApplicationView(props: WindowProps) {
 
       if (event.key === 'Escape') {
         event.preventDefault();
-        setLightboxOpen(false);
+        closeLightbox();
         return;
       }
 
@@ -428,6 +356,23 @@ export default function AboutApplicationView(props: WindowProps) {
       if (event.key === 'ArrowRight') {
         event.preventDefault();
         goToNextSlide();
+        return;
+      }
+
+      if (event.key === 'Tab') {
+        const controls = lightboxFrame.current?.querySelectorAll<HTMLElement>('button, a[href], [tabindex]:not([tabindex="-1"])');
+
+        if (!controls?.length) { return; }
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     }
 
@@ -439,10 +384,27 @@ export default function AboutApplicationView(props: WindowProps) {
   }, [lightboxOpen, slides.length]);
 
   useEffect(() => {
-    if (!lightboxOpen) {
-      setLightboxImageDimensions(null);
-    }
-  }, [lightboxOpen, activeSlide.id]);
+    if (!lightboxOpen) { return; }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    lightboxClose.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      lightboxTrigger.current?.focus();
+    };
+  }, [lightboxOpen]);
+
+  useEffect(() => {
+    const previous = slides[(slideIndex - 1 + slides.length) % slides.length];
+    const next = slides[(slideIndex + 1) % slides.length];
+
+    [previous, next].forEach((slide) => {
+      const image = new window.Image();
+      image.src = slide.imageSrc;
+    });
+  }, [slideIndex, slides]);
 
   return (
     <div className="content-outer">
@@ -481,7 +443,7 @@ export default function AboutApplicationView(props: WindowProps) {
                 slideCount={slides.length}
                 onPrev={goToPreviousSlide}
                 onNext={goToNextSlide}
-                onExpand={() => setLightboxOpen(true)}
+                onExpand={openLightbox}
               />
 
               <ThumbnailRail activeIndex={slideIndex} slides={slides} onSelect={setSlideIndex} />
@@ -492,51 +454,60 @@ export default function AboutApplicationView(props: WindowProps) {
         </div>
       </div>
 
-      {expandedSlide && (
-        <div className={styles.viewerLightbox} onClick={() => setLightboxOpen(false)}>
+      {expandedSlide ? createPortal((
+        <div className={styles.viewerLightbox} onClick={closeLightbox}>
           <div
-            className={[
-              styles.viewerLightboxFrame,
-              lightboxPortrait ? styles.viewerLightboxFramePortrait : styles.viewerLightboxFrameLandscape,
-            ].join(' ')}
+            ref={lightboxFrame}
+            className={styles.viewerLightboxFrame}
             onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`lightbox-title-${expandedSlide.id}`}
           >
-            <button
-              type="button"
-              className={`system-button ${styles.viewerLightboxClose}`}
-              onClick={() => setLightboxOpen(false)}
-            >
-              Close
-            </button>
-            <div
-              className={[
-                styles.viewerLightboxMedia,
-                lightboxPortrait ? styles.viewerLightboxMediaPortrait : styles.viewerLightboxMediaLandscape,
-              ].join(' ')}
-            >
-              <img
-                className={[
-                  styles.viewerLightboxImage,
-                  lightboxPortrait ? styles.viewerLightboxImagePortrait : styles.viewerLightboxImageLandscape,
-                ].join(' ')}
-                src={expandedSlide.imageSrc}
-                alt={expandedSlide.imageAlt}
-                draggable={false}
-                onLoad={(event) => {
-                  const image = event.currentTarget;
-                  setLightboxImageDimensions({
-                    width: image.naturalWidth,
-                    height: image.naturalHeight,
-                  });
-                }}
-              />
+            <div className={styles.viewerLightboxHeader}>
+              <div className={styles.viewerLightboxHeading}>
+                <span className={styles.viewerLightboxCounter}>{slideIndex + 1} / {slides.length}</span>
+                <h2 id={`lightbox-title-${expandedSlide.id}`}>{expandedSlide.title}</h2>
+              </div>
+              <button
+                ref={lightboxClose}
+                type="button"
+                className={`system-button ${styles.viewerLightboxClose}`}
+                onClick={closeLightbox}
+                aria-label="Close photo viewer"
+              >
+                Close
+              </button>
             </div>
-            <p className={styles.viewerLightboxCaption}>
-              {expandedSlide.caption ?? expandedSlide.title}
-            </p>
+            <div className={styles.viewerLightboxMedia}>
+              <span className={`${styles.viewerLightboxImageCanvas} ${usesEmbeddedPosterCrop(expandedSlide) ? styles.viewerLightboxImageCanvasCropped : ''}`}>
+                <img
+                  className={`${styles.viewerLightboxImage} ${usesEmbeddedPosterCrop(expandedSlide) ? styles.viewerLightboxImageCropped : ''} ${lightboxImageReady ? styles.viewerLightboxImageReady : ''}`}
+                  src={expandedSlide.imageSrc}
+                  alt={expandedSlide.imageAlt}
+                  draggable={false}
+                  onLoad={() => {
+                    setLightboxLoadedSrc(expandedSlide.imageSrc);
+                    setLightboxFailedSrc(null);
+                  }}
+                  onError={() => setLightboxFailedSrc(expandedSlide.imageSrc)}
+                />
+              </span>
+              {!lightboxImageReady && !lightboxImageFailed ? <span className={styles.viewerLightboxStatus}>Loading full image…</span> : null}
+              {lightboxImageFailed ? <span className={styles.viewerLightboxStatus}>This image could not be loaded.</span> : null}
+            </div>
+            <div className={styles.viewerLightboxFooter}>
+              <button type="button" className={`system-button ${styles.viewerLightboxNav}`} onClick={goToPreviousSlide}>
+                Previous
+              </button>
+              <p className={styles.viewerLightboxCaption}>{expandedSlide.caption ?? expandedSlide.title}</p>
+              <button type="button" className={`system-button ${styles.viewerLightboxNav}`} onClick={goToNextSlide}>
+                Next
+              </button>
+            </div>
           </div>
         </div>
-      )}
+      ), document.body) : null}
     </div>
   );
 }
