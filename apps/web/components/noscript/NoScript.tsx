@@ -47,7 +47,7 @@ export function NoScriptWarning() {
 
       <h3>ERROR: No JS detected</h3>
 
-      <p>Javascript is required for this interactive hub to work.</p>
+      <p>JavaScript is required for the OSDC desktop to work.</p>
       <p>Enable it to load the desk scene and the OSDC globe inside the monitor.</p>
     </noscript>
   );

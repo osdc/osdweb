@@ -2,7 +2,7 @@ import { Spherical, Vector3 } from "three";
 import { degToRad } from "three/src/math/MathUtils";
 import { CameraHandler, CameraHandlerContext, CameraHandlerState } from "../CameraHandler";
 import { CameraState } from "../CameraState";
-import { PanOriginData, SceneInteractionTarget, blurDesktop, calculateCameraPosition, constructGetInteractionTarget, getDisplay, isMouseMoveCamera, isMouseRotateCamera, isTouchMoveCamera, isTouchRotateCamera, isTouchTap, isTouchZoom, openPhoneOverlay, openPhotoFrameDestination } from "./util";
+import { PanOriginData, SceneInteractionTarget, blurDesktop, calculateCameraPosition, constructGetInteractionTarget, getDisplay, isMouseMoveCamera, isMouseRotateCamera, isTouchMoveCamera, isTouchRotateCamera, isTouchTap, isTouchZoom, openPhoneOverlay, openPhotoFrameDestination, openTshirtDestination } from "./util";
 import { MouseData, PointerCoordinates, ConfirmationData, TouchData, UserInteractionEvent, toUserInteractionTouchConfirmationEvent, toUserInteractionMouseConfirmationEvent, MouseInstructionData, cancelUserInteractionMouseConfirmationEvent } from "@/events/UserInteractionEvents";
 import { OfficeSeatCameraTarget } from "@/components/scene-loader/AssetLoaders";
 
@@ -70,6 +70,11 @@ export class FreeRoamCameraState extends CameraState {
 
     if (target === 'frame') {
       openPhotoFrameDestination();
+      return;
+    }
+
+    if (target === 'tshirt') {
+      openTshirtDestination();
       return;
     }
 
@@ -163,6 +168,9 @@ export class FreeRoamCameraState extends CameraState {
       } else if (target === 'frame') {
         const confirmEvent = toUserInteractionMouseConfirmationEvent(MouseInstructionData.fromMouseData(data, 'Open OSDHack'));
         this.manager.emitUserInteractionEvent(confirmEvent);
+      } else if (target === 'tshirt') {
+        const confirmEvent = toUserInteractionMouseConfirmationEvent(MouseInstructionData.fromMouseData(data, 'Open OSDC T-shirts'));
+        this.manager.emitUserInteractionEvent(confirmEvent);
       } else if (target === 'phone') {
         const confirmEvent = toUserInteractionMouseConfirmationEvent(MouseInstructionData.fromMouseData(data, 'Click to open pocket mode'));
         this.manager.emitUserInteractionEvent(confirmEvent);
@@ -230,6 +238,11 @@ export class FreeRoamCameraState extends CameraState {
 
       if (target === 'frame') {
         openPhotoFrameDestination();
+        return;
+      }
+
+      if (target === 'tshirt') {
+        openTshirtDestination();
         return;
       }
 

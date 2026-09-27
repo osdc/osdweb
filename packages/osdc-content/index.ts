@@ -1,4 +1,6 @@
-export type ClubbookSectionId = 'club' | 'community' | 'events' | 'team' | 'orbit';
+export { osdcFastfetchLogo } from './fastfetch';
+
+export type ClubbookSectionId = 'club' | 'community' | 'events' | 'projects' | 'team' | 'orbit';
 export type PocketSectionId = 'about' | 'events' | 'coordinators' | 'alumni';
 export type MediaKind = 'poster' | 'banner' | 'photo' | 'portrait' | 'square' | 'auto';
 export type ViewerFocus = 'image' | 'balanced' | 'content';
@@ -83,11 +85,13 @@ export type MediaPresentationProfile = {
   },
 };
 
-const teamSlideMeta = [
-  { label: 'Layer', value: 'Current coordinator roster' },
-  { label: 'Role', value: 'Core team member' },
-  { label: 'Mode', value: 'Events, ops, community, and chaos control' },
-];
+function teamSlideMeta(role: 'Core coordinator' | 'Senior advisor'): ClubbookMetaItem[] {
+  return [
+    { label: 'Layer', value: 'Current team' },
+    { label: 'Role', value: role },
+    { label: 'Mode', value: role === 'Core coordinator' ? 'Builds, ops, community, and chaos control' : 'Context, review, and emergency adulting' },
+  ];
+}
 
 function createCoordinatorSlide(
   id: string,
@@ -131,7 +135,7 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         kicker: 'Student-run build room',
         title: 'We are OSDC.',
         description:
-          'We are a student-run open-source club from JIIT. We learn by building, ship real things together, and treat docs, demos, late-night fixes, and side quests as part of the fun instead of bonus work.',
+          'We are a student-run open-source club. We learn by building, ship real things together, and treat docs, demos, late-night fixes, and side quests as part of the fun instead of bonus work.',
         imageSrc: '/images/osdc-clubbook/club/banner.jpeg',
         imageAlt: 'OSDC club banner',
         thumbLabel: 'Who we are',
@@ -140,7 +144,7 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         preferredAspectRatio: 1.48,
         viewerFocus: 'image',
         meta: [
-          { label: 'Base', value: 'JIIT Noida' },
+          { label: 'Base', value: 'Open-source internet, locally assembled' },
           { label: 'Default mode', value: 'Build first, explain while building' },
           { label: 'House rule', value: 'Spectator mode is temporary' },
         ],
@@ -245,22 +249,54 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
       'Fun themes are welcome. Working output is still the point.',
     slides: [
       {
-        id: 'event-osdhack',
-        kicker: 'Flagship event',
-        title: "OSDHACK '26",
-        description:
-          'This year the big one is a five-day hackathon built around on-device AI: faster, more private, more local-first, and much harder to fake with API glitter. It is the exact kind of technically serious chaos we enjoy organising.',
-        imageSrc: '/images/osdc-clubbook/events/osdhack-25.jpg',
-        imageAlt: "OSDHACK '26 banner",
-        thumbLabel: "OSDHACK '26",
+        id: 'event-how-to-code',
+        kicker: 'Workshop',
+        title: 'HOW_TO_CODE?',
+        description: 'A hands-on introduction to coding and why it matters, held at JIIT on 18 August 2026.',
+        imageSrc: '/images/osdc-clubbook/events/how-to-code.png',
+        imageAlt: 'How to Code event poster',
+        thumbLabel: 'HOW_TO_CODE?',
         mediaKind: 'banner',
-        preferredAspectRatio: 1.82,
+        meta: [
+          { label: 'Date', value: '18 August 2026' },
+          { label: 'Place', value: 'CL-2, JIIT, Sector 62' },
+          { label: 'Details', value: 'fossunited.org/c/jiit/how-to-code' },
+        ],
+        profileLinks: [{ label: 'Event page', href: 'https://fossunited.org/c/jiit/how-to-code' }],
+      },
+      {
+        id: 'event-gsoc-intro',
+        kicker: 'Open source programs',
+        title: 'Intro to GSoC & other contribution programs',
+        description: 'A practical introduction to Google Summer of Code and other open source contribution programs, held on 27 January 2026.',
+        imageSrc: '/images/osdc-clubbook/events/gsoc-talks.png',
+        imageAlt: 'Google Summer of Code Talks event poster',
+        thumbLabel: 'GSoC intro',
+        mediaKind: 'banner',
+        meta: [
+          { label: 'Date', value: '27 January 2026' },
+          { label: 'Place', value: 'CL01, ABB-3, JIIT' },
+          { label: 'Details', value: 'FOSS United JIIT' },
+        ],
+        profileLinks: [{ label: 'Event page', href: 'https://fossunited.org/c/jiit/intro-to-gsoc' }],
+      },
+      {
+        id: 'event-git-gud',
+        kicker: 'Git and GitHub workshop',
+        title: 'Git Gud',
+        description:
+          'A hands-on Git and GitHub workshop with a meme-making collaboration, built for first contributions and shared learning.',
+        imageSrc: '/images/osdc-clubbook/events/git-gud.png',
+        imageAlt: 'Git Gud workshop poster',
+        thumbLabel: 'Git Gud',
+        mediaKind: 'poster',
+        preferredAspectRatio: 0.66,
         viewerFocus: 'image',
         mediaFit: 'contain',
         meta: [
-          { label: 'Date', value: 'July 10-14, 2026' },
-          { label: 'Theme', value: 'On Device AI' },
-          { label: 'Why it matters', value: 'Five straight days of building, side quests, and full-club energy' },
+          { label: 'Date', value: '17 September 2026' },
+          { label: 'Place', value: 'CL2, JIIT' },
+          { label: 'Format', value: 'Git, GitHub, memes, and first contributions' },
         ],
       },
       {
@@ -339,13 +375,90 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
       },
     ],
   },
+  projects: {
+    id: 'projects',
+    label: 'Projects',
+    fileHint: '/Users/osdc/Desktop/OSDC.app --projects',
+    title: 'Build board',
+    intro:
+      'Projects are the clearest record of what the community does with its time: useful tools, playful experiments, and repositories that give the next contributor somewhere to start.',
+    footer: 'Pick a repo, read the README, and make the next commit useful.',
+    slides: [
+      {
+        id: 'project-taburei', kicker: 'OSDC project', title: 'TabuRei',
+        description: 'A cross browser extension for managing tabs and keeping browser workspaces under control.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the TabuRei project', thumbLabel: 'TabuRei', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Maintainer', value: 'OSDC' }, { label: 'Type', value: 'Browser extension' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/osdc/TabuRei' }],
+      },
+      {
+        id: 'project-mercurius', kicker: 'OSDC project', title: 'Mercurius',
+        description: 'The community newsletter initiative: a place to collect updates, writing, and useful things from the club.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the Mercurius project', thumbLabel: 'Mercurius', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Maintainer', value: 'OSDC' }, { label: 'Type', value: 'Community newsletter' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/osdc/Mercurius' }],
+      },
+      {
+        id: 'project-bots', kicker: 'OSDC project', title: 'Bots',
+        description: 'Bots for OSDC community channels and the small pieces of automation that keep community work moving.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the Bots project', thumbLabel: 'Bots', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Maintainer', value: 'OSDC' }, { label: 'Type', value: 'Community automation' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/osdc/bots' }],
+      },
+      {
+        id: 'project-mommy', kicker: 'OSDC project', title: 'MoMmy',
+        description: 'A Discord bot that turns a voice channel or call into useful minutes of meeting.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the MoMmy project', thumbLabel: 'MoMmy', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Maintainer', value: 'OSDC' }, { label: 'Stack', value: 'Elixir and Phoenix' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/osdc/mommy' }],
+      },
+      {
+        id: 'project-pawbar', kicker: 'Member project', title: 'pawbar',
+        description: 'A configurable desktop panel built with kitty and Go, made for a personal Linux workflow.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the pawbar project', thumbLabel: 'pawbar', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'codelif' }, { label: 'Type', value: 'Linux desktop panel' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/codelif/pawbar' }],
+      },
+      {
+        id: 'project-jpoop', kicker: 'Member project', title: 'jpoop.in ecosystem',
+        description: 'Open tools and services for JIIT students, shaped around the everyday friction of campus life.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the jpoop.in ecosystem', thumbLabel: 'jpoop.in', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'OSDC members' }, { label: 'Type', value: 'Student tools' }], profileLinks: [{ label: 'Website', href: 'https://jpoop.in/' }, { label: 'GitHub', href: 'https://github.com/codelif/jpoop.in' }],
+      },
+      {
+        id: 'project-jplanner', kicker: 'jpoop.in ecosystem', title: 'JPlanner',
+        description: 'A timetable planner that turns cryptic JIIT schedules into something students can actually use.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for JPlanner', thumbLabel: 'JPlanner', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Ecosystem', value: 'jpoop.in' }, { label: 'Type', value: 'Timetable planner' }], profileLinks: [{ label: 'Open JPlanner', href: 'https://planner.jpoop.in/' }],
+      },
+      {
+        id: 'project-jportal', kicker: 'jpoop.in ecosystem', title: 'JPortal',
+        description: 'A progressive web app that gives JIIT students a cleaner way to view attendance, schedules, grades, and academic records.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for JPortal', thumbLabel: 'JPortal', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'codeblech' }, { label: 'Type', value: 'JIIT portal PWA' }], profileLinks: [{ label: 'Open JPortal', href: 'https://codeblech.github.io/jportal/' }, { label: 'GitHub', href: 'https://github.com/codeblech/jportal' }],
+      },
+      {
+        id: 'project-magic-academy', kicker: 'Member project', title: 'OpenSourceMagicAcademy',
+        description: 'A community Unity project that turns open-source ideas into a playful world to explore and build on.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for OpenSourceMagicAcademy', thumbLabel: 'Magic Academy', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'kartinul' }, { label: 'Type', value: 'Unity project' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/kartinul/OpenSourceMagicAcademy' }],
+      },
+      {
+        id: 'project-jiit-marks', kicker: 'Member project', title: 'jiit-marks',
+        description: 'A utility for extracting marks from JIIT web portal report PDFs.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the jiit-marks project', thumbLabel: 'jiit-marks', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'codelif' }, { label: 'Type', value: 'Student utility' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/codelif/jiit-marks' }],
+      },
+      {
+        id: 'project-osdc-wa', kicker: 'Member project', title: 'OSdc-wa',
+        description: 'A bridge between the OSDC Discord and WhatsApp communities, helping conversations travel with the people.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the OSdc-wa project', thumbLabel: 'OSdc-wa', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'Karvy Singh' }, { label: 'Type', value: 'Community bridge' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/Karvy-Singh/OSdc-wa' }],
+      },
+    ],
+  },
   team: {
     id: 'team',
     label: 'Current Team',
     fileHint: '/Users/osdc/Desktop/OSDC.app --team',
-    title: 'Current core team',
+    title: 'Coordinators and advisors',
     intro:
-      'This is the batch currently keeping the club moving. Different people carry different lanes, but the shared job is the same: keep OSDC useful, welcoming, funny, and difficult to ignore.',
+      'The people currently keeping the builds, events, design files, side quests, and institutional memory moving. The titles help with sorting; the biographies explain the actual situation.',
     footer:
       'Titles are the least interesting part anyway. What matters is who is actually carrying the work when the clock gets rude.',
     slides: [
@@ -355,12 +468,14 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         '/images/osdc-clubbook/team/harsh-jha.jpg',
         'Portrait of Harsh Jha',
         'Harsh J.',
-        'Harsh is one of the people we trust with the difficult bits: shipping ideas, fixing things under pressure, and keeping the weird retro shell from becoming empty theatre. If something needs to work end-to-end, he is usually somewhere in the blast radius.',
+        `Harsh (life2harsh), The Admin. No introductions needed, but he still writes one because he loves himself. Other than that, bro is mad obsessed about how to make himself even more busy by stacking yet another project on to his portfolio. Passionate, for sure, he knows how to get stuff done.
+
+"Geology is the study of pressure and time. That's all it takes, really. Pressure and time. That and a big goddamn ADHD mind." said Ellis Redding Boyd about Harsh when he finishes his big ahh projects under less time and a hell lot of pressure.`,
         [
           { label: 'GitHub // @life2harsh', href: 'https://github.com/life2harsh' },
         ],
         [
-          ...teamSlideMeta,
+          ...teamSlideMeta('Core coordinator'),
           { label: 'Their jam', value: 'Shipping the thing before the deadline eats us alive' },
         ]
       ),
@@ -370,13 +485,15 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         '/images/osdc-clubbook/team/karvy-singh.jpg',
         'Portrait of Karvy Singh',
         'Karvy',
-        'Karvy helps keep the club sharp when it comes to execution. Fast context pickup, practical problem-solving, and not freezing when the plan mutates halfway through are very much part of the package.',
+        `Karvy Singh is practically the Mother Teresa of Linux, atleast for OSDC. Dabbling in Al/ML and Arch Wiki, all she does now is stare at the bleakness of her terminal and think "Let's rice that shall we?" and goes on to preach how Microslop Windows could never touch Linux. NEVER.
+
+Wanted to see the Serpent of Slytherin, now all she can is Python and Kaggle. Funny moments in her life include debunking Linux Larpers and haters, while converting them into a true follower of our holy God Linus Torvalds. Fangirls Professor Lupin the hardest, followed by(or maybe its the reverse) The Messsiah, Linus Torvalds himself.`,
         [
           { label: 'GitHub // @Karvy-Singh', href: 'https://github.com/Karvy-Singh' },
         ],
         [
-          ...teamSlideMeta,
-          { label: 'Their jam', value: 'Turning loose ideas into a proper build path' },
+          ...teamSlideMeta('Core coordinator'),
+          { label: 'Their jam', value: 'Linux, AI/ML, Python, and converting the unconvinced' },
         ]
       ),
       createCoordinatorSlide(
@@ -385,13 +502,17 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         '/images/osdc-clubbook/team/harsh-sharma.jpg',
         'Portrait of Harsh Sharma',
         'Harsh S.',
-        'Harsh shows up in the layer where club ideas stop being vibes and become deliverables. He is part of the reason our events, build work, and post-event follow-through do not just disappear into attendance fog.',
+        `Our friendly neighbourhood "i read wiki btw" is here.
+
+Meet Harsh Sharma(codelif). What can we see, there is a blurred line between a nerd and arch autism. And he has both of them. His favourite passtimes include- staring at Linux, explaining how molecules in his system were responsible for his Kernel Panic, and playing the Keyboard like he's the next Stevie Wonder.
+
+"WHAT DO THE NUMBERS MEAN MASON" is prolly what Harsh said to him when Mason wasn't able to recite his Kernel Checksum by heart. I hope he's ok now, Mason obviously. We all know Harsh Sharma is that one guy even Ghost is scared of, because what if codelif asks him to write the drivers for the next Jensen Huang product?`,
         [
           { label: 'GitHub // @codelif', href: 'https://github.com/codelif' },
         ],
         [
-          ...teamSlideMeta,
-          { label: 'Their jam', value: 'Build momentum, cleanup passes, and making outputs stick' },
+          ...teamSlideMeta('Core coordinator'),
+          { label: 'Their jam', value: 'Linux internals, keyboard detours, and impossible driver questions' },
         ]
       ),
       createCoordinatorSlide(
@@ -400,19 +521,16 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         '/images/osdc-clubbook/team/saksham.jpg',
         'Portrait of Saksham Gupta',
         'Saksham',
-        'Saksham is part of the reason the club can stay beginner-friendly without becoming watered down. He sits in that useful zone between helping people get unstuck and keeping the work technically honest.',
+        `Saksham, our resident "wait, let me redesign it first" specimen. If you've ever seen an OSDC poster, social media post, website, certificate, stream thumbnail, or basically anything that looked way cooler than it had any right to, chances are he had his hands all over it. A rare species that spends half his day arguing with Figma over a 2-pixel alignment and the other half convincing Git to cooperate. The phrase "good enough" has never existed in his vocabulary.
+
+Being just a designer apparently wasn't enough, so he also became a developer. He'll debate kerning one minute and API architecture the next, all while saying "just one small change" before accidentally redesigning the entire project. Rumour has it GitHub counts his commits while Canva counts his war crimes. His only real merge conflict is between his developer brain saying "it works" and his designer brain replying, "yeah... but it looks ugly."`,
         [
           { label: 'GitHub // @Sakshamcozykun', href: 'https://github.com/Sakshamcozykun' },
-          {
-            label: 'Behance // Design Portfolio',
-            href: 'https://www.behance.net/gallery/246504151/Saksham-Gupta-Design-Portfolio-2025/modules/1424867425',
-          },
+          { label: 'Behance // Design portfolio', href: 'https://www.behance.net/gallery/246504151/Saksham-Gupta-Design-Portfolio-2025/modules/1424867425' },
         ],
         [
-          { label: 'Layer', value: 'Current coordinator roster' },
-          { label: 'Role', value: 'Design coordinator' },
-          { label: 'Mode', value: 'Visual systems, identity, and event-facing polish' },
-          { label: 'Their jam', value: 'Unblocking people without flattening the challenge' },
+          ...teamSlideMeta('Core coordinator'),
+          { label: 'Their jam', value: 'Design systems, development, and one more tiny redesign' },
         ]
       ),
       createCoordinatorSlide(
@@ -421,13 +539,13 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         '/images/osdc-clubbook/team/bhavya-khatri.png',
         'Profile card for Bhavya Khatri',
         'Bhavya',
-        'Bhavya helps hold together the communication, presentation, and event-facing side of the club without letting it slip into generic society-page nonsense. Clean visuals, real context, and enough personality to still feel like us.',
+        `Bhavya, our Senior Advisor and suspiciously efficient undercover agent. Bro operates between chess boards, badminton courts, and GeoGuessr maps like every day is a classified mission. Calm, precise, and equipped with an unreasonable memory for locations, he keeps his secrets close and his game sharp. If there's a challenge to crack or a place to pinpoint, he's probably already three moves ahead.`,
         [
           { label: 'GitHub // @bhavyaKhatri2703', href: 'https://github.com/bhavyaKhatri2703' },
         ],
         [
-          ...teamSlideMeta,
-          { label: 'Their jam', value: 'Posters, visual polish, and keeping the vibe recognisably ours' },
+          ...teamSlideMeta('Senior advisor'),
+          { label: 'Their jam', value: 'Chess, badminton, GeoGuessr, and being three moves ahead' },
         ]
       ),
       createCoordinatorSlide(
@@ -436,11 +554,11 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         '/images/osdc-clubbook/team/risha-gupta.webp',
         'Portrait of Risha Gupta',
         'Risha',
-        'Risha is part of the community glue. She helps keep the club readable to new people, survivable during event chaos, and a lot less intimidating than tech spaces usually try to be for no reason.',
+        `Risha, our Senior Advisor and the human embodiment of a 90s mixtape. When she isn't singing or experimenting with recipes, she's probably watching movies or adding yet another pair to her dangerously impressive earring collection. Grounded yet vibrant, she somehow curates chaos and still makes it look aesthetic.`,
         null,
         [
-          ...teamSlideMeta,
-          { label: 'Their jam', value: 'Community flow, coordination, and making people feel they can start' },
+          ...teamSlideMeta('Senior advisor'),
+          { label: 'Their jam', value: 'Music, recipes, movies, and aesthetically curated chaos' },
         ]
       ),
       createCoordinatorSlide(
@@ -449,28 +567,43 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         '/images/osdc-clubbook/team/arnav-sharma.jpg',
         'Profile card for Arnav Sharma',
         'Arnav',
-        'Arnav belongs to the coordinator layer that quietly absorbs the messy work: follow-ups, logistics, internal context, and all the things people only notice when they are missing. That kind of reliability keeps the club alive.',
+        `Arnav, our Senior Advisor and resident Pokémon Master. Bro brings boundless enthusiasm, playful wit, and enough curiosity to turn every task into a side quest. Always ready for an adventure, he somehow makes even the most boring work feel less painful and a lot more fun.`,
         [
           { label: 'GitHub // @ItsArnavSh', href: 'https://github.com/ItsArnavSh' },
         ],
         [
-          ...teamSlideMeta,
-          { label: 'Their jam', value: 'Ops reliability and handling the unglamorous but essential parts' },
+          ...teamSlideMeta('Senior advisor'),
+          { label: 'Their jam', value: 'Pokémon, side quests, and making dull work survivable' },
+        ]
+      ),
+      createCoordinatorSlide(
+        'team-mrigank',
+        'Mrigank',
+        '/images/osdc-clubbook/team/mrigank.png',
+        'Portrait of Mrigank',
+        'Mrigank',
+        `Mrigank, our Senior Advisor and OSDC's ex-design survivor. Having escaped the endless cycle of "can you make it pop more?", bro now spends his time watching anime, hitting the gym, and curating playlists that deal more emotional damage than the design team ever could.
+
+Now he watches the OSDC chaos from the advisor's seat, but the words "just one small design change" are still enough to trigger his fight-or-flight response.`,
+        null,
+        [
+          ...teamSlideMeta('Senior advisor'),
+          { label: 'Their jam', value: 'Anime, the gym, playlists, and surviving design feedback' },
         ]
       ),
       createCoordinatorSlide(
         'team-ritika-jain',
         'Ritika Jain',
-        '/images/osdc-clubbook/team/default-user.png',
-        'Profile card for Ritika Jain',
+        '/images/osdc-clubbook/team/ritika-jain.png',
+        'Portrait of Ritika Jain',
         'Ritika',
-        'Ritika is part of the batch that makes the club feel organised without sanding off the weirdness. She helps hold together people, planning, and follow-through so the fun does not come at the cost of actual execution.',
+        `Ritika, our Senior Advisor and certified collector of stories, songs, and fictional emotional damage. Her world runs on mystery novels, Harry Potter, Friends, dogs, cats, and enough warmth to make even the most chaotic room feel comfortable. Creative, curious, and always carrying main-character energy, she's the kind of person who somehow makes every conversation feel like the start of a comfort movie.`,
         [
           { label: 'GitHub // @jainritikaa', href: 'https://github.com/jainritikaa' },
         ],
         [
-          ...teamSlideMeta,
-          { label: 'Their jam', value: 'Coordination, planning, and keeping the build energy usable' },
+          ...teamSlideMeta('Senior advisor'),
+          { label: 'Their jam', value: 'Stories, songs, pets, and comfort-movie energy' },
         ]
       ),
     ],
@@ -481,18 +614,220 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
     fileHint: '/Users/osdc/Desktop/OSDC.app --orbit',
     title: 'Alumni orbit',
     intro:
-      'People do not really leave this club. They graduate, get jobs, ship stranger things, and then still reappear as speakers, reviewers, judges, mentors, and the occasional emergency adult in the room.',
+      'Before the titles, teams, and production incidents, they were here: breaking Linux installations, shipping ambitious ideas, and turning late-night curiosity into a community. Meet the alumni who carried OSDC’s open-source spirit into research, infrastructure, startups, and engineering teams around the world.',
     footer:
       'OSDC tradition: people do not really leave, they just get pinged in stranger contexts.',
     slides: [
+      {
+        id: 'orbit-lakshita-arora', kicker: 'OSDHack community', title: 'Lex // Lakshita Arora',
+        description: 'Lex is an eclectic creator whose world swings between quirky style and boundless imagination. Known for Spidey earrings and a love for cats, dogs, parrots, spiders, and bats—basically an entire zoo—they are approachable, always ready with thoughtful advice, and love cooking. Cooler than their creations, Lex brings flair and fun to everything they touch.',
+        imageSrc: '/images/osdc-clubbook/alumni/lakshita-arora.png', imageAlt: 'Portrait of Lakshita Arora',
+        thumbLabel: 'Lex', mediaKind: 'portrait', viewerFocus: 'content',
+        meta: [{ label: 'Community', value: 'OSDC' }, { label: 'Their jam', value: 'Creative work, animals, cooking, and great advice' }],
+      },
+      {
+        id: 'orbit-yash-malik', kicker: 'Engineer and community builder', title: 'Yash Malik',
+        description: 'Yash is an engineer who spent a year on OSDC’s core team and keeps turning everyday student friction into working software. He built JPortal, a progressive web app for attendance, exam schedules, grades, and the rest of JIIT portal life, alongside a wonderfully eclectic trail of open-source experiments.',
+        imageSrc: '/images/osdc-clubbook/alumni/yash-malik.png', imageAlt: 'Portrait of Yash Malik',
+        thumbLabel: 'Yash', mediaKind: 'square', viewerFocus: 'content',
+        meta: [{ label: 'Community', value: 'OSDC core team, 2024–25' }, { label: 'Built', value: 'JPortal and student-focused open-source tools' }],
+        profileLinks: [{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/malikyash/' }, { label: 'GitHub', href: 'https://github.com/codeblech' }],
+      },
+      {
+        id: 'orbit-sanvi-sharma', kicker: 'OSDHack community', title: 'Sanvi Sharma',
+        description: 'Sanvi is the team’s coffee connoisseur, always fueled by her favorite brew. She loves sleep and relaxation, yet consistently shows up with remarkable dedication to OSDC. Her upbeat energy makes the room brighter, and her willingness to take on any task makes her invaluable—the sloth who somehow balances fun, calm, and getting things done.',
+        imageSrc: '/images/osdc-clubbook/alumni/sanvi-sharma.png', imageAlt: 'Portrait of Sanvi Sharma',
+        thumbLabel: 'Sanvi', mediaKind: 'portrait', viewerFocus: 'content',
+        meta: [{ label: 'Community', value: 'OSDC' }, { label: 'Her fuel', value: 'Coffee, positivity, and deceptively productive naps' }],
+      },
+      {
+        id: 'orbit-soham-kukreti', kicker: 'OSDHack community', title: 'Soham Kukreti',
+        description: 'Soham is the team’s monke man and maker of legendary speeches. A football fan and musician, Som cooks up tracks for his fans—the kukis—and may reward the lucky with a beatboxing performance or his secret chai recipe. A master of many trades, he can juggle a thousand tasks without letting the crew down.',
+        imageSrc: '/images/osdc-clubbook/alumni/soham-kukreti.png', imageAlt: 'Portrait of Soham Kukreti',
+        thumbLabel: 'Soham', mediaKind: 'portrait', viewerFocus: 'content',
+        meta: [{ label: 'Community', value: 'OSDC' }, { label: 'His jam', value: 'Football, music, beatboxing, chai, and legendary speeches' }],
+      },
+      {
+        id: 'orbit-yuvraj-rathi', kicker: 'Builder and OSDHack alumnus', title: 'Yuvraj Rathi',
+        description: 'Yuvraj is a finance and tech nerd who lives by “learning to build, building to learn.” Club legend says he once wrote a program that predicted the stock market perfectly, then destroyed it before it fell into the wrong hands. Back in his wizard hut he cooks with Elixir, tinkers with Python, and prepares for Codeforces jousts. He also helped build Omilia, the OSDHack ’23 winning educational game.',
+        imageSrc: '/images/osdc-clubbook/alumni/yuvraj-rathi.png', imageAlt: 'Yuvraj Rathi speaking at PyDelhi Conf',
+        thumbLabel: 'Yuvraj', mediaKind: 'square', viewerFocus: 'content',
+        meta: [{ label: 'Community', value: 'OSDHack ’23 winner and PyDelhi volunteer' }, { label: 'Stack', value: 'Elixir, Python, and full-stack systems' }],
+        profileLinks: [{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/yuvraj-rathi/' }, { label: 'GitHub', href: 'https://github.com/yryuvraj' }],
+      },
+      {
+        id: 'orbit-satyam-rathi', kicker: 'Open source and AI', title: 'Satyam Rathi',
+        description: 'Satyam is an open-source builder working across deep learning, generative AI, and custom Android ROMs. He served on OSDC’s core team, mentored contributors through Kharagpur Winter of Code, and was part of the OSDHack ’23 team that built the winning educational game Omilia.',
+        imageSrc: '/images/osdc-clubbook/alumni/satyam-rathi.png', imageAlt: 'Portrait of Satyam Rathi',
+        thumbLabel: 'Satyam', mediaKind: 'square', viewerFocus: 'content',
+        meta: [{ label: 'Community', value: 'OSDC core team and OSDHack ’23 winner' }, { label: 'Interests', value: 'Deep learning, generative AI, and custom ROMs' }],
+        profileLinks: [{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/satyam-rathi/' }, { label: 'GitHub', href: 'https://github.com/satyamrathirar' }],
+      },
+      {
+        id: 'orbit-arvind-pj',
+        kicker: 'Backend and open source',
+        title: 'Arvind PJ',
+        description:
+          'A JIIT alumnus and backend developer, Arvind returned to share his experience at OSDHack 2022. His public work spans infrastructure, developer tooling, and open source.',
+        imageSrc: '/images/osdc-clubbook/alumni/arvind-pj.jpeg',
+        imageAlt: 'Portrait of Arvind PJ outdoors',
+        thumbLabel: 'Arvind',
+        caption: 'Arvind PJ, JIIT alumnus and backend developer.',
+        mediaKind: 'portrait',
+        preferredAspectRatio: 0.98,
+        viewerFocus: 'content',
+        meta: [
+          { label: 'Focus', value: 'Backend and infrastructure' },
+          { label: 'Community', value: 'OSDHack 2022 speaker' },
+          { label: 'Open source', value: 'Developer tools and infrastructure' },
+        ],
+        profileLinks: [
+          { label: 'GitHub', href: 'https://github.com/arvindpunk' },
+        ],
+      },
+      {
+        id: 'orbit-vaidik',
+        kicker: 'Early community builder',
+        title: 'Vaidik Kapoor',
+        description:
+          'One of OSDC’s early community builders, Vaidik turned an open-source-first beginning into a career building products, platforms, and engineering teams. His path spans Mozilla, Plivo, Wingify, Blinkit, and now the CTO role at Sportsfam.',
+        imageSrc: '/images/osdc-clubbook/alumni/vaidik-kapoor.jpeg',
+        imageAlt: 'Portrait of Vaidik Kapoor',
+        thumbLabel: 'Vaidik',
+        caption: 'Vaidik Kapoor, builder of products and engineering teams.',
+        mediaKind: 'square',
+        preferredAspectRatio: 1,
+        viewerFocus: 'content',
+        meta: [
+          { label: 'Now', value: 'CTO at Sportsfam' },
+          { label: 'Previously', value: 'VP Engineering at Blinkit' },
+          { label: 'Open source', value: 'Google Summer of Code 2011' },
+        ],
+        profileLinks: [
+          { label: 'Website', href: 'https://vaidik.in/' },
+          { label: 'About', href: 'https://vaidik.in/about/' },
+        ],
+        credits: ['Sportsfam', 'Blinkit', 'Google Summer of Code'],
+      },
+      {
+        id: 'orbit-siddhant',
+        kicker: 'Contributor turned mentor',
+        title: 'Siddhant N. Trivedi',
+        description:
+          'Siddhant grew from an OSDC core-team contributor into an engineer at Aerospike and a repeat open-source mentor. After participating in Google Summer of Code, he returned to help new contributors through Google Code-in and GSoC with Public Lab.',
+        imageSrc: '/images/osdc-clubbook/alumni/siddhant-trivedi.jpeg',
+        imageAlt: 'Portrait of Siddhant N. Trivedi',
+        thumbLabel: 'Siddhant',
+        caption: 'Siddhant N. Trivedi, open-source contributor and mentor.',
+        mediaKind: 'square',
+        preferredAspectRatio: 1,
+        viewerFocus: 'content',
+        meta: [
+          { label: 'Now', value: 'Engineer at Aerospike' },
+          { label: 'Open source', value: 'Google Summer of Code alumnus' },
+          { label: 'Mentoring', value: 'Public Lab contributor mentor' },
+        ],
+        credits: ['Aerospike', 'Google Summer of Code', 'Public Lab'],
+      },
+      {
+        id: 'orbit-kanchan',
+        kicker: 'Public-interest open source',
+        title: 'Kanchan Joshi',
+        description:
+          'Kanchan brought OSDC’s open-source ethos to the Internet Archive through Google Summer of Code 2019. Her journey is a reminder that meaningful contributions are not only about shipping code; they also strengthen the public digital infrastructure people rely on.',
+        imageSrc: '/images/osdc-clubbook/alumni/kanchan-joshi.png',
+        imageAlt: 'Portrait of Kanchan Joshi',
+        thumbLabel: 'Kanchan',
+        caption: 'Kanchan Joshi, open-source contributor to the Internet Archive.',
+        mediaKind: 'square',
+        preferredAspectRatio: 1,
+        viewerFocus: 'content',
+        meta: [
+          { label: 'Program', value: 'Google Summer of Code 2019' },
+          { label: 'Organization', value: 'Internet Archive' },
+          { label: 'Focus', value: 'Public digital infrastructure' },
+        ],
+        credits: ['Google Summer of Code', 'Internet Archive'],
+      },
+      {
+        id: 'orbit-ankesh',
+        kicker: 'Independent technologist',
+        title: 'Ankesh Bharti',
+        description:
+          'An independent researcher and technologist building thoughtful, privacy-minded tools. Ankesh founded Tiles, co-founded User & Agents, and carries the OSDC habit of turning ambitious ideas into open, usable systems.',
+        imageSrc: '/images/osdc-clubbook/alumni/ankesh-bharti.jpeg',
+        imageAlt: 'Portrait of Ankesh Bharti',
+        thumbLabel: 'Ankesh',
+        caption: 'Ankesh Bharti, independent researcher and builder.',
+        mediaKind: 'square',
+        preferredAspectRatio: 1,
+        viewerFocus: 'content',
+        meta: [
+          { label: 'Builds', value: 'Founder of Tiles' },
+          { label: 'Research', value: 'Independent technologist' },
+          { label: 'Also', value: 'Co-founder of User & Agents' },
+        ],
+        profileLinks: [
+          { label: 'Website', href: 'https://ankeshbharti.com/' },
+        ],
+        credits: ['Tiles', 'User & Agents'],
+      },
+      {
+        id: 'orbit-pimtron',
+        kicker: 'Systems-minded open source',
+        title: 'Prashant // Pimtron',
+        description:
+          'A systems-minded open-source developer whose work spans cloud security, distributed systems, graphics, and AI. Prashant previously maintained KubeArmor at AccuKnox and brings the kind of curiosity that keeps expanding the definition of “the stack.”',
+        imageSrc: '/images/osdc-clubbook/alumni/pimtron.png',
+        imageAlt: 'Illustrated profile portrait used by Pimtron',
+        thumbLabel: 'Pimtron',
+        caption: 'Pimtron, systems-minded open-source developer.',
+        mediaKind: 'square',
+        preferredAspectRatio: 1,
+        viewerFocus: 'content',
+        meta: [
+          { label: 'Open source', value: 'CNCF contributor' },
+          { label: 'Previously', value: 'KubeArmor maintainer at AccuKnox' },
+          { label: 'Interests', value: 'Cloud security, graphics, distributed systems, and AI' },
+        ],
+        profileLinks: [
+          { label: 'Website', href: 'https://pimtron.dev/' },
+          { label: 'About', href: 'https://pimtron.dev/about' },
+        ],
+        credits: ['CNCF', 'KubeArmor', 'AccuKnox'],
+      },
+      {
+        id: 'orbit-barun',
+        kicker: 'Cloud-native systems',
+        title: 'Barun Acharya',
+        description:
+          'Barun works where cloud-native observability meets low-level systems engineering. At Odigos, he helps simplify OpenTelemetry auto-instrumentation; beyond the day job, he maintains KubeArmor, mentors open-source contributors, and speaks about Linux, eBPF, security, and everything happening beneath the abstraction layer.',
+        imageSrc: '/images/osdc-clubbook/alumni/barun-acharya.jpeg',
+        imageAlt: 'Portrait of Barun Acharya',
+        thumbLabel: 'Barun',
+        caption: 'Barun Acharya, cloud-native engineer and open-source maintainer.',
+        mediaKind: 'square',
+        preferredAspectRatio: 1,
+        viewerFocus: 'content',
+        meta: [
+          { label: 'Now', value: 'Senior Software Engineer at Odigos' },
+          { label: 'Community', value: 'CNCF Ambassador' },
+          { label: 'Open source', value: 'KubeArmor Maintainer' },
+        ],
+        profileLinks: [
+          { label: 'LinkedIn', href: 'https://www.linkedin.com/in/barun-acharya' },
+          { label: 'Website', href: 'https://barun.cc/about/' },
+        ],
+        credits: ['Odigos', 'CNCF', 'KubeArmor'],
+      },
       {
         id: 'orbit-akshit',
         kicker: 'Older club voice',
         title: 'Akshit Tyagi',
         description:
           'Akshit is one of the people who reminds us that open source is not just about showing up for the big event poster. The deeper work matters too: process memory, mentoring, sustainable tooling, and making sure the next batch inherits context instead of rubble.',
-        imageSrc: '/images/osdc-clubbook/orbit/akshit-tyagi.png',
-        imageAlt: 'Akshit Tyagi forum avatar',
+        imageSrc: '/images/osdc-clubbook/orbit/akshit-tyagi.jpeg',
+        imageAlt: 'Portrait of Akshit Tyagi',
         thumbLabel: 'Akshit',
         mediaKind: 'square',
         preferredAspectRatio: 1,
@@ -510,20 +845,21 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
       },
       {
         id: 'orbit-pranshu',
-        kicker: 'Talks and mentor loops',
+        kicker: 'Systems, mentorship, and biryani monies',
         title: 'Pranshu Srivastava',
         description:
-          'Pranshu is exactly the kind of alumni presence we care about: deeply technical, generous with context, and still relevant to the people currently building. He is proof that the club pipeline can grow into serious systems work without losing the instinct to teach back.',
-        imageSrc: '/images/osdc-clubbook/orbit/pranshu-srivastava.jpg',
-        imageAlt: 'Pranshu Srivastava speaker portrait',
+          'Pranshu is exactly the kind of alumni presence OSDC cares about: deeply technical, generous with context, and still relevant to people currently building. His work across Red Hat, Kubernetes SIG Instrumentation, and Node.js shows how serious systems work can keep the instinct to teach back. He also owns the biryani monies lore, proof that some alumni contributions are best measured in working systems, useful context, and properly funded food.',
+        imageSrc: '/images/osdc-clubbook/alumni/pranshu-srivastava.jpeg',
+        imageAlt: 'Portrait of Pranshu Srivastava',
         thumbLabel: 'Pranshu',
+        caption: 'Pranshu Srivastava, systems engineer and open-source community leader.',
         mediaKind: 'portrait',
-        preferredAspectRatio: 0.92,
+        preferredAspectRatio: 1,
         viewerFocus: 'content',
         meta: [
           { label: 'Creds', value: 'Senior Software Engineer at Red Hat' },
           { label: 'Also', value: 'Kubernetes SIG Instrumentation co-chair' },
-          { label: 'Legacy stat', value: 'Node.js Emeritus // still absurdly useful as club memory' },
+          { label: 'Legacy stat', value: 'Node.js Emeritus // biryani monies benefactor' },
         ],
         credits: [
           'Red Hat',
@@ -532,11 +868,11 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         ],
       },
       {
-        id: 'orbit-biryani',
-        kicker: 'Side-quest economics',
+        id: 'orbit-karanjot',
+        kicker: 'Distributed systems and security',
         title: 'Karanjot Singh // 0x1729',
         description:
-          'Yes, this is still the biryani monies section. Karanjot stands in for the alumni energy that keeps side quests alive: practical support, open-source instincts, and the kind of technically curious brain that makes weird club ideas feel worth backing.',
+          'Karanjot brings the kind of technically curious brain that follows difficult systems problems all the way down. His work spans distributed systems, security, and open source, carrying the club habit of treating strange technical side quests as ideas worth taking seriously.',
         imageSrc: '/images/osdc-clubbook/orbit/karanjot-singh.png',
         imageAlt: 'Karanjot Singh speaker portrait',
         thumbLabel: '0x1729',
@@ -546,7 +882,7 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         meta: [
           { label: 'Creds', value: 'Software Engineer at CERN' },
           { label: 'Interests', value: 'Distributed systems, security, and open source' },
-          { label: 'Club mythos', value: 'Proof that our side-quest economy has actual protagonists' },
+          { label: 'Club thread', value: 'Deep systems work with open-source instincts' },
         ],
         credits: [
           'CERN',
@@ -563,9 +899,49 @@ export const clubbookSectionOrder: ClubbookSectionId[] = [
   'club',
   'community',
   'events',
+  'projects',
   'team',
   'orbit',
 ];
+
+const orbitSlidePriority = [
+  'orbit-vaidik',
+  'orbit-ankesh',
+  'orbit-arvind-pj',
+  'orbit-kanchan',
+  'orbit-pranshu',
+  'orbit-barun',
+  'orbit-pimtron',
+  'orbit-karanjot',
+  'orbit-akshit',
+  'orbit-lakshita-arora',
+  'orbit-yash-malik',
+  'orbit-sanvi-sharma',
+  'orbit-soham-kukreti',
+  'orbit-yuvraj-rathi',
+  'orbit-satyam-rathi',
+  'orbit-siddhant',
+] as const;
+const orbitSlidesById = new Map(clubbookSections.orbit.slides.map((slide) => [slide.id, slide]));
+clubbookSections.orbit.slides = orbitSlidePriority.flatMap((id) => {
+  const slide = orbitSlidesById.get(id);
+  return slide ? [slide] : [];
+});
+
+const eventSlidePriority = [
+  'event-git-gud',
+  'event-how-to-code',
+  'event-gsoc-intro',
+  'event-codejam',
+  'event-installfest',
+  'event-openverse',
+  'event-weirdmageddon',
+] as const;
+const eventSlidesById = new Map(clubbookSections.events.slides.map((slide) => [slide.id, slide]));
+clubbookSections.events.slides = eventSlidePriority.flatMap((id) => {
+  const slide = eventSlidesById.get(id);
+  return slide ? [slide] : [];
+});
 
 export const pocketDeckSections: PocketSection[] = [
   {

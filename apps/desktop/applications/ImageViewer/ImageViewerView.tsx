@@ -2,7 +2,7 @@ import { FileSystemImage } from "@/apis/FileSystem/FileSystem";
 import { constructPath } from "@/apis/FileSystem/util";
 import { WindowProps } from "@/components/WindowManagement/WindowCompositor";
 import Image from 'next/image'
-import { useEffect, useState } from "react";
+import { type SyntheticEvent, useEffect, useState } from "react";
 import styles from './ImageViewerView.module.css';
 import { useTranslation } from "react-i18next";
 import { publicPath } from '@/util/publicPath';
@@ -20,6 +20,8 @@ function ErrorMessage(message: string) {
 export default function ImageViewerView(props: WindowProps) {
   const { application, args, windowContext } = props;
   const [image, setImage] = useState<FileSystemImage>();
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [dimensions, setDimensions] = useState<{ width: number, height: number } | null>(null);
 
   const { t } = useTranslation('common');
 
@@ -39,7 +41,10 @@ export default function ImageViewerView(props: WindowProps) {
 
   useEffect(() => {
     const imageNode = fs.getImage(path);
-    if (!imageNode.ok) { return; }
+    if (!imageNode.ok) {
+      setStatus('error');
+      return;
+    }
     const image = imageNode.value;
     
     const unsubscribe = fs.subscribe(image, (evt) => {
@@ -53,22 +58,37 @@ export default function ImageViewerView(props: WindowProps) {
   }, []);
 
   if (!path) { return ErrorMessage(t('image.no_image_to_load')); }
+  if (!image && status === 'error') { return ErrorMessage(t('image.no_image_to_load')); }
   if (!image) { return ErrorMessage(t('image.loading')); }
+
+  function handleImageLoad(event: SyntheticEvent<HTMLImageElement>) {
+    const loadedImage = event.currentTarget;
+    setDimensions({ width: loadedImage.naturalWidth, height: loadedImage.naturalHeight });
+    setStatus('ready');
+  }
 
   return (
     <div className={styles.container}>
-      <div className="content">
-        <div className={styles.image}>
+      <div className={styles.viewer}>
+        <div className={styles.toolbar}>
+          <span className={styles.filename}>{image.name}{image.filenameExtension}</span>
+          <span className={styles.imageMeta}>
+            {dimensions ? `${dimensions.width} × ${dimensions.height}` : 'Reading image…'} · Fit
+          </span>
+        </div>
+        <div className={styles.canvas}>
+          {status === 'loading' ? <span className={styles.status}>Loading image…</span> : null}
+          {status === 'error' ? <span className={styles.status}>This image could not be displayed.</span> : null}
           <Image
+            className={`${styles.image} ${status === 'ready' ? styles.imageReady : ''}`}
             draggable={false}
             src={publicPath(image.source)}
             fill
             quality={90}
-            style={{
-              objectFit: 'contain',
-            }}
-            sizes="400px, 800px, 1024px"
+            sizes="(max-width: 720px) 100vw, 75vw"
             alt={image.description}
+            onLoad={handleImageLoad}
+            onError={() => setStatus('error')}
           />
         </div>
       </div>

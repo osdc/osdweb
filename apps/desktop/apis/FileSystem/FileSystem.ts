@@ -30,7 +30,7 @@ import { moveConfig } from "@/programs/Move/Move";
 import { motdConfig } from "@/programs/MessageOfTheDay/MessageOfTheDay";
 import { helpConfig } from "@/programs/Help/Help";
 import { uwuConfig } from "@/programs/Uwufier/Uwufier";
-import { neofetchConfig } from "@/programs/Neofetch/Neofetch";
+import { fastfetchConfig, neofetchConfig } from "@/programs/Neofetch/Neofetch";
 
 export type DirectorySettings = {
   alwaysOpenAsIconView: boolean,
@@ -340,6 +340,7 @@ export function createBaseFileSystem(): FileSystem {
   fileSystem.addProgram(binaryDirectory, motdConfig);
   fileSystem.addProgram(binaryDirectory, helpConfig);
   fileSystem.addProgram(binaryDirectory, uwuConfig);
+  fileSystem.addProgram(binaryDirectory, fastfetchConfig);
   fileSystem.addProgram(binaryDirectory, neofetchConfig);
 
   return fileSystem;
