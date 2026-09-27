@@ -909,6 +909,21 @@ clubbookSections.orbit.slides = orbitSlidePriority.flatMap((id) => {
   return slide ? [slide] : [];
 });
 
+const eventSlidePriority = [
+  'event-how-to-code',
+  'event-gsoc-intro',
+  'event-codejam',
+  'event-installfest',
+  'event-openverse',
+  'event-weirdmageddon',
+  'event-osdhack',
+] as const;
+const eventSlidesById = new Map(clubbookSections.events.slides.map((slide) => [slide.id, slide]));
+clubbookSections.events.slides = eventSlidePriority.flatMap((id) => {
+  const slide = eventSlidesById.get(id);
+  return slide ? [slide] : [];
+});
+
 export const pocketDeckSections: PocketSection[] = [
   {
     id: 'about',
