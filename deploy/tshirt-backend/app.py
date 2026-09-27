@@ -22,7 +22,7 @@ def initialize_database():
 class Handler(BaseHTTPRequestHandler):
     server_version = "OSDCTshirtAPI/1.0"
 
-    def headers(self, status=200):
+    def send_json_headers(self, status=200):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -32,11 +32,11 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def reply(self, status, payload):
-        self.headers(status)
+        self.send_json_headers(status)
         self.wfile.write(json.dumps(payload).encode())
 
     def do_OPTIONS(self):
-        self.headers(204)
+        self.send_json_headers(204)
 
     def do_GET(self):
         if self.path.rstrip("/") in {"", "/health"}:
