@@ -8,7 +8,7 @@ const schema = z.object({
   phone: z.string().trim().min(8).max(20),
   size: z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL']),
   organization: z.string().trim().min(1).max(120),
-  design: z.literal('open-source-tees-design-1'),
+  design: z.enum(['open-source-tees-design-1', 'cosmic-expansion-design-2']),
   website: z.string().optional(),
 });
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
