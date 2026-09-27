@@ -182,6 +182,74 @@
     inset -2px -2px #a19686;
 }
 
+.projectList {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #6d6455;
+  background: #cfc5ae;
+  box-shadow: inset 1px 1px #fff5e8, inset -1px -1px #7b7265;
+}
+
+.projectRow {
+  display: grid;
+  grid-template-columns: 3rem minmax(12rem, 0.55fr) minmax(8rem, auto);
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.75rem;
+  border: 0;
+  border-bottom: 1px solid #8d8476;
+  outline: 0;
+  background: #f3ead8;
+  transition: background 120ms ease;
+}
+
+.projectRow:last-child { border-bottom: 0; }
+.projectRow:hover,
+.projectRow:focus,
+.projectRow:focus-within { background: #d9ebed; }
+
+.projectNumber {
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  border: 1px solid #6d6455;
+  background: #173d43;
+  color: #eaf5f4;
+  font: 700 0.75rem/1 monospace;
+}
+
+.projectSummary { min-width: 0; }
+.projectKicker { color: #184e59; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.projectSummary h2 { margin: 0.15rem 0 0; font: 700 1.05rem/1.15 'Century Schoolbook', sans-serif; }
+.projectHint { justify-self: end; color: #5b554b; font-size: 0.72rem; text-transform: uppercase; white-space: nowrap; }
+
+.projectDetails {
+  grid-column: 2 / -1;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 170ms ease, opacity 120ms ease;
+}
+
+.projectRow:hover .projectDetails,
+.projectRow:focus .projectDetails,
+.projectRow:focus-within .projectDetails { max-height: 9rem; opacity: 1; }
+.projectDetails p { margin: 0.25rem 0 0.6rem; max-width: 52rem; line-height: 1.4; }
+.projectLinks { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.projectLinks a { padding: 0.3rem 0.55rem; border: 1px solid #6d6455; background: #eee5d4; color: #173d43; font-size: 0.75rem; font-weight: 700; text-decoration: none; box-shadow: inset 1px 1px #fffaf1, inset -1px -1px #8d8476; }
+.projectLinks a:focus-visible { outline: 2px solid #173d43; outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .projectRow { grid-template-columns: 2.5rem minmax(0, 1fr); }
+  .projectHint { display: none; }
+  .projectDetails { grid-column: 2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projectRow,
+  .projectDetails { transition: none; }
+}
+
 .viewerStage,
 .viewerInfo,
 .metaCard,

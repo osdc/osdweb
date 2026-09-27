@@ -412,7 +412,19 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         id: 'project-jpoop', kicker: 'Member project', title: 'jpoop.in ecosystem',
         description: 'Open tools and services for JIIT students, shaped around the everyday friction of campus life.',
         imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the jpoop.in ecosystem', thumbLabel: 'jpoop.in', mediaKind: 'square', viewerFocus: 'balanced',
-        meta: [{ label: 'Builder', value: 'OSDC members' }, { label: 'Type', value: 'Student tools' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/codelif/jpoop.in' }],
+        meta: [{ label: 'Builder', value: 'OSDC members' }, { label: 'Type', value: 'Student tools' }], profileLinks: [{ label: 'Website', href: 'https://jpoop.in/' }, { label: 'GitHub', href: 'https://github.com/codelif/jpoop.in' }],
+      },
+      {
+        id: 'project-jplanner', kicker: 'jpoop.in ecosystem', title: 'JPlanner',
+        description: 'A timetable planner that turns cryptic JIIT schedules into something students can actually use.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for JPlanner', thumbLabel: 'JPlanner', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Ecosystem', value: 'jpoop.in' }, { label: 'Type', value: 'Timetable planner' }], profileLinks: [{ label: 'Open JPlanner', href: 'https://planner.jpoop.in/' }],
+      },
+      {
+        id: 'project-jportal', kicker: 'jpoop.in ecosystem', title: 'JPortal',
+        description: 'A progressive web app that gives JIIT students a cleaner way to view attendance, schedules, grades, and academic records.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for JPortal', thumbLabel: 'JPortal', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'codeblech' }, { label: 'Type', value: 'JIIT portal PWA' }], profileLinks: [{ label: 'Open JPortal', href: 'https://codeblech.github.io/jportal/' }, { label: 'GitHub', href: 'https://github.com/codeblech/jportal' }],
       },
       {
         id: 'project-magic-academy', kicker: 'Member project', title: 'OpenSourceMagicAcademy',

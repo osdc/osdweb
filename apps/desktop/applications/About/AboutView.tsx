@@ -210,6 +210,33 @@ function ThumbnailRail(props: ThumbnailRailProps) {
   );
 }
 
+function ProjectList({ projects }: { projects: ClubbookSlide[] }) {
+  return (
+    <div className={styles.projectList} aria-label="OSDC projects">
+      {projects.map((project, index) => (
+        <article className={styles.projectRow} key={project.id} tabIndex={0}>
+          <span className={styles.projectNumber}>{String(index + 1).padStart(2, '0')}</span>
+          <div className={styles.projectSummary}>
+            <span className={styles.projectKicker}>{project.kicker}</span>
+            <h2>{project.title}</h2>
+          </div>
+          <span className={styles.projectHint}>Hover for info</span>
+          <div className={styles.projectDetails}>
+            <p>{project.description}</p>
+            <div className={styles.projectLinks}>
+              {project.profileLinks?.map((link) => (
+                <a key={`${project.id}-${link.href}`} href={link.href} target="_blank" rel="noreferrer">
+                  {link.label} ↗
+                </a>
+              ))}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 export default function AboutApplicationView(props: WindowProps) {
   const { application } = props;
   const [sectionId, setSectionId] = useState<ClubbookSectionId>('club');
@@ -445,16 +472,21 @@ export default function AboutApplicationView(props: WindowProps) {
                 </div>
               </div>
 
-              <SlideViewer
-                slide={activeSlide}
-                slideIndex={slideIndex}
-                slideCount={slides.length}
-                onPrev={goToPreviousSlide}
-                onNext={goToNextSlide}
-                onExpand={openLightbox}
-              />
-
-              <ThumbnailRail activeIndex={slideIndex} slides={slides} onSelect={setSlideIndex} />
+              {sectionId === 'projects' ? (
+                <ProjectList projects={slides} />
+              ) : (
+                <>
+                  <SlideViewer
+                    slide={activeSlide}
+                    slideIndex={slideIndex}
+                    slideCount={slides.length}
+                    onPrev={goToPreviousSlide}
+                    onNext={goToNextSlide}
+                    onExpand={openLightbox}
+                  />
+                  <ThumbnailRail activeIndex={slideIndex} slides={slides} onSelect={setSlideIndex} />
+                </>
+              )}
 
               <p className={styles.footerNote}>{section.footer}</p>
             </div>
