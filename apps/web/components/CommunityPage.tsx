@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import styles from './CommunityPage.module.css';
 
 const events = [
+  { title: 'Git Gud — Git & GitHub Workshop', date: '17 Sep 2026', place: 'JIIT, CL2', url: 'https://github.com/osdc' },
   { title: 'HOW_TO_CODE?', date: '18 Aug 2026', place: 'JIIT, Sector 62', url: 'https://fossunited.org/c/jiit/how-to-code' },
   { title: 'Intro to GSoC & other Open Source Contribution Programs', date: '27 Jan 2026', place: 'JIIT, Sector 62', url: 'https://fossunited.org/c/jiit/intro-to-gsoc' },
   { title: 'CodeJam v6', date: '26–30 Dec 2025', place: 'Online', url: 'https://fossunited.org/c/jiit/codejam-v6' },

@@ -2,7 +2,7 @@ import Head from "next/head";
 import { SceneLoader } from "../components";
 import { useEffect, useState } from "react";
 import { NoScriptWarning } from "@/components/noscript/NoScript";
-import CommunityPage from "@/components/CommunityPage";
+import { PhoneClubbook } from "@/components/renderer/PhoneClubbook";
 import { Analytics } from "@vercel/analytics/react"
 
 const MobileBreakpointQuery = "(max-width: 700px)";
@@ -10,6 +10,7 @@ const MobileBreakpointQuery = "(max-width: 700px)";
 export default function Web() {
   const [hasMounted, setHasMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [force3D, setForce3D] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
@@ -60,8 +61,8 @@ export default function Web() {
       <NoScriptWarning />
       {!hasMounted ? (
         <></>
-      ) : isMobile ? (
-        <CommunityPage />
+      ) : isMobile && !force3D ? (
+        <PhoneClubbook mode="embedded" onEnterDesk={() => setForce3D(true)} />
       ) : (
         <SceneLoader />
       )}

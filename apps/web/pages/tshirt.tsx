@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { FormEvent, useEffect, useState } from 'react';
-import styles from '../components/CommunityPage.module.css';
 import formStyles from '../components/TshirtForm.module.css';
 
 const sizes = [
@@ -38,20 +37,20 @@ export default function TshirtPage() {
       setState('error');
     }
   }
-  return <div className={styles.page}>
+  return <div className={formStyles.retroPage}>
     <Head><title>Register for an OSDC T-shirt</title><meta name="description" content="Register your size and contact details for an OSDC T-shirt." /></Head>
-    <header className={styles.header}><Link href="/" className={styles.brand}>OSDC<span className={styles.brandMark}>✳</span></Link><nav><Link href="/">Back to home ↗</Link></nav></header>
-    <main className={formStyles.main}><p className={styles.eyebrow}>OSDC / T-shirt registration</p><h1>Wear the<br /><em>community.</em></h1><p className={formStyles.intro}>Choose a design and size. We’ll follow up with availability and pickup details.</p>
+    <header className={formStyles.header}><Link href="/" className={formStyles.brand}>OSDC<span className={formStyles.brandMark}>✳</span></Link><nav><Link href="/">Back to Clubbook ↗</Link></nav></header>
+    <main className={formStyles.main}><p className={formStyles.eyebrow}>/Pocket/OSDC/T-shirts</p><h1>Wear the<br /><em>community.</em></h1><p className={formStyles.intro}>Choose a design and size. We’ll follow up with availability and pickup details.</p>
       <section className={`${formStyles.design} ${design === 'open-source-tees-design-1' ? formStyles.selectedDesign : ''}`} aria-labelledby="design-title">
         <div className={formStyles.artworkLink}><img src="/images/tshirts/open-source-tees-poster.png" alt="Design 1 poster showing the beige OSDC T-shirt with open source city artwork and ₹699 price" width="1254" height="1254" /></div>
-        <div className={formStyles.designDetails}><span className={styles.eyebrow}>Design 01</span><h2 id="design-title">The Open Source Tees</h2><p>Hand-drawn open source city on a beige, oversized T-shirt.</p><strong>₹699</strong><a className={formStyles.previewLink} href="/images/tshirts/open-source-tees-artwork.png" target="_blank" rel="noreferrer">See the artwork up close ↗</a><button className={formStyles.chooseDesign} type="button" aria-pressed={design === 'open-source-tees-design-1'} onClick={() => setDesign('open-source-tees-design-1')}>{design === 'open-source-tees-design-1' ? 'Selected ✓' : 'Choose Design 1'}</button></div>
+        <div className={formStyles.designDetails}><span className={formStyles.eyebrow}>Design 01</span><h2 id="design-title">The Open Source Tees</h2><p>Hand-drawn open source city on a beige, oversized T-shirt.</p><strong>₹699</strong><a className={formStyles.previewLink} href="/images/tshirts/open-source-tees-artwork.png" target="_blank" rel="noreferrer">See the artwork up close ↗</a><button className={formStyles.chooseDesign} type="button" aria-pressed={design === 'open-source-tees-design-1'} onClick={() => setDesign('open-source-tees-design-1')}>{design === 'open-source-tees-design-1' ? 'Selected ✓' : 'Choose Design 1'}</button></div>
       </section>
       <section className={`${formStyles.design} ${design === 'cosmic-expansion-design-2' ? formStyles.selectedDesign : ''}`} aria-labelledby="design-two-title">
         <div className={`${formStyles.artworkLink} ${formStyles.darkArtwork}`}><img src="/images/tshirts/osdc-cosmic-expansion-design-2.png" alt="Design 2 black OSDC T-shirt with white cosmic expansion and open-source artwork" width="960" height="1280" /></div>
-        <div className={formStyles.designDetails}><span className={styles.eyebrow}>Design 02</span><h2 id="design-two-title">Cosmic Expansion</h2><p>Black OSDC T-shirt with a white illustrated timeline from the Big Bang to open source.</p><strong>₹699</strong><button className={formStyles.chooseDesign} type="button" aria-pressed={design === 'cosmic-expansion-design-2'} onClick={() => setDesign('cosmic-expansion-design-2')}>{design === 'cosmic-expansion-design-2' ? 'Selected ✓' : 'Choose Design 2'}</button></div>
+        <div className={formStyles.designDetails}><span className={formStyles.eyebrow}>Design 02</span><h2 id="design-two-title">Cosmic Expansion</h2><p>Black OSDC T-shirt with a white illustrated timeline from the Big Bang to open source.</p><strong>₹699</strong><button className={formStyles.chooseDesign} type="button" aria-pressed={design === 'cosmic-expansion-design-2'} onClick={() => setDesign('cosmic-expansion-design-2')}>{design === 'cosmic-expansion-design-2' ? 'Selected ✓' : 'Choose Design 2'}</button></div>
       </section>
       <section className={formStyles.sizeGuide} aria-labelledby="size-title">
-        <div className={formStyles.sizeHeading}><div><p className={styles.eyebrow}>Design 1 · oversized fit</p><h2 id="size-title">Find your size</h2></div><a href="/images/tshirts/open-source-tees-size-chart.jpg" target="_blank" rel="noreferrer">Open size chart ↗</a></div>
+        <div className={formStyles.sizeHeading}><div><p className={formStyles.eyebrow}>Design 1 · oversized fit</p><h2 id="size-title">Find your size</h2></div><a href="/images/tshirts/open-source-tees-size-chart.jpg" target="_blank" rel="noreferrer">Open size chart ↗</a></div>
         <div className={formStyles.sizeContent}><a className={formStyles.chartImage} href="/images/tshirts/open-source-tees-size-chart.jpg" target="_blank" rel="noreferrer" aria-label="Open the original size chart full size"><img src="/images/tshirts/open-source-tees-size-chart.jpg" alt="Design 1 oversized fit size chart showing chest, length and shoulder measurements" width="957" height="1280" /></a><div className={formStyles.tableScroll}><table><caption>Design 1 measurements in inches</caption><thead><tr><th scope="col">Size</th>{sizes.map(size => <th scope="col" key={size.label}>{size.label}</th>)}</tr></thead><tbody><tr><th scope="row">Chest</th>{sizes.map(size => <td key={size.label}>{size.chest}</td>)}</tr><tr><th scope="row">Length</th>{sizes.map(size => <td key={size.label}>{size.length}</td>)}</tr><tr><th scope="row">Shoulder</th>{sizes.map(size => <td key={size.label}>{size.shoulder}</td>)}</tr></tbody></table><p className={formStyles.sizeNote}>Design 2 measurements are not available yet. Choose your usual size and we’ll confirm the fit before finalizing.</p></div></div>
       </section>
       {state === 'success' ? <div className={formStyles.result} role="status"><h2>Registration sent.</h2><p>We’ve received your T-shirt request. Watch your email for the next steps.</p><button type="button" onClick={() => setState('idle')}>Register another person</button></div> :
@@ -64,8 +63,8 @@ export default function TshirtPage() {
         <label className={formStyles.full}>College / organization<input name="organization" type="text" maxLength={120} required /></label>
         <label className={formStyles.honeypot} aria-hidden="true">Leave this empty<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label>
         {state === 'error' && <p className={formStyles.error} role="alert">{message}</p>}
-        <button className={`${styles.primary} ${formStyles.submit}`} disabled={state === 'sending'} type="submit">{state === 'sending' ? 'Sending…' : 'Register for a T-shirt ↗'}</button>
+        <button className={formStyles.submit} disabled={state === 'sending'} type="submit">{state === 'sending' ? 'Sending…' : 'Register for a T-shirt ↗'}</button>
       </form>}
-    </main><footer className={styles.footer}><span>OSDC · JIIT, Noida</span><Link href="/">Back to home</Link></footer>
+    </main><footer className={formStyles.footer}><span>OSDC · JIIT, Noida</span><Link href="/">Back to Clubbook</Link></footer>
   </div>;
 }

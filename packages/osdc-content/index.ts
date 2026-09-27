@@ -1,6 +1,6 @@
 export { osdcFastfetchLogo } from './fastfetch';
 
-export type ClubbookSectionId = 'club' | 'community' | 'events' | 'team' | 'orbit';
+export type ClubbookSectionId = 'club' | 'community' | 'events' | 'projects' | 'team' | 'orbit';
 export type PocketSectionId = 'about' | 'events' | 'coordinators' | 'alumni';
 export type MediaKind = 'poster' | 'banner' | 'photo' | 'portrait' | 'square' | 'auto';
 export type ViewerFocus = 'image' | 'balanced' | 'content';
@@ -253,8 +253,8 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         kicker: 'Workshop',
         title: 'HOW_TO_CODE?',
         description: 'A hands-on introduction to coding and why it matters, held at JIIT on 18 August 2026.',
-        imageSrc: '/images/osdc-clubbook/club/banner.jpeg',
-        imageAlt: 'OSDC club banner',
+        imageSrc: '/images/osdc-clubbook/events/how-to-code.png',
+        imageAlt: 'How to Code event poster',
         thumbLabel: 'HOW_TO_CODE?',
         mediaKind: 'banner',
         meta: [
@@ -269,8 +269,8 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         kicker: 'Open source programs',
         title: 'Intro to GSoC & other contribution programs',
         description: 'A practical introduction to Google Summer of Code and other open source contribution programs, held on 27 January 2026.',
-        imageSrc: '/images/osdc-clubbook/club/banner.jpeg',
-        imageAlt: 'OSDC club banner',
+        imageSrc: '/images/osdc-clubbook/events/gsoc-talks.png',
+        imageAlt: 'Google Summer of Code Talks event poster',
         thumbLabel: 'GSoC intro',
         mediaKind: 'banner',
         meta: [
@@ -282,21 +282,21 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
       },
       {
         id: 'event-osdhack',
-        kicker: 'Flagship event',
-        title: "OSDHACK '26",
+        kicker: 'Git and GitHub workshop',
+        title: 'Git Gud',
         description:
-          'Our July 2026 hackathon focused on on-device AI: local, private, and practical projects built over five days.',
-        imageSrc: '/images/osdc-clubbook/events/osdhack-25.jpg',
-        imageAlt: "OSDHACK '26 banner",
-        thumbLabel: "OSDHACK '26",
-        mediaKind: 'banner',
-        preferredAspectRatio: 1.82,
+          'A hands-on Git and GitHub workshop with a meme-making collaboration, built for first contributions and shared learning.',
+        imageSrc: '/images/osdc-clubbook/events/git-gud.png',
+        imageAlt: 'Git Gud workshop poster',
+        thumbLabel: 'Git Gud',
+        mediaKind: 'poster',
+        preferredAspectRatio: 0.66,
         viewerFocus: 'image',
         mediaFit: 'contain',
         meta: [
-          { label: 'Date', value: 'July 10-14, 2026' },
-          { label: 'Theme', value: 'On Device AI' },
-          { label: 'Why it matters', value: 'Five straight days of building, side quests, and full-club energy' },
+          { label: 'Date', value: '17 September' },
+          { label: 'Place', value: 'CL2, JIIT' },
+          { label: 'Format', value: 'Git, GitHub, memes, and first contributions' },
         ],
       },
       {
@@ -372,6 +372,65 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
           { label: 'Format', value: 'Creative themed event' },
           { label: 'Club value', value: 'Playful does not mean shallow' },
         ],
+      },
+    ],
+  },
+  projects: {
+    id: 'projects',
+    label: 'Projects',
+    fileHint: '/Users/osdc/Desktop/OSDC.app --projects',
+    title: 'Build board',
+    intro:
+      'Projects are the clearest record of what the community does with its time: useful tools, playful experiments, and repositories that give the next contributor somewhere to start.',
+    footer: 'Pick a repo, read the README, and make the next commit useful.',
+    slides: [
+      {
+        id: 'project-taburei', kicker: 'OSDC project', title: 'TabuRei',
+        description: 'A cross browser extension for managing tabs and keeping browser workspaces under control.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the TabuRei project', thumbLabel: 'TabuRei', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Maintainer', value: 'OSDC' }, { label: 'Type', value: 'Browser extension' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/osdc/TabuRei' }],
+      },
+      {
+        id: 'project-mercurius', kicker: 'OSDC project', title: 'Mercurius',
+        description: 'The community newsletter initiative: a place to collect updates, writing, and useful things from the club.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the Mercurius project', thumbLabel: 'Mercurius', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Maintainer', value: 'OSDC' }, { label: 'Type', value: 'Community newsletter' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/osdc/Mercurius' }],
+      },
+      {
+        id: 'project-bots', kicker: 'OSDC project', title: 'Bots',
+        description: 'Bots for OSDC community channels and the small pieces of automation that keep community work moving.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the Bots project', thumbLabel: 'Bots', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Maintainer', value: 'OSDC' }, { label: 'Type', value: 'Community automation' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/osdc/bots' }],
+      },
+      {
+        id: 'project-pawbar', kicker: 'Member project', title: 'pawbar',
+        description: 'A configurable desktop panel built with kitty and Go, made for a personal Linux workflow.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the pawbar project', thumbLabel: 'pawbar', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'codelif' }, { label: 'Type', value: 'Linux desktop panel' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/codelif/pawbar' }],
+      },
+      {
+        id: 'project-jpoop', kicker: 'Member project', title: 'jpoop.in ecosystem',
+        description: 'Open tools and services for JIIT students, shaped around the everyday friction of campus life.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the jpoop.in ecosystem', thumbLabel: 'jpoop.in', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'OSDC members' }, { label: 'Type', value: 'Student tools' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/codelif/jpoop.in' }],
+      },
+      {
+        id: 'project-magic-academy', kicker: 'Member project', title: 'OpenSourceMagicAcademy',
+        description: 'A community Unity project that turns open-source ideas into a playful world to explore and build on.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for OpenSourceMagicAcademy', thumbLabel: 'Magic Academy', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'kartinul' }, { label: 'Type', value: 'Unity project' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/kartinul/OpenSourceMagicAcademy' }],
+      },
+      {
+        id: 'project-jiit-marks', kicker: 'Member project', title: 'jiit-marks',
+        description: 'A utility for extracting marks from JIIT web portal report PDFs.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the jiit-marks project', thumbLabel: 'jiit-marks', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'codelif' }, { label: 'Type', value: 'Student utility' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/codelif/jiit-marks' }],
+      },
+      {
+        id: 'project-osdc-wa', kicker: 'Member project', title: 'OSdc-wa',
+        description: 'A bridge between the OSDC Discord and WhatsApp communities, helping conversations travel with the people.',
+        imageSrc: '/images/osdc-clubbook/club/logo.jpg', imageAlt: 'OSDC logo for the OSdc-wa project', thumbLabel: 'OSdc-wa', mediaKind: 'square', viewerFocus: 'balanced',
+        meta: [{ label: 'Builder', value: 'Karvy Singh' }, { label: 'Type', value: 'Community bridge' }], profileLinks: [{ label: 'GitHub', href: 'https://github.com/Karvy-Singh/OSdc-wa' }],
       },
     ],
   },
@@ -821,9 +880,34 @@ export const clubbookSectionOrder: ClubbookSectionId[] = [
   'club',
   'community',
   'events',
+  'projects',
   'team',
   'orbit',
 ];
+
+const orbitSlidePriority = [
+  'orbit-vaidik',
+  'orbit-ankesh',
+  'orbit-arvind-pj',
+  'orbit-kanchan',
+  'orbit-pranshu',
+  'orbit-barun',
+  'orbit-pimtron',
+  'orbit-karanjot',
+  'orbit-akshit',
+  'orbit-lakshita-arora',
+  'orbit-yash-malik',
+  'orbit-sanvi-sharma',
+  'orbit-soham-kukreti',
+  'orbit-yuvraj-rathi',
+  'orbit-satyam-rathi',
+  'orbit-siddhant',
+] as const;
+const orbitSlidesById = new Map(clubbookSections.orbit.slides.map((slide) => [slide.id, slide]));
+clubbookSections.orbit.slides = orbitSlidePriority.flatMap((id) => {
+  const slide = orbitSlidesById.get(id);
+  return slide ? [slide] : [];
+});
 
 export const pocketDeckSections: PocketSection[] = [
   {
