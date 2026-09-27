@@ -1,70 +1,81 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { FormEvent, useEffect, useState } from 'react';
-import formStyles from '../components/TshirtForm.module.css';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import styles from '../components/TshirtForm.module.css';
 
+type Design = 'open-source-tees-design-1' | 'cosmic-expansion-design-2';
 const sizes = [
-  { label: 'XS', chest: 40, length: 27, shoulder: 18.5 },
-  { label: 'S', chest: 42, length: 27.5, shoulder: 19.5 },
-  { label: 'M', chest: 44, length: 27.5, shoulder: 20.5 },
-  { label: 'L', chest: 46, length: 28.5, shoulder: 21.5 },
-  { label: 'XL', chest: 48, length: 28.5, shoulder: 22.5 },
-  { label: 'XXL', chest: 50, length: 29.5, shoulder: 23.5 },
+  { label: 'XS', chest: 40 }, { label: 'S', chest: 42 }, { label: 'M', chest: 44 },
+  { label: 'L', chest: 46 }, { label: 'XL', chest: 48 }, { label: 'XXL', chest: 50 },
+];
+const designs = [
+  { id: 'open-source-tees-design-1' as const, number: '01', title: 'The Open Source Tees', image: '/images/tshirts/open-source-tees-poster.png', alt: 'Beige OSDC T-shirt with hand-drawn open source city artwork', description: 'Hand-drawn open source city on a beige oversized T-shirt.' },
+  { id: 'cosmic-expansion-design-2' as const, number: '02', title: 'Cosmic Expansion', image: '/images/tshirts/osdc-cosmic-expansion-design-2.png', alt: 'Black OSDC T-shirt with white cosmic expansion artwork', description: 'Black OSDC T-shirt with an illustrated timeline from the Big Bang to open source.' },
 ];
 
 export default function TshirtPage() {
-  const [design, setDesign] = useState<'open-source-tees-design-1' | 'cosmic-expansion-design-2'>('open-source-tees-design-1');
+  const [design, setDesign] = useState<Design>('open-source-tees-design-1');
+  const [openModal, setOpenModal] = useState<Design | null>(null);
   const [state, setState] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const formRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    document.documentElement.classList.add('osdc-scroll-page');
-    document.body.classList.add('osdc-scroll-page');
+    document.documentElement.classList.add('osdc-scroll-page'); document.body.classList.add('osdc-scroll-page');
     return () => { document.documentElement.classList.remove('osdc-scroll-page'); document.body.classList.remove('osdc-scroll-page'); };
   }, []);
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setState('sending');
-    setMessage('');
-    const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form));
-    try {
-      const response = await fetch('/api/tshirt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-      if (!response.ok) throw new Error('Registration could not be sent. Please try again later.');
-      form.reset();
-      setState('success');
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Registration could not be sent.');
-      setState('error');
-    }
+  useEffect(() => {
+    if (!openModal) return;
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpenModal(null); };
+    document.addEventListener('keydown', close); return () => document.removeEventListener('keydown', close);
+  }, [openModal]);
+  function choose(next: Design) {
+    setDesign(next); setOpenModal(null);
+    window.setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
   }
-  return <div className={formStyles.retroPage}>
-    <Head><title>Register for an OSDC T-shirt</title><meta name="description" content="Register your size and contact details for an OSDC T-shirt." /></Head>
-    <header className={formStyles.header}><Link href="/" className={formStyles.brand}>OSDC<span className={formStyles.brandMark}>✳</span></Link><nav><Link href="/">Back to Clubbook ↗</Link></nav></header>
-    <main className={formStyles.main}><p className={formStyles.eyebrow}>/Pocket/OSDC/T-shirts</p><h1>Wear the<br /><em>community.</em></h1><p className={formStyles.intro}>Choose a design and size. We’ll follow up with availability and pickup details.</p>
-      <section className={`${formStyles.design} ${design === 'open-source-tees-design-1' ? formStyles.selectedDesign : ''}`} aria-labelledby="design-title">
-        <div className={formStyles.artworkLink}><img src="/images/tshirts/open-source-tees-poster.png" alt="Design 1 poster showing the beige OSDC T-shirt with open source city artwork and ₹699 price" width="1254" height="1254" /></div>
-        <div className={formStyles.designDetails}><span className={formStyles.eyebrow}>Design 01</span><h2 id="design-title">The Open Source Tees</h2><p>Hand-drawn open source city on a beige, oversized T-shirt.</p><strong>₹699</strong><a className={formStyles.previewLink} href="/images/tshirts/open-source-tees-artwork.png" target="_blank" rel="noreferrer">See the artwork up close ↗</a><button className={formStyles.chooseDesign} type="button" aria-pressed={design === 'open-source-tees-design-1'} onClick={() => setDesign('open-source-tees-design-1')}>{design === 'open-source-tees-design-1' ? 'Selected ✓' : 'Choose Design 1'}</button></div>
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setState('sending'); setMessage(''); const form = event.currentTarget;
+    try {
+      const response = await fetch('/api/tshirt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(form))) });
+      if (!response.ok) throw new Error('Registration could not be sent. Please try again later.');
+      form.reset(); setState('success');
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'Registration could not be sent.'); setState('error'); }
+  }
+  const modal = designs.find((item) => item.id === openModal);
+  return <div className={styles.retroPage}>
+    <Head><title>Register for an OSDC T-shirt</title><meta name="description" content="Choose an OSDC T-shirt design and register your size." /></Head>
+    <header className={styles.header}><Link href="/" className={styles.brand}>OSDC<span> ✳</span></Link><Link href="/">Back to Clubbook ↗</Link></header>
+    <main className={styles.main}>
+      <p className={styles.eyebrow}>/Pocket/OSDC/T-shirts</p><h1>Pick your<br /><em>uniform.</em></h1><p className={styles.intro}>Two designs. ₹699 each. Open one for details, choose it, then register below.</p>
+      <section className={styles.designGrid} aria-label="T-shirt designs">
+        {designs.map((item) => <button type="button" className={`${styles.designCard} ${design === item.id ? styles.selected : ''}`} key={item.id} onClick={() => setOpenModal(item.id)}>
+          <img src={item.image} alt={item.alt} /><span><small>DESIGN {item.number}</small><strong>{item.title}</strong><b>₹699 · {design === item.id ? 'SELECTED ✓' : 'VIEW DETAILS →'}</b></span>
+        </button>)}
       </section>
-      <section className={`${formStyles.design} ${design === 'cosmic-expansion-design-2' ? formStyles.selectedDesign : ''}`} aria-labelledby="design-two-title">
-        <div className={`${formStyles.artworkLink} ${formStyles.darkArtwork}`}><img src="/images/tshirts/osdc-cosmic-expansion-design-2.png" alt="Design 2 black OSDC T-shirt with white cosmic expansion and open-source artwork" width="960" height="1280" /></div>
-        <div className={formStyles.designDetails}><span className={formStyles.eyebrow}>Design 02</span><h2 id="design-two-title">Cosmic Expansion</h2><p>Black OSDC T-shirt with a white illustrated timeline from the Big Bang to open source.</p><strong>₹699</strong><button className={formStyles.chooseDesign} type="button" aria-pressed={design === 'cosmic-expansion-design-2'} onClick={() => setDesign('cosmic-expansion-design-2')}>{design === 'cosmic-expansion-design-2' ? 'Selected ✓' : 'Choose Design 2'}</button></div>
+      <section ref={formRef} className={styles.registration} aria-labelledby="registration-title">
+        <p className={styles.eyebrow}>Selected: {design === 'open-source-tees-design-1' ? 'Design 01' : 'Design 02'}</p><h2 id="registration-title">Registration</h2>
+        {state === 'success' ? <div className={styles.result} role="status"><h2>Registration sent.</h2><p>We’ve received your request. Watch your email for next steps.</p><button type="button" onClick={() => setState('idle')}>Register another person</button></div> :
+        <form onSubmit={submit} className={styles.form}>
+          <input type="hidden" name="design" value={design} />
+          <label>Full name<input name="name" autoComplete="name" minLength={2} maxLength={100} required /></label>
+          <label>Phone number<input name="phone" type="tel" inputMode="tel" autoComplete="tel" minLength={8} maxLength={20} required /></label>
+          <label>Email address<input name="email" type="email" autoComplete="email" maxLength={200} required /></label>
+          <label>T-shirt size<select name="size" defaultValue="" required><option value="" disabled>Select a size</option>{sizes.map(({ label }) => <option key={label}>{label}</option>)}</select></label>
+          <label className={styles.full}>Address<textarea name="address" autoComplete="street-address" minLength={8} maxLength={300} rows={3} required /></label>
+          <label className={styles.honeypot} aria-hidden="true">Leave empty<input name="website" tabIndex={-1} autoComplete="off" /></label>
+          {state === 'error' && <p className={styles.error} role="alert">{message}</p>}
+          <button className={styles.submit} disabled={state === 'sending'} type="submit">{state === 'sending' ? 'Sending…' : 'Send registration →'}</button>
+        </form>}
       </section>
-      <section className={formStyles.sizeGuide} aria-labelledby="size-title">
-        <div className={formStyles.sizeHeading}><div><p className={formStyles.eyebrow}>Design 1 · oversized fit</p><h2 id="size-title">Find your size</h2></div><a href="/images/tshirts/open-source-tees-size-chart.jpg" target="_blank" rel="noreferrer">Open size chart ↗</a></div>
-        <div className={formStyles.sizeContent}><a className={formStyles.chartImage} href="/images/tshirts/open-source-tees-size-chart.jpg" target="_blank" rel="noreferrer" aria-label="Open the original size chart full size"><img src="/images/tshirts/open-source-tees-size-chart.jpg" alt="Design 1 oversized fit size chart showing chest, length and shoulder measurements" width="957" height="1280" /></a><div className={formStyles.tableScroll}><table><caption>Design 1 measurements in inches</caption><thead><tr><th scope="col">Size</th>{sizes.map(size => <th scope="col" key={size.label}>{size.label}</th>)}</tr></thead><tbody><tr><th scope="row">Chest</th>{sizes.map(size => <td key={size.label}>{size.chest}</td>)}</tr><tr><th scope="row">Length</th>{sizes.map(size => <td key={size.label}>{size.length}</td>)}</tr><tr><th scope="row">Shoulder</th>{sizes.map(size => <td key={size.label}>{size.shoulder}</td>)}</tr></tbody></table><p className={formStyles.sizeNote}>Design 2 measurements are not available yet. Choose your usual size and we’ll confirm the fit before finalizing.</p></div></div>
+    </main><footer className={styles.footer}><span>OSDC · JIIT, Noida</span><Link href="/">Back to Clubbook</Link></footer>
+    {modal && <div className={styles.backdrop} onMouseDown={(event) => { if (event.target === event.currentTarget) setOpenModal(null); }}>
+      <section className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div className={styles.titlebar}><strong>DESIGN_{modal.number}.APP</strong><button type="button" onClick={() => setOpenModal(null)} aria-label="Close">×</button></div>
+        <div className={styles.modalBody}><div className={styles.modalImage}><img src={modal.image} alt={modal.alt} /></div><div className={styles.modalDetails}>
+          <p className={styles.eyebrow}>Design {modal.number}</p><h2 id="modal-title">{modal.title}</h2><p>{modal.description}</p><strong className={styles.price}>₹699</strong>
+          {modal.id === 'open-source-tees-design-1' ? <><a href="/images/tshirts/open-source-tees-size-chart.jpg" target="_blank" rel="noreferrer">Open size chart ↗</a><div className={styles.sizeStrip}>{sizes.map((size) => <span key={size.label}><b>{size.label}</b>{size.chest}&quot; chest</span>)}</div></> : <p className={styles.fitNote}>Size chart pending. Pick your usual size and the team will confirm the fit.</p>}
+          <button className={styles.action} type="button" onClick={() => choose(modal.id)}>{design === modal.id ? 'Continue with this design' : 'Choose this design'}</button>
+        </div></div>
       </section>
-      {state === 'success' ? <div className={formStyles.result} role="status"><h2>Registration sent.</h2><p>We’ve received your T-shirt request. Watch your email for the next steps.</p><button type="button" onClick={() => setState('idle')}>Register another person</button></div> :
-      <form onSubmit={submit} className={formStyles.form}>
-        <input type="hidden" name="design" value={design} />
-        <label>Full name<input name="name" type="text" autoComplete="name" minLength={2} maxLength={100} required /></label>
-        <label>Email address<input name="email" type="email" autoComplete="email" maxLength={200} required /></label>
-        <label>Phone number<input name="phone" type="tel" autoComplete="tel" minLength={8} maxLength={20} required /></label>
-        <label>T-shirt size<select name="size" defaultValue="" required><option value="" disabled>Select a size</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></label>
-        <label className={formStyles.full}>College / organization<input name="organization" type="text" maxLength={120} required /></label>
-        <label className={formStyles.honeypot} aria-hidden="true">Leave this empty<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label>
-        {state === 'error' && <p className={formStyles.error} role="alert">{message}</p>}
-        <button className={formStyles.submit} disabled={state === 'sending'} type="submit">{state === 'sending' ? 'Sending…' : 'Register for a T-shirt ↗'}</button>
-      </form>}
-    </main><footer className={formStyles.footer}><span>OSDC · JIIT, Noida</span><Link href="/">Back to Clubbook</Link></footer>
+    </div>}
   </div>;
 }
