@@ -16,6 +16,7 @@ const projects = [
   { title: 'TabuRei', group: 'OSDC', description: 'A cross browser extension for managing tabs.', url: 'https://github.com/osdc/TabuRei' },
   { title: 'Mercurius', group: 'OSDC', description: 'The community newsletter initiative.', url: 'https://github.com/osdc/Mercurius' },
   { title: 'Bots', group: 'OSDC', description: 'Bots for OSDC community channels.', url: 'https://github.com/osdc/bots' },
+  { title: 'MoMmy', group: 'OSDC', description: 'Generate minutes of meeting from a Discord voice call.', url: 'https://github.com/osdc/mommy' },
   { title: 'pawbar', group: 'Member project', description: 'A configurable desktop panel built with kitty and Go.', url: 'https://github.com/codelif/pawbar' },
   { title: 'jpoop.in', group: 'Member project', description: 'A suite of student-built tools for navigating JIIT.', url: 'https://jpoop.in/' },
   { title: 'JPlanner', group: 'jpoop.in ecosystem', description: 'Turn JIIT timetables into a usable personal schedule.', url: 'https://planner.jpoop.in/' },
