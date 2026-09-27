@@ -1,1 +1,16 @@
-.bootScreen{position:fixed;inset:0;z-index:120;overflow:auto;background:#080c09;color:#d6e6d6;font:14px/1.6 'Courier New',monospace;padding:clamp(20px,4vw,56px);scrollbar-color:#527254 #080c09}.bootLog,.welcome{max-width:960px;margin:0}.bootLog p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.bootLogo{width:max-content;max-width:100%;overflow-x:auto;margin:0 0 22px;color:#72ce86;font:11px/1.03 monospace;scrollbar-color:#527254 #080c09}.bootTitle{font-weight:700;color:#a8dbaa;padding-bottom:16px}.bootLine{min-height:1.6em}.time{color:#72917a}.ok{color:#70cf86;font-weight:700}.wait{color:#a6ad91}.lineCursor,.bootCursor{color:#9ed5aa;animation:blink 1s steps(1) infinite}.bootError{margin-top:26px;color:#ffb2a7}.bootError button,.bootError a{display:inline-block;margin:12px 12px 0 0;padding:8px 12px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;text-decoration:none;cursor:pointer}.bootError button:focus-visible,.bootError a:focus-visible{outline:2px solid white;outline-offset:3px}.welcome{padding-top:clamp(0px,4vh,45px)}.welcomeLabel{color:#8fb49a;font-size:12px;text-transform:uppercase;letter-spacing:.16em}.welcome h1{font-size:clamp(2rem,5vw,4rem);line-height:1.05;letter-spacing:-.06em;margin:8px 0 28px;font-family:Arial,sans-serif}.fetchWindow{border:1px solid #35513b;background:#0d150f;padding:clamp(12px,2vw,24px);max-width:100%;overflow:auto;scrollbar-color:#527254 #0d150f}.fetchWindow pre{margin:0;color:#72ce86;font:12px/1.05 monospace;width:max-content;max-width:none}.fetchDetails{display:flex;flex-direction:column;gap:2px;margin-top:20px;color:#a9c1ac}.fetchDetails strong{color:#72ce86}.entering{color:#9bb7a1;margin-top:18px}@keyframes blink{50%{opacity:0}}@media(max-width:700px){.bootScreen{padding:20px;font-size:12px}.bootLogo{font-size:7px}.fetchWindow pre{font-size:8px}}@media(prefers-reduced-motion:reduce){.bootCursor,.lineCursor{animation:none}}
+.bootScreen{position:fixed;inset:0;z-index:120;overflow-y:auto;overflow-x:hidden;background:#080c09;color:#d6e6d6;font:14px/1.6 'Courier New',monospace;padding:clamp(20px,4vw,56px);scrollbar-color:#527254 #080c09}
+.bootLog{max-width:960px;margin:0}
+.bootLog p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.bootLogo{display:block;margin:0 0 22px;width:100%;overflow:hidden;color:#72ce86;font: min(11px, calc((100vw - 112px)/50))/1.03 monospace;white-space:pre;letter-spacing:0}
+.bootTitle{font-weight:700;color:#a8dbaa;padding-bottom:16px}
+.bootLine{min-height:1.6em}
+.time{color:#72917a}
+.ok{color:#70cf86;font-weight:700}
+.wait{color:#a6ad91}
+.lineCursor,.bootCursor{color:#9ed5aa;animation:blink 1s steps(1) infinite}
+.bootError{margin-top:26px;color:#ffb2a7}
+.bootError button,.bootError a{display:inline-block;margin:12px 12px 0 0;padding:8px 12px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;text-decoration:none;cursor:pointer}
+.bootError button:focus-visible,.bootError a:focus-visible{outline:2px solid white;outline-offset:3px}
+@keyframes blink{50%{opacity:0}}
+@media(max-width:700px){.bootScreen{padding:20px;font-size:12px}.bootLogo{font-size:min(10px,calc((100vw - 40px)/50))}}
+@media(prefers-reduced-motion:reduce){.bootCursor,.lineCursor{animation:none}}

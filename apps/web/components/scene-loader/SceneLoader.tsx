@@ -7,7 +7,7 @@ import { LightsLoader, NoopLoader, OfficeDisplayLoader, OfficeEnvironmentLoader,
 import { detectWebGL, isDebug } from './util';
 import styles from './SceneLoader.module.css';
 
-type BootPhase = 'boot' | 'welcome' | 'ready';
+type BootPhase = 'boot' | 'ready';
 
 const bootMessages = [
   'OSDC GNU/Community bootloader 1.0',
@@ -22,31 +22,22 @@ function BootLine({ message, index, elapsed }: { message: string; index: number;
   return <p className={styles.bootLine}><span className={styles.time}>[{(index * 0.33).toFixed(6).padStart(11)}]</span> {message.slice(0, characters)}{characters < message.length && <span className={styles.lineCursor}>▌</span>}</p>;
 }
 
-function BootScreen({ progress, elapsed, phase, error }: {
+function BootScreen({ progress, elapsed, error }: {
   progress: LoadingProgress | null;
   elapsed: number;
-  phase: BootPhase;
   error: string | null;
 }) {
   const resourceEntries = progress?.listAllEntries() ?? [];
   const showResources = elapsed >= 1400;
 
   return <div className={styles.bootScreen} role="status" aria-live="polite">
-    {phase === 'boot' ? <div className={styles.bootLog}>
+    <div className={styles.bootLog}>
       <pre className={styles.bootLogo} aria-label="OSDC logo">{osdcFastfetchLogo.join('\n')}</pre>
       <p className={styles.bootTitle}>osdc@community:~$ systemctl start osdc-desktop</p>
       {bootMessages.map((message, index) => <BootLine key={message} message={message} index={index} elapsed={elapsed} />)}
       {showResources && resourceEntries.map((entry) => <p className={styles.bootLine} key={entry.name}><span className={entry.processed ? styles.ok : styles.wait}>[{entry.processed ? '  OK  ' : '  ..  '}]</span> {entry.name.replace(/^Loading /, 'Started ').replace(/^Linked to /, 'Linked ')}</p>)}
       {error ? <div className={styles.bootError}><p>[FAILED] {error}</p><button type="button" onClick={() => window.location.reload()}>Retry boot</button> <a href="/community">Open the community page</a></div> : <p className={styles.bootCursor} aria-hidden="true">_</p>}
-    </div> : <div className={styles.welcome}>
-      <p className={styles.welcomeLabel}>Boot complete · session osdc</p>
-      <h1>Welcome to OSDC.</h1>
-      <div className={styles.fetchWindow}>
-        <pre aria-label="OSDC ASCII symbol">{osdcFastfetchLogo.join('\n')}</pre>
-        <div className={styles.fetchDetails}><strong>osdc@community</strong><span>Open Source Developers Community</span><span>JIIT · Noida</span><span>Build together. Share what you learn.</span></div>
-      </div>
-      <p className={styles.entering}>Entering desktop…</p>
-    </div>}
+    </div>
   </div>;
 }
 
@@ -106,15 +97,14 @@ export function SceneLoader() {
 
   useEffect(() => {
     if (!assetsReady) return;
-    const welcomeTimer = window.setTimeout(() => setPhase('welcome'), Math.max(0, 2700 - elapsed));
-    const readyTimer = window.setTimeout(() => setPhase('ready'), Math.max(0, 2700 - elapsed) + 1800);
-    return () => { window.clearTimeout(welcomeTimer); window.clearTimeout(readyTimer); };
+    const readyTimer = window.setTimeout(() => setPhase('ready'), Math.max(0, 2700 - elapsed));
+    return () => window.clearTimeout(readyTimer);
   }, [assetsReady]);
 
-  if (supportsWebGL === false) return <BootScreen progress={null} elapsed={elapsed} phase="boot" error="WebGL is unavailable. Use a browser with WebGL or open the community page." />;
+  if (supportsWebGL === false) return <BootScreen progress={null} elapsed={elapsed} error="WebGL is unavailable. Use a browser with WebGL or open the community page." />;
 
   return <>
-    {phase !== 'ready' && <BootScreen progress={loadingProgress} elapsed={elapsed} phase={phase} error={loadError} />}
+    {phase !== 'ready' && <BootScreen progress={loadingProgress} elapsed={elapsed} error={loadError} />}
     {supportsWebGL && <Renderer key={SceneAssetRevision} loading={phase !== 'ready'} showMessage={false} scenes={scenesRef.current} actions={sceneActions} />}
   </>;
 }
