@@ -35,7 +35,8 @@ export default function TshirtPage() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setState('sending'); setMessage(''); const form = event.currentTarget;
     try {
-      const response = await fetch('/api/tshirt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(form))) });
+      const endpoint = process.env.NEXT_PUBLIC_TSHIRT_API_URL || 'https://jha.jpoop.in/osdc-mailer/api/tshirt';
+      const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(form))) });
       if (!response.ok) throw new Error('Registration could not be sent. Please try again later.');
       form.reset(); setState('success');
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Registration could not be sent.'); setState('error'); }

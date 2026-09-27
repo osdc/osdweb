@@ -1,0 +1,16 @@
+[Unit]
+Description=OSDC T-shirt Registration API
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/osdc-mailer
+ExecStart=/usr/bin/python3 /home/ubuntu/osdc-mailer/app.py --host 127.0.0.1 --port 6990
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
