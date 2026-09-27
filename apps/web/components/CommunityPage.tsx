@@ -4,13 +4,13 @@ import { useEffect } from 'react';
 import styles from './CommunityPage.module.css';
 
 const events = [
+  { title: 'Git Gud — Git & GitHub Workshop', date: '17 Sep 2026', place: 'JIIT, CL2', url: 'https://github.com/osdc' },
   { title: 'HOW_TO_CODE?', date: '18 Aug 2026', place: 'JIIT, Sector 62', url: 'https://fossunited.org/c/jiit/how-to-code' },
   { title: 'Intro to GSoC & other Open Source Contribution Programs', date: '27 Jan 2026', place: 'JIIT, Sector 62', url: 'https://fossunited.org/c/jiit/intro-to-gsoc' },
   { title: 'CodeJam v6', date: '26–30 Dec 2025', place: 'Online', url: 'https://fossunited.org/c/jiit/codejam-v6' },
   { title: 'Linux Installfest', date: '4 Nov 2025', place: 'JIIT, Sector 62', url: 'https://fossunited.org/c/jiit' },
   { title: 'OpenVerse — Hack Night', date: '1–2 Nov 2025', place: 'Online', url: 'https://fossunited.org/c/jiit/openverse' },
   { title: 'Weirdmageddon', date: '23 Sep 2025', place: 'JIIT, Sector 62', url: 'https://fossunited.org/c/jiit' },
-  { title: 'Git Gud — Git & GitHub Workshop', date: '17 Sep', place: 'JIIT, CL2', url: 'https://github.com/osdc' },
 ];
 const projects = [
   { title: 'TabuRei', group: 'OSDC', description: 'A cross browser extension for managing tabs.', url: 'https://github.com/osdc/TabuRei' },

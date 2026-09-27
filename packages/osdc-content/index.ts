@@ -281,7 +281,7 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         profileLinks: [{ label: 'Event page', href: 'https://fossunited.org/c/jiit/intro-to-gsoc' }],
       },
       {
-        id: 'event-osdhack',
+        id: 'event-git-gud',
         kicker: 'Git and GitHub workshop',
         title: 'Git Gud',
         description:
@@ -294,7 +294,7 @@ export const clubbookSections: Record<ClubbookSectionId, ClubbookSection> = {
         viewerFocus: 'image',
         mediaFit: 'contain',
         meta: [
-          { label: 'Date', value: '17 September' },
+          { label: 'Date', value: '17 September 2026' },
           { label: 'Place', value: 'CL2, JIIT' },
           { label: 'Format', value: 'Git, GitHub, memes, and first contributions' },
         ],
@@ -910,13 +910,13 @@ clubbookSections.orbit.slides = orbitSlidePriority.flatMap((id) => {
 });
 
 const eventSlidePriority = [
+  'event-git-gud',
   'event-how-to-code',
   'event-gsoc-intro',
   'event-codejam',
   'event-installfest',
   'event-openverse',
   'event-weirdmageddon',
-  'event-osdhack',
 ] as const;
 const eventSlidesById = new Map(clubbookSections.events.slides.map((slide) => [slide.id, slide]));
 clubbookSections.events.slides = eventSlidePriority.flatMap((id) => {
