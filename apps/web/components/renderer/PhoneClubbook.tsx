@@ -540,6 +540,11 @@ export function PhoneClubbook(props: PhoneClubbookProps) {
               </div>
 
               <div className={sectionLeadClassName}>
+                <a className={styles.tshirtPromo} href="/tshirt">
+                  <span>NEW DROP</span>
+                  <strong>OSDC T-SHIRTS · ₹699</strong>
+                  <small>Pick a design →</small>
+                </a>
                 <p className={styles.sectionEyebrow}>{activeSection.title}</p>
                 <p className={styles.sectionIntro}>{activeSection.intro}</p>
                 {activeSectionId === 'events' ? (

@@ -420,6 +420,14 @@ export default function AboutApplicationView(props: WindowProps) {
             />
 
             <div data-subpage-content className={styles.subpageContent}>
+              <a className={styles.tshirtAlert} href="/tshirt" target="_top">
+                <span className={styles.tshirtAlertBadge}>NEW!</span>
+                <span className={styles.tshirtAlertCopy}>
+                  <strong>OSDC T-SHIRTS ARE LIVE</strong>
+                  <small>Two designs · ₹699 · click to register</small>
+                </span>
+                <span className={styles.tshirtAlertCta}>GET YOURS →</span>
+              </a>
               <div className={styles.sectionHeader}>
                 <div className={styles.sectionHeaderText}>
                   <p className={styles.sectionEyebrow}>{section.fileHint}</p>

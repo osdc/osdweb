@@ -4,9 +4,9 @@ import { MouseData, PointerCoordinates, TouchData } from "@/events/UserInteracti
 import { CameraController } from "../Camera";
 import { degToRad } from "three/src/math/MathUtils";
 import { calculateAspectRatio } from "../../util";
-import { DisplayName, DisplayParentName, PhoneInteractionZoneName, PhotoFrameInteractionZoneName } from "@/components/scene-loader/AssetLoaders";
+import { DisplayName, DisplayParentName, PhoneInteractionZoneName, PhotoFrameInteractionZoneName, TshirtInteractionZoneName } from "@/components/scene-loader/AssetLoaders";
 
-export type SceneInteractionTarget = 'display' | 'phone' | 'frame' | null;
+export type SceneInteractionTarget = 'display' | 'phone' | 'frame' | 'tshirt' | null;
 export const OpenPhoneOverlayUserDataKey = 'openPhoneOverlay';
 
 const PhoneInteractionProjectionNames = [PhoneInteractionZoneName];
@@ -39,6 +39,10 @@ export const getFrameInteractionZone = (scene: Scene): Object3D | null => {
 
 export const getFrameProjectionObject = (scene: Scene): Object3D | null => {
   return getFirstNamedObject(scene, FrameInteractionNames);
+}
+
+export const getTshirtInteractionZone = (scene: Scene): Object3D | null => {
+  return getFirstNamedObject(scene, [TshirtInteractionZoneName]);
 }
 
 export const constructGetInteractionTarget = (ctx: CameraHandlerContext): ((data: PointerCoordinates) => SceneInteractionTarget) => {
@@ -77,11 +81,19 @@ export const constructGetInteractionTarget = (ctx: CameraHandlerContext): ((data
 
       return frameIntersects[0] ?? null;
     })();
+    const tshirtInteractionZone = getTshirtInteractionZone(ctx.scene);
+    const firstTshirt = (() => {
+      if (!tshirtInteractionZone) { return null; }
+      sceneRaycaster.setFromCamera(point, camera);
+      const intersects = sceneRaycaster.intersectObject(tshirtInteractionZone, true);
+      return intersects[0] ?? null;
+    })();
 
     const nearestDistance = Math.min(
       firstDisplay?.distance ?? Number.POSITIVE_INFINITY,
       firstPhone?.distance ?? Number.POSITIVE_INFINITY,
-      firstFrame?.distance ?? Number.POSITIVE_INFINITY
+      firstFrame?.distance ?? Number.POSITIVE_INFINITY,
+      firstTshirt?.distance ?? Number.POSITIVE_INFINITY
     );
 
     if (firstFrame && firstFrame.distance === nearestDistance) {
@@ -90,6 +102,10 @@ export const constructGetInteractionTarget = (ctx: CameraHandlerContext): ((data
 
     if (firstPhone && firstPhone.distance === nearestDistance) {
       return 'phone';
+    }
+
+    if (firstTshirt && firstTshirt.distance === nearestDistance) {
+      return 'tshirt';
     }
 
     if (firstDisplay) {
@@ -114,6 +130,10 @@ export const constructIsOverPhone = (ctx: CameraHandlerContext): ((data: Pointer
 
 export function openPhotoFrameDestination(): void {
   window.location.assign('https://hack.osdc.dev');
+}
+
+export function openTshirtDestination(): void {
+  window.location.assign('/tshirt');
 }
 
 export function openPhoneOverlay(scene: Scene): boolean {

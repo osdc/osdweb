@@ -13,6 +13,7 @@ export const DisplayName = "Display";
 export const PhoneInteractionZoneName = "PhoneInteractionZone";
 export const PhoneOverlayFallbackUserDataKey = "phoneOverlayFallback";
 export const PhotoFrameInteractionZoneName = "PhotoFrameInteractionZone";
+export const TshirtInteractionZoneName = "TshirtInteractionZone";
 export const SceneAssetRevision = "2026-06-22-prolly-optimized-asset-1";
 const MonitorName = "Monitor";
 const ComputerName = "Computer";
@@ -1499,6 +1500,22 @@ export function OfficeEnvironmentLoader(): AssetLoader {
         debugProbeScene?.updateMatrixWorld(true);
         manualPortalAnimation?.(deltaTime);
       });
+    }
+
+    const tuxRoot = officeScene.getObjectByName('Sketchfab_model.004') ?? officeScene.getObjectByName('Tux-printable');
+    if (tuxRoot) {
+      const tuxBounds = new Box3().setFromObject(tuxRoot);
+      const tuxCenter = tuxBounds.getCenter(new Vector3());
+      const tuxSize = tuxBounds.getSize(new Vector3());
+      const tuxHotspot = new Mesh(
+        new BoxGeometry(Math.max(tuxSize.x * 1.15, 0.28), Math.max(tuxSize.y * 1.15, 0.28), Math.max(tuxSize.z * 1.15, 0.28)),
+        new MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+      );
+      tuxHotspot.name = TshirtInteractionZoneName;
+      tuxHotspot.position.copy(tuxCenter);
+      tuxHotspot.material.colorWrite = false;
+      tuxHotspot.userData[AssetKeys.CameraCollidable] = false;
+      context.scenes.sourceScene.add(tuxHotspot);
     }
 
     if (!usingSharedOfficeScene) {

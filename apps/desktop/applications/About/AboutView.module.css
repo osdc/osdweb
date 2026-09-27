@@ -82,6 +82,48 @@
   overflow: auto;
 }
 
+.tshirtAlert {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0.8rem;
+  border: 2px solid #241100;
+  color: #241100;
+  background: repeating-linear-gradient(135deg, #ffdf3d 0 12px, #ff9e18 12px 24px);
+  box-shadow: inset 1px 1px #fff3a8, inset -1px -1px #9b4b00, 3px 3px 0 #241100;
+  text-decoration: none;
+  animation: tshirtAlertFlash 900ms steps(2, end) infinite;
+}
+
+.tshirtAlertBadge {
+  padding: 0.35rem 0.45rem;
+  border: 2px solid #241100;
+  background: #e80035;
+  color: #fff;
+  font-weight: 900;
+  transform: rotate(-3deg);
+}
+
+.tshirtAlertCopy { display: flex; min-width: 0; flex-direction: column; gap: 0.15rem; }
+.tshirtAlertCopy strong { font-size: 1rem; letter-spacing: 0.06em; }
+.tshirtAlertCopy small { font-size: 0.78rem; }
+.tshirtAlertCta { padding: 0.4rem 0.55rem; border: 2px outset #f8f1df; background: #ece3d1; font-weight: 800; white-space: nowrap; }
+.tshirtAlert:focus-visible { outline: 3px solid #184e59; outline-offset: 3px; }
+
+@keyframes tshirtAlertFlash {
+  50% { filter: saturate(1.35) brightness(1.08); transform: translateY(-1px); }
+}
+
+@media (max-width: 760px) {
+  .tshirtAlert { grid-template-columns: auto minmax(0, 1fr); }
+  .tshirtAlertCta { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tshirtAlert { animation: none; }
+}
+
 .sectionHeader {
   display: flex;
   justify-content: space-between;
